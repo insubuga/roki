@@ -7,6 +7,9 @@ import Deliveries from './pages/Deliveries';
 import Subscription from './pages/Subscription';
 import Profile from './pages/Profile';
 import Wearables from './pages/Wearables';
+import Community from './pages/Community';
+import Feedback from './pages/Feedback';
+import VantaBot from './pages/VantaBot';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +23,9 @@ export const PAGES = {
     "Subscription": Subscription,
     "Profile": Profile,
     "Wearables": Wearables,
+    "Community": Community,
+    "Feedback": Feedback,
+    "VantaBot": VantaBot,
 }
 
 export const pagesConfig = {
