@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Bot, ArrowLeft, Send, Loader2 } from 'lucide-react';
+import { Bot, ArrowLeft, Send, Loader2, Activity, Heart, TrendingUp, Zap, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import MessageBubble from '../components/chat/MessageBubble';
 
@@ -14,7 +17,27 @@ export default function VantaBot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showInsights, setShowInsights] = useState(true);
   const messagesEndRef = useRef(null);
+
+  const { data: wearableData } = useQuery({
+    queryKey: ['wearableData', user?.email],
+    queryFn: async () => {
+      const data = await base44.entities.WearableData.filter({ user_email: user?.email }, '-created_date', 1);
+      return data[0];
+    },
+    enabled: !!user?.email,
+    refetchInterval: 30000,
+  });
+
+  const { data: subscription } = useQuery({
+    queryKey: ['subscription', user?.email],
+    queryFn: async () => {
+      const subs = await base44.entities.Subscription.filter({ user_email: user?.email });
+      return subs[0];
+    },
+    enabled: !!user?.email,
+  });
 
   useEffect(() => {
     const loadUser = async () => {
@@ -103,12 +126,100 @@ export default function VantaBot() {
     }
   };
 
-  const quickActions = [
-    "Check my locker code",
-    "What's my laundry status?",
-    "Reorder my last supplement",
-    "What should I take before legs?",
-  ];
+  // Generate smart quick actions based on wearable data
+  const getSmartQuickActions = () => {
+    if (!wearableData) {
+      return [
+        "Check my locker code",
+        "What's my laundry status?",
+        "Reorder my last supplement",
+        "What should I take before legs?",
+      ];
+    }
+
+    const actions = [];
+    
+    // High heart rate
+    if (wearableData.heart_rate > 85) {
+      actions.push("My heart rate is elevated, what should I do?");
+    }
+    
+    // High activity
+    if (wearableData.steps > 8000 || wearableData.active_minutes > 60) {
+      actions.push("I've been very active today, any nutrition tips?");
+    }
+    
+    // Low recovery
+    if (wearableData.recovery_score < 75) {
+      actions.push("My recovery score is low, what can help?");
+    }
+    
+    // Workout-specific
+    if (wearableData.workout_type) {
+      actions.push(`What supplements for ${wearableData.workout_type} day?`);
+    }
+    
+    // Add defaults if not enough smart suggestions
+    if (actions.length < 3) {
+      actions.push("Upgrade my subscription");
+      actions.push("Check my locker code");
+    }
+    
+    return actions.slice(0, 4);
+  };
+
+  const quickActions = getSmartQuickActions();
+
+  // Generate proactive insights
+  const getProactiveInsights = () => {
+    if (!wearableData) return [];
+    
+    const insights = [];
+    
+    if (wearableData.heart_rate > 90) {
+      insights.push({
+        type: 'warning',
+        icon: AlertCircle,
+        color: 'text-orange-500',
+        title: 'Elevated Heart Rate',
+        message: 'Your heart rate is high. Consider hydration (BCAAs or electrolytes).',
+      });
+    }
+    
+    if (wearableData.steps > 10000) {
+      insights.push({
+        type: 'success',
+        icon: TrendingUp,
+        color: 'text-green-500',
+        title: 'High Activity Day',
+        message: 'Great activity! You might need extra protein today.',
+      });
+    }
+    
+    if (wearableData.recovery_score < 70) {
+      insights.push({
+        type: 'info',
+        icon: Activity,
+        color: 'text-blue-500',
+        title: 'Low Recovery',
+        message: 'Consider recovery supplements and lighter training.',
+      });
+    }
+    
+    if (wearableData.hydration_level === 'low' || wearableData.hydration_level === 'moderate') {
+      insights.push({
+        type: 'warning',
+        icon: Zap,
+        color: 'text-cyan-500',
+        title: 'Hydration Alert',
+        message: 'Your hydration could be better. Grab some electrolytes!',
+      });
+    }
+    
+    return insights;
+  };
+
+  const proactiveInsights = getProactiveInsights();
 
   if (!user) {
     return (
@@ -138,6 +249,68 @@ export default function VantaBot() {
         </div>
       </div>
 
+      {/* Proactive Insights */}
+      {showInsights && proactiveInsights.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid md:grid-cols-2 gap-3 mb-4"
+        >
+          {proactiveInsights.map((insight, idx) => {
+            const Icon = insight.icon;
+            return (
+              <Card key={idx} className="bg-gradient-to-r from-[#1a2332] to-[#0d1320] border-gray-700">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className={`${insight.color} mt-1`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-white font-semibold text-sm">{insight.title}</p>
+                      <p className="text-gray-400 text-xs mt-1">{insight.message}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </motion.div>
+      )}
+
+      {/* Wearable Stats Summary */}
+      {wearableData && (
+        <Card className="bg-[#1a2332] border-gray-800 mb-4">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white font-semibold text-sm">Your Current Stats</h3>
+              <Badge className="bg-green-500/20 text-green-400 border-none text-xs">Live</Badge>
+            </div>
+            <div className="grid grid-cols-4 gap-3">
+              <div className="text-center">
+                <Heart className="w-4 h-4 text-red-500 mx-auto mb-1" />
+                <p className="text-white font-bold text-sm">{wearableData.heart_rate}</p>
+                <p className="text-gray-500 text-xs">BPM</p>
+              </div>
+              <div className="text-center">
+                <Activity className="w-4 h-4 text-blue-500 mx-auto mb-1" />
+                <p className="text-white font-bold text-sm">{wearableData.steps}</p>
+                <p className="text-gray-500 text-xs">Steps</p>
+              </div>
+              <div className="text-center">
+                <Zap className="w-4 h-4 text-amber-500 mx-auto mb-1" />
+                <p className="text-white font-bold text-sm">{wearableData.calories_burned}</p>
+                <p className="text-gray-500 text-xs">Cal</p>
+              </div>
+              <div className="text-center">
+                <TrendingUp className="w-4 h-4 text-[#7cfc00] mx-auto mb-1" />
+                <p className="text-white font-bold text-sm">{wearableData.recovery_score}</p>
+                <p className="text-gray-500 text-xs">Recovery</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Chat Container */}
       <div className="flex-1 bg-[#1a2332] rounded-xl border border-gray-800 flex flex-col overflow-hidden">
         {/* Messages */}
@@ -165,7 +338,9 @@ export default function VantaBot() {
         {/* Quick Actions */}
         {messages.length <= 2 && (
           <div className="p-4 border-t border-gray-800">
-            <p className="text-gray-500 text-xs mb-2">Quick actions:</p>
+            <p className="text-gray-500 text-xs mb-2">
+              {wearableData ? '💡 Smart suggestions based on your data:' : 'Quick actions:'}
+            </p>
             <div className="flex flex-wrap gap-2">
               {quickActions.map((action) => (
                 <button
