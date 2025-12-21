@@ -69,7 +69,7 @@ export default function RushMode() {
       });
     },
     onSuccess: () => {
-      toast.success('We've got it. Delivery in ~30 minutes.');
+      toast.success("We've got it. Delivery in ~30 minutes.");
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       setSelectedItem('');
       setSpecialInstructions('');

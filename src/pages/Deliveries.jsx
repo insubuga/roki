@@ -18,7 +18,7 @@ const statusColors = {
 
 const statusLabels = {
   pending: 'Pending',
-  confirmed: 'We've got it',
+  confirmed: "We've got it",
   in_transit: 'On the way',
   delivered: 'Handled',
 };
