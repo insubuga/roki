@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Zap, ArrowLeft, MapPin, Clock, AlertTriangle, Package } from 'lucide-react';
+import { Zap, ArrowLeft, MapPin, Clock, AlertTriangle, Package, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,6 +23,11 @@ export default function RushMode() {
       try {
         const userData = await base44.auth.me();
         setUser(userData);
+        
+        // Smart defaults: prefill location if available
+        if (userData.gym_location) {
+          setDeliveryLocation(userData.gym_location);
+        }
       } catch (e) {
         base44.auth.redirectToLogin();
       }
@@ -64,8 +69,10 @@ export default function RushMode() {
       });
     },
     onSuccess: () => {
-      toast.success('Rush order placed! Delivery in ~30 minutes');
+      toast.success('We've got it. Delivery in ~30 minutes.');
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      setSelectedItem('');
+      setSpecialInstructions('');
     },
   });
 
@@ -106,13 +113,31 @@ export default function RushMode() {
       </div>
 
       {/* Premium Rush Banner */}
-      <div className="bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-xl p-6 border border-orange-500/30 flex items-center gap-4">
-        <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
-          <Zap className="w-6 h-6 text-white" />
+      <div className="bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-xl p-6 border border-orange-500/30">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+            <Zap className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-white font-bold text-lg">Emergency Fulfillment</h2>
+            <p className="text-gray-300 text-sm">Select what you need. A courier will deliver to your gym within minutes.</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-white font-bold text-lg">Premium Rush Service</h2>
-          <p className="text-gray-300 text-sm">Emergency delivery to your location within 30 minutes. Perfect for pre-workout essentials!</p>
+        
+        {/* VantaBot Assistant */}
+        <div className="mt-4 bg-black/20 rounded-lg p-3 flex items-start gap-3 border border-orange-500/20">
+          <div className="w-8 h-8 bg-gradient-to-br from-[#7cfc00] to-teal-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Bot className="w-4 h-4 text-black" />
+          </div>
+          <div className="flex-1">
+            <p className="text-white text-sm font-semibold">Need help?</p>
+            <p className="text-gray-300 text-xs">VantaBot can handle Rush Mode for you via chat.</p>
+          </div>
+          <Link to={createPageUrl('VantaBot')}>
+            <Button size="sm" variant="outline" className="border-[#7cfc00] text-[#7cfc00] hover:bg-[#7cfc00] hover:text-black">
+              Chat
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -197,7 +222,7 @@ export default function RushMode() {
             disabled={!selectedItem || !deliveryLocation || createRushOrderMutation.isPending}
           >
             <Zap className="w-5 h-5 mr-2" />
-            Request Rush Delivery - $15.00
+            {createRushOrderMutation.isPending ? 'Handling...' : 'Confirm Rush - $15.00'}
           </Button>
         </div>
 
@@ -205,27 +230,27 @@ export default function RushMode() {
         <div className="space-y-6">
           {/* How it Works */}
           <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800">
-            <h3 className="text-white font-bold text-center mb-6">How Rush Mode Works</h3>
+            <h3 className="text-white font-bold text-center mb-6">How It Works</h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">1</div>
                 <div>
-                  <p className="text-white font-semibold">Select Item</p>
-                  <p className="text-gray-400 text-sm">Choose from recent orders or cart items</p>
+                  <p className="text-white font-semibold">Select</p>
+                  <p className="text-gray-400 text-sm">Pick your item</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-[#7cfc00] rounded-full flex items-center justify-center text-black font-bold flex-shrink-0">2</div>
                 <div>
-                  <p className="text-white font-semibold">Set Location</p>
-                  <p className="text-gray-400 text-sm">Provide precise delivery details</p>
+                  <p className="text-white font-semibold">Confirm</p>
+                  <p className="text-gray-400 text-sm">We've got it</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">3</div>
                 <div>
-                  <p className="text-white font-semibold">Fast Delivery</p>
-                  <p className="text-gray-400 text-sm">Receive within 30 minutes</p>
+                  <p className="text-white font-semibold">Delivered</p>
+                  <p className="text-gray-400 text-sm">~30 minutes</p>
                 </div>
               </div>
             </div>
@@ -254,13 +279,13 @@ export default function RushMode() {
           <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800">
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle className="w-5 h-5 text-amber-500" />
-              <h3 className="text-white font-bold">Important</h3>
+              <h3 className="text-white font-bold">Notes</h3>
             </div>
             <ul className="text-gray-400 text-sm space-y-2">
-              <li>• Rush delivery available 6 AM - 10 PM</li>
-              <li>• Limited to items currently in local stock</li>
-              <li>• Delivery window may extend during high demand</li>
-              <li>• Additional fees apply for remote locations</li>
+              <li>• Available 6 AM - 10 PM</li>
+              <li>• Local stock only</li>
+              <li>• High demand may extend window</li>
+              <li>• Remote locations may incur extra fees</li>
             </ul>
           </div>
         </div>

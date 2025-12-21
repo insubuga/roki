@@ -18,9 +18,9 @@ const statusColors = {
 
 const statusLabels = {
   pending: 'Pending',
-  confirmed: 'Confirmed',
-  in_transit: 'In Transit',
-  delivered: 'Delivered',
+  confirmed: 'We've got it',
+  in_transit: 'On the way',
+  delivered: 'Handled',
 };
 
 export default function Deliveries() {
