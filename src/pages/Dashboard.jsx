@@ -75,7 +75,7 @@ export default function Dashboard() {
           </div>
           <div>
             <h1 className="text-white text-xl font-bold">{user.full_name || 'User'}</h1>
-            <p className="text-gray-400 text-sm">Welcome back</p>
+            <p className="text-gray-400 text-sm">You're covered today</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -98,7 +98,7 @@ export default function Dashboard() {
 
       {/* Primary Actions */}
       <div>
-        <SectionHeader title="Primary Actions" subtitle="Quick access to core features" />
+        <SectionHeader title="Essentials" subtitle="Everything handled" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {primaryActions.map((action) => (
             <ActionCard key={action.title} {...action} />
@@ -108,7 +108,7 @@ export default function Dashboard() {
 
       {/* Daily Operations */}
       <div>
-        <SectionHeader title="Daily Operations" subtitle="Frequently used tools" />
+        <SectionHeader title="Operations" subtitle="Ready when you are" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {dailyOperations.map((action) => (
             <ActionCard key={action.title} {...action} />
@@ -118,7 +118,7 @@ export default function Dashboard() {
 
       {/* Account & Management */}
       <div>
-        <SectionHeader title="Account & Management" subtitle="Settings and preferences" />
+        <SectionHeader title="Your Account" subtitle="Preferences and settings" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {accountManagement.map((action) => (
             <ActionCard key={action.title} {...action} />
@@ -128,7 +128,7 @@ export default function Dashboard() {
 
       {/* Help & Community */}
       <div>
-        <SectionHeader title="Help & Community" subtitle="Support and connect with others" />
+        <SectionHeader title="Support" subtitle="We're here to help" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {helpCommunity.map((action) => (
             <ActionCard key={action.title} {...action} />

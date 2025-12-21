@@ -181,8 +181,8 @@ export default function VantaBot() {
         type: 'warning',
         icon: AlertCircle,
         color: 'text-orange-500',
-        title: 'Elevated Heart Rate',
-        message: 'Your heart rate is high. Consider hydration (BCAAs or electrolytes).',
+        title: 'Heart Rate Elevated',
+        message: 'Hydration recommended. Electrolytes available at shop.',
       });
     }
     
@@ -191,8 +191,8 @@ export default function VantaBot() {
         type: 'success',
         icon: TrendingUp,
         color: 'text-green-500',
-        title: 'High Activity Day',
-        message: 'Great activity! You might need extra protein today.',
+        title: 'High Activity Detected',
+        message: 'Extra protein may support recovery.',
       });
     }
     
@@ -201,18 +201,28 @@ export default function VantaBot() {
         type: 'info',
         icon: Activity,
         color: 'text-blue-500',
-        title: 'Low Recovery',
-        message: 'Consider recovery supplements and lighter training.',
+        title: 'Recovery Low',
+        message: 'Lighter training or recovery support recommended.',
       });
     }
     
-    if (wearableData.hydration_level === 'low' || wearableData.hydration_level === 'moderate') {
+    if (wearableData.hydration_level === 'low') {
       insights.push({
         type: 'warning',
         icon: Zap,
         color: 'text-cyan-500',
-        title: 'Hydration Alert',
-        message: 'Your hydration could be better. Grab some electrolytes!',
+        title: 'Hydration Low',
+        message: 'Electrolytes ready when you are.',
+      });
+    }
+
+    if (wearableData.sleep_hours && wearableData.sleep_hours < 6) {
+      insights.push({
+        type: 'info',
+        icon: Activity,
+        color: 'text-indigo-500',
+        title: 'Low Sleep Detected',
+        message: 'Recovery focus recommended. Magnesium available.',
       });
     }
     
@@ -339,7 +349,7 @@ export default function VantaBot() {
         {messages.length <= 2 && (
           <div className="p-4 border-t border-gray-800">
             <p className="text-gray-500 text-xs mb-2">
-              {wearableData ? '💡 Smart suggestions based on your data:' : 'Quick actions:'}
+              {wearableData ? 'Based on your current state:' : 'Common tasks:'}
             </p>
             <div className="flex flex-wrap gap-2">
               {quickActions.map((action) => (
