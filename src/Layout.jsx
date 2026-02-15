@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -9,7 +9,11 @@ import {
   User,
   ChevronDown,
   Menu,
-  X
+  X,
+  Home,
+  Store,
+  Bot,
+  Users
 } from 'lucide-react';
 import NotificationDropdown from './components/notifications/NotificationDropdown';
 import { Button } from '@/components/ui/button';
@@ -24,6 +28,7 @@ import { Badge } from '@/components/ui/badge';
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -60,10 +65,17 @@ export default function Layout({ children, currentPageName }) {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  const bottomNavItems = [
+    { name: 'Dashboard', page: 'Dashboard', icon: Home },
+    { name: 'Shop', page: 'Shop', icon: Store },
+    { name: 'VantaBot', page: 'VantaBot', icon: Bot },
+    { name: 'Community', page: 'Community', icon: Users },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#0a0f1a]">
+    <div className="min-h-screen bg-[#0a0f1a] overscroll-none">
       {/* Header */}
-      <header className="bg-[#0d1320] border-b border-gray-800 sticky top-0 z-50">
+      <header className="bg-[#0d1320] border-b border-gray-800 sticky top-0 z-50" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -165,10 +177,10 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden text-gray-300"
+                className="md:hidden text-gray-300 select-none"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {mobileMenuOpen ? <X className="w-6 h-6 select-none" /> : <Menu className="w-6 h-6 select-none" />}
               </Button>
             </div>
           </div>
@@ -194,9 +206,31 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6">
         {children}
       </main>
+
+      {/* Bottom Navigation - Mobile Only */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0d1320] border-t border-gray-800 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="grid grid-cols-4 h-16">
+          {bottomNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = currentPageName === item.page;
+            return (
+              <Link
+                key={item.page}
+                to={createPageUrl(item.page)}
+                className={`flex flex-col items-center justify-center gap-1 select-none ${
+                  isActive ? 'text-[#7cfc00]' : 'text-gray-400'
+                }`}
+              >
+                <Icon className={`w-5 h-5 select-none ${isActive ? 'text-[#7cfc00]' : ''}`} />
+                <span className="text-xs font-medium">{item.name}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

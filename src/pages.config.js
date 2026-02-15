@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import Activewear from './pages/Activewear';
+import AdminDashboard from './pages/AdminDashboard';
 import Cart from './pages/Cart';
 import Community from './pages/Community';
 import Dashboard from './pages/Dashboard';
@@ -60,12 +61,12 @@ import Shop from './pages/Shop';
 import Subscription from './pages/Subscription';
 import VantaBot from './pages/VantaBot';
 import Wearables from './pages/Wearables';
-import AdminDashboard from './pages/AdminDashboard';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Activewear": Activewear,
+    "AdminDashboard": AdminDashboard,
     "Cart": Cart,
     "Community": Community,
     "Dashboard": Dashboard,
@@ -78,7 +79,6 @@ export const PAGES = {
     "Subscription": Subscription,
     "VantaBot": VantaBot,
     "Wearables": Wearables,
-    "AdminDashboard": AdminDashboard,
 }
 
 export const pagesConfig = {
