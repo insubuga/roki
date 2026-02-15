@@ -71,7 +71,7 @@ export default function Profile() {
   });
 
   const getDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Earth's radius in km
+    const R = 3958.8; // Earth's radius in miles
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -279,7 +279,7 @@ export default function Profile() {
                           {gym.distance && (
                             <span className="text-[#7cfc00] text-xs flex items-center gap-1">
                               <MapPin className="w-3 h-3" />
-                              {gym.distance} km
+                              {gym.distance} mi
                             </span>
                           )}
                           {lockerAvailability[gym.id] !== undefined && (
@@ -296,7 +296,7 @@ export default function Profile() {
               {userLocation && gymsWithDistance[0]?.distance && (
                 <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
-                  Nearest: {gymsWithDistance[0].name} ({gymsWithDistance[0].distance} km away)
+                  Nearest: {gymsWithDistance[0].name} ({gymsWithDistance[0].distance} mi away)
                 </p>
               )}
             </div>
