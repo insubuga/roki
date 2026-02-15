@@ -3,8 +3,9 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Zap, ArrowLeft, MapPin, Clock, AlertTriangle, Package, Bot } from 'lucide-react';
+import { Zap, MapPin, Clock, AlertTriangle, Package, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import MobileHeader from '../components/mobile/MobileHeader';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -139,20 +140,12 @@ export default function RushMode() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link to={createPageUrl('Dashboard')}>
-          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <Zap className="w-8 h-8 text-orange-500" />
-            Rush Mode Delivery
-          </h1>
-          <p className="text-gray-400 mt-1">Get what you need delivered within 30 minutes</p>
-        </div>
-      </div>
+      <MobileHeader
+        title="Rush Mode Delivery"
+        subtitle="Get what you need delivered within 30 minutes"
+        icon={Zap}
+        iconColor="text-orange-500"
+      />
 
       {/* Premium Rush Banner */}
       <div className="bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-xl p-6 border border-orange-500/30">
