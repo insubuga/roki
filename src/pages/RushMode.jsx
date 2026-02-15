@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { NotificationTriggers } from '../components/notifications/NotificationHelper';
 
 export default function RushMode() {
   const [user, setUser] = useState(null);
@@ -97,10 +98,21 @@ export default function RushMode() {
 
       return order;
     },
-    onSuccess: () => {
+    onSuccess: async (data) => {
       toast.success("We've got it. Delivery in ~30 minutes.");
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      
+      // Create notifications
+      if (user?.email && data.order_number) {
+        await NotificationTriggers.deliveryDispatched(user.email, data.order_number);
+        
+        // Simulate "arriving soon" notification after 20 minutes
+        setTimeout(async () => {
+          await NotificationTriggers.deliveryArriving(user.email);
+        }, 20 * 60 * 1000);
+      }
+      
       setSelectedItem('');
       setSpecialInstructions('');
     },

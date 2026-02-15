@@ -5,14 +5,13 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   ShoppingCart, 
-  Bell, 
-  MessageCircle, 
   LogOut, 
   User,
   ChevronDown,
   Menu,
   X
 } from 'lucide-react';
+import NotificationDropdown from './components/notifications/NotificationDropdown';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -113,6 +112,9 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Right Side */}
             <div className="flex items-center gap-3">
+              {/* Notifications */}
+              {user && <NotificationDropdown user={user} />}
+
               {/* Cart */}
               <Link to={createPageUrl('Cart')} className="relative">
                 <Button variant="outline" size="icon" className="bg-transparent border-gray-700 hover:bg-gray-800">

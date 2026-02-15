@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { format, subDays } from 'date-fns';
+import { NotificationTriggers } from '../components/notifications/NotificationHelper';
 
 const wearableDevices = [
   {
@@ -134,10 +135,23 @@ export default function Wearables() {
       
       return base44.entities.WearableData.update(wearableData.id, newData);
     },
-    onSuccess: () => {
+    onSuccess: async (data) => {
       toast.success('Data synced!');
       queryClient.invalidateQueries({ queryKey: ['wearableData'] });
       queryClient.invalidateQueries({ queryKey: ['historicalWearableData'] });
+      
+      // Check for anomalies and create notifications
+      if (user?.email) {
+        await NotificationTriggers.wearableSync(user.email);
+        
+        if (data.heart_rate > 100) {
+          await NotificationTriggers.wearableAnomaly(user.email, 'High heart rate', `${data.heart_rate} BPM`);
+        }
+        
+        if (data.recovery_score < 70) {
+          await NotificationTriggers.lowRecovery(user.email, data.recovery_score);
+        }
+      }
     },
   });
 

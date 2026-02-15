@@ -12,7 +12,6 @@ import {
   Bot,
   Users,
   MessageSquare,
-  Bell,
   LogOut
 } from 'lucide-react';
 import ActionCard from '../components/dashboard/ActionCard';
@@ -79,12 +78,6 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" className="bg-transparent border-gray-700 hover:bg-gray-800">
-            <Bell className="w-5 h-5 text-gray-400" />
-          </Button>
-          <Button variant="outline" size="icon" className="bg-transparent border-gray-700 hover:bg-gray-800">
-            <MessageSquare className="w-5 h-5 text-gray-400" />
-          </Button>
           <Button 
             variant="outline" 
             size="icon" 
