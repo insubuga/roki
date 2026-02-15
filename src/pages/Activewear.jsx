@@ -116,10 +116,17 @@ export default function Activewear() {
 
       return order;
     },
-    onSuccess: () => {
+    onSuccess: async (data) => {
       toast.success('Laundry drop-off scheduled!');
       queryClient.invalidateQueries({ queryKey: ['laundryOrders'] });
       queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      
+      // Create notification
+      if (user?.email && data.drop_off_date) {
+        const { NotificationTriggers } = await import('../components/notifications/NotificationHelper');
+        await NotificationTriggers.laundryScheduled(user.email, format(new Date(data.drop_off_date), 'MMM d'));
+      }
+      
       setSelectedItems([]);
       setIncludeSneakers(false);
     },

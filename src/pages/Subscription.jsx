@@ -165,9 +165,25 @@ export default function Subscription() {
         });
       }
     },
-    onSuccess: () => {
-      toast.success('Subscription updated!');
+    onSuccess: async (data, variables) => {
+      const oldPlan = subscription?.plan || 'free';
+      const newPlan = variables;
+      
+      toast.success(`Switched to ${newPlan.toUpperCase()} plan!`);
       queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      
+      // Create notification
+      if (newPlan !== oldPlan && user?.email) {
+        const planTiers = { free: 0, basic: 1, pro: 2, elite: 3 };
+        const isUpgrade = planTiers[newPlan] > planTiers[oldPlan];
+        
+        const { NotificationTriggers } = await import('../components/notifications/NotificationHelper');
+        if (isUpgrade) {
+          await NotificationTriggers.subscriptionUpgraded(user.email, newPlan);
+        } else {
+          await NotificationTriggers.subscriptionDowngraded(user.email, newPlan);
+        }
+      }
     },
   });
 
