@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import PullToRefresh from '../components/mobile/PullToRefresh';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Truck, ArrowLeft, Package, Clock, CheckCircle, MapPin } from 'lucide-react';
@@ -25,6 +26,11 @@ const statusLabels = {
 
 export default function Deliveries() {
   const [user, setUser] = useState(null);
+  const queryClient = useQueryClient();
+
+  const handleRefresh = async () => {
+    await queryClient.invalidateQueries(['orders']);
+  };
 
   useEffect(() => {
     const loadUser = async () => {
@@ -56,6 +62,7 @@ export default function Deliveries() {
   const pastOrders = orders.filter(o => o.status === 'delivered');
 
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
@@ -189,5 +196,6 @@ export default function Deliveries() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }

@@ -29,6 +29,7 @@ export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const location = useLocation();
+  const mainContentRef = React.useRef(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -72,10 +73,21 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Community', page: 'Community', icon: Users },
   ];
 
+  const handleTabClick = (page) => {
+    if (currentPageName === page) {
+      // Scroll to top if already on this page
+      if (mainContentRef.current) {
+        mainContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#0a0f1a] overscroll-none">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] overscroll-none">
       {/* Header */}
-      <header className="bg-[#0d1320] border-b border-gray-800 sticky top-0 z-50" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <header className="bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)] sticky top-0 z-50" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -206,12 +218,12 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6">
+      <main ref={mainContentRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6">
         {children}
       </main>
 
       {/* Bottom Navigation - Mobile Only */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0d1320] border-t border-gray-800 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-bg-secondary)] border-t border-[var(--color-border)] z-50 select-none" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="grid grid-cols-4 h-16">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
@@ -220,12 +232,13 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 key={item.page}
                 to={createPageUrl(item.page)}
+                onClick={() => handleTabClick(item.page)}
                 className={`flex flex-col items-center justify-center gap-1 select-none ${
-                  isActive ? 'text-[#7cfc00]' : 'text-gray-400'
+                  isActive ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'
                 }`}
               >
-                <Icon className={`w-5 h-5 select-none ${isActive ? 'text-[#7cfc00]' : ''}`} />
-                <span className="text-xs font-medium">{item.name}</span>
+                <Icon className={`w-5 h-5 select-none ${isActive ? 'text-[var(--color-primary)]' : ''}`} />
+                <span className="text-xs font-medium select-none">{item.name}</span>
               </Link>
             );
           })}

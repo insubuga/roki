@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import PullToRefresh from '../components/mobile/PullToRefresh';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Watch, ArrowLeft, Bluetooth, CheckCircle, XCircle, Activity, Heart, Footprints, Zap, TrendingUp, Brain, Droplet, Moon, BarChart3, Target, Plus } from 'lucide-react';
@@ -47,6 +48,10 @@ export default function Wearables() {
     steps: 0,
   });
   const queryClient = useQueryClient();
+
+  const handleRefresh = async () => {
+    await queryClient.invalidateQueries(['wearableData', 'historicalWearableData']);
+  };
 
   useEffect(() => {
     const loadUser = async () => {
@@ -257,6 +262,7 @@ export default function Wearables() {
   const goalSuggestions = getGoalSuggestions();
 
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
@@ -714,5 +720,6 @@ export default function Wearables() {
         </TabsContent>
       </Tabs>
     </div>
+    </PullToRefresh>
   );
 }

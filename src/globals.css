@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme Variables */
+:root {
+  --color-bg-primary: #0a0f1a;
+  --color-bg-secondary: #0d1320;
+  --color-bg-card: #1a2332;
+  --color-border: #374151;
+  --color-border-light: #4b5563;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+  --color-primary: #7cfc00;
+  --color-primary-hover: #6be600;
+  --color-primary-muted: rgba(124, 252, 0, 0.2);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-bg-primary: #f9fafb;
+    --color-bg-secondary: #ffffff;
+    --color-bg-card: #ffffff;
+    --color-border: #e5e7eb;
+    --color-border-light: #d1d5db;
+    --color-text-primary: #111827;
+    --color-text-secondary: #4b5563;
+    --color-text-muted: #6b7280;
+    --color-primary: #059669;
+    --color-primary-hover: #047857;
+    --color-primary-muted: rgba(5, 150, 105, 0.1);
+  }
+}
+
+html {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  overscroll-behavior: none;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
+
+/* User Select None for Interactive Elements */
+button,
+[role="button"],
+.select-none {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Ensure content text remains selectable */
+p,
+span:not(.select-none),
+div:not(.select-none),
+h1, h2, h3, h4, h5, h6 {
+  user-select: text;
+  -webkit-user-select: text;
+}

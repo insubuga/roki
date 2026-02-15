@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import PullToRefresh from '../components/mobile/PullToRefresh';
 import { 
   ShoppingCart, 
   Zap, 
@@ -20,6 +21,11 @@ import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
+  const queryClient = useQueryClient();
+
+  const handleRefresh = async () => {
+    await queryClient.invalidateQueries();
+  };
 
   useEffect(() => {
     const loadUser = async () => {
@@ -70,6 +76,7 @@ export default function Dashboard() {
   ];
 
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-8">
       {/* Welcome Header */}
       <div className="flex items-center justify-between">
@@ -150,5 +157,6 @@ export default function Dashboard() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }

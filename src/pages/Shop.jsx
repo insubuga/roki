@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import PullToRefresh from '../components/mobile/PullToRefresh';
 import { Search, Filter, ShoppingCart, Plus, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,10 @@ export default function Shop() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [addedItems, setAddedItems] = useState({});
   const queryClient = useQueryClient();
+
+  const handleRefresh = async () => {
+    await queryClient.invalidateQueries(['products', 'cartItems', 'pastOrders', 'wearableData']);
+  };
 
   useEffect(() => {
     const loadUser = async () => {
@@ -169,6 +174,7 @@ export default function Shop() {
   }
 
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-6">
       {/* Header */}
       <div>
@@ -336,5 +342,6 @@ export default function Shop() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }
