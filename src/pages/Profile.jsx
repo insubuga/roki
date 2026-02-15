@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Settings, ArrowLeft, User, Mail, Lock, Save } from 'lucide-react';
+import { Settings, ArrowLeft, User, Mail, Lock, Save, MapPin, Navigation, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +18,9 @@ export default function Profile() {
     phone: '',
     notifications_enabled: true,
   });
+  const [userLocation, setUserLocation] = useState(null);
+  const [loadingLocation, setLoadingLocation] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -50,10 +53,89 @@ export default function Profile() {
     queryFn: () => base44.entities.Gym.list(),
   });
 
+  const { data: lockerAvailability = {} } = useQuery({
+    queryKey: ['lockerAvailability'],
+    queryFn: async () => {
+      const availability = {};
+      for (const gym of gyms) {
+        const availableLockers = await base44.entities.Locker.filter({
+          gym_id: gym.id,
+          status: 'available'
+        });
+        availability[gym.id] = availableLockers.length;
+      }
+      return availability;
+    },
+    enabled: gyms.length > 0,
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const getDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  const gymsWithDistance = gyms.map(gym => {
+    // Parse address to extract coordinates (simplified - in production use geocoding API)
+    // For demo, using mock coordinates based on city
+    const mockCoordinates = {
+      'New York': { lat: 40.7128, lon: -74.0060 },
+      'Los Angeles': { lat: 34.0522, lon: -118.2437 },
+      'Chicago': { lat: 41.8781, lon: -87.6298 },
+      'San Francisco': { lat: 37.7749, lon: -122.4194 },
+    };
+    
+    const gymCoords = mockCoordinates[gym.city] || { lat: 40.7128, lon: -74.0060 };
+    
+    if (userLocation) {
+      const distance = getDistance(
+        userLocation.latitude,
+        userLocation.longitude,
+        gymCoords.lat,
+        gymCoords.lon
+      );
+      return { ...gym, distance: distance.toFixed(1), coords: gymCoords };
+    }
+    return { ...gym, distance: null, coords: gymCoords };
+  }).sort((a, b) => {
+    if (a.distance === null) return 0;
+    return parseFloat(a.distance) - parseFloat(b.distance);
+  });
+
+  const requestLocation = () => {
+    setLoadingLocation(true);
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          setLoadingLocation(false);
+          toast.success('Location detected!');
+        },
+        (error) => {
+          setLoadingLocation(false);
+          toast.error('Could not get your location');
+        }
+      );
+    } else {
+      setLoadingLocation(false);
+      toast.error('Geolocation not supported');
+    }
+  };
+
   const updateProfileMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
     onSuccess: () => {
       toast.success('Profile updated!');
+      queryClient.invalidateQueries({ queryKey: ['userLocker'] });
     },
   });
 
@@ -78,7 +160,9 @@ export default function Profile() {
       });
     },
     onSuccess: () => {
-      toast.success('Locker claimed!');
+      toast.success('Locker claimed successfully!');
+      queryClient.invalidateQueries({ queryKey: ['userLocker'] });
+      queryClient.invalidateQueries({ queryKey: ['lockerAvailability'] });
     },
     onError: (error) => {
       toast.error(error.message);
@@ -162,48 +246,105 @@ export default function Profile() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label className="text-gray-400">Preferred Gym</Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label className="text-gray-400">Preferred Gym</Label>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-[#7cfc00] hover:text-[#6be600] h-7 text-xs"
+                  onClick={requestLocation}
+                  disabled={loadingLocation}
+                >
+                  {loadingLocation ? (
+                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                  ) : (
+                    <Navigation className="w-3 h-3 mr-1" />
+                  )}
+                  {userLocation ? 'Update Location' : 'Use My Location'}
+                </Button>
+              </div>
               <Select
                 value={formData.preferred_gym}
                 onValueChange={(value) => setFormData({ ...formData, preferred_gym: value })}
               >
-                <SelectTrigger className="bg-[#0d1320] border-gray-700 text-white mt-1">
+                <SelectTrigger className="bg-[#0d1320] border-gray-700 text-white">
                   <SelectValue placeholder="Select a gym" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a2332] border-gray-700">
-                  {gyms.map((gym) => (
+                <SelectContent className="bg-[#1a2332] border-gray-700 max-h-72">
+                  {gymsWithDistance.map((gym) => (
                     <SelectItem key={gym.id} value={gym.id} className="text-white">
-                      {gym.name}
+                      <div className="flex items-center justify-between w-full">
+                        <span>{gym.name}</span>
+                        <div className="flex items-center gap-2 ml-4">
+                          {gym.distance && (
+                            <span className="text-[#7cfc00] text-xs flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              {gym.distance} km
+                            </span>
+                          )}
+                          {lockerAvailability[gym.id] !== undefined && (
+                            <span className={`text-xs ${lockerAvailability[gym.id] > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              {lockerAvailability[gym.id]} lockers
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {userLocation && gymsWithDistance[0]?.distance && (
+                <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
+                  Nearest: {gymsWithDistance[0].name} ({gymsWithDistance[0].distance} km away)
+                </p>
+              )}
             </div>
 
             {locker ? (
-              <div className="bg-[#0d1320] rounded-lg p-4 border border-gray-700">
-                <p className="text-gray-400 text-sm">Your Locker</p>
-                <div className="flex items-center justify-between mt-2">
+              <div className="bg-gradient-to-br from-[#7cfc00]/10 to-teal-500/10 rounded-lg p-4 border border-[#7cfc00]/30">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-gray-400 text-sm">Your Locker</p>
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                </div>
+                <div className="flex items-center justify-between">
                   <div>
                     <p className="text-white font-bold text-xl">#{locker.locker_number}</p>
-                    <p className="text-gray-500 text-sm">Active</p>
+                    <p className="text-[#7cfc00] text-sm">Active</p>
                   </div>
                   <div className="text-right">
                     <p className="text-gray-400 text-sm">Access Code</p>
                     <p className="text-[#7cfc00] font-mono font-bold text-2xl">{locker.access_code}</p>
                   </div>
                 </div>
+                {formData.preferred_gym && gyms.find(g => g.id === formData.preferred_gym) && (
+                  <div className="mt-3 pt-3 border-t border-gray-700">
+                    <p className="text-gray-400 text-xs">
+                      Location: {gyms.find(g => g.id === formData.preferred_gym)?.name}
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="bg-[#0d1320] rounded-lg p-4 border border-gray-700">
-                <p className="text-gray-400 mb-3">You don't have a locker yet</p>
+                <p className="text-gray-400 mb-3">
+                  {formData.preferred_gym && lockerAvailability[formData.preferred_gym] === 0 
+                    ? 'No lockers available at this gym' 
+                    : "You don't have a locker yet"}
+                </p>
+                {formData.preferred_gym && lockerAvailability[formData.preferred_gym] > 0 && (
+                  <p className="text-green-400 text-sm mb-3 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    {lockerAvailability[formData.preferred_gym]} lockers available now
+                  </p>
+                )}
                 <Button
                   className="w-full bg-[#7cfc00] text-black hover:bg-[#6be600]"
                   onClick={() => claimLockerMutation.mutate()}
-                  disabled={!formData.preferred_gym || claimLockerMutation.isPending}
+                  disabled={!formData.preferred_gym || claimLockerMutation.isPending || lockerAvailability[formData.preferred_gym] === 0}
                 >
                   <Lock className="w-4 h-4 mr-2" />
-                  Claim Locker
+                  {lockerAvailability[formData.preferred_gym] === 0 ? 'No Lockers Available' : 'Claim Locker'}
                 </Button>
               </div>
             )}
