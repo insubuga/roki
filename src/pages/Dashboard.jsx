@@ -59,6 +59,10 @@ export default function Dashboard() {
     { icon: CreditCard, title: 'Payments', subtitle: 'Transaction history', page: 'PaymentHistory', iconBg: 'bg-green-500' },
   ];
 
+  const adminActions = user?.role === 'admin' ? [
+    { icon: Settings, title: 'Admin Dashboard', subtitle: 'Manage application', page: 'AdminDashboard', iconBg: 'bg-red-500' },
+  ] : [];
+
   const helpCommunity = [
     { icon: Bot, title: 'VantaBot', subtitle: 'AI assistant', page: 'VantaBot', iconBg: 'bg-slate-600' },
     { icon: Users, title: 'Community', subtitle: 'Connect & share', page: 'Community', iconBg: 'bg-pink-500' },
@@ -129,6 +133,18 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
+
+      {/* Admin Section */}
+      {adminActions.length > 0 && (
+        <div>
+          <SectionHeader title="Administration" subtitle="Manage the platform" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {adminActions.map((action) => (
+              <ActionCard key={action.title} {...action} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
