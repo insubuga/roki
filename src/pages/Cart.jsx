@@ -3,8 +3,9 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { ShoppingCart, Trash2, Plus, Minus, Zap, ArrowLeft, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, Zap, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import MobileHeader from '../components/mobile/MobileHeader';
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -86,20 +87,12 @@ export default function Cart() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link to={createPageUrl('Shop')}>
-          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <ShoppingCart className="w-8 h-8 text-amber-500" />
-            Cart
-          </h1>
-          <p className="text-gray-400 mt-1">Review your items</p>
-        </div>
-      </div>
+      <MobileHeader
+        title="Cart"
+        subtitle="Review your items"
+        icon={ShoppingCart}
+        iconColor="text-amber-500"
+      />
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">

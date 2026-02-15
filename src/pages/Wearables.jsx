@@ -4,8 +4,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from '../components/mobile/PullToRefresh';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Watch, ArrowLeft, Bluetooth, CheckCircle, XCircle, Activity, Heart, Footprints, Zap, TrendingUp, Brain, Droplet, Moon, BarChart3, Target, Plus } from 'lucide-react';
+import { Watch, Bluetooth, CheckCircle, XCircle, Activity, Heart, Footprints, Zap, TrendingUp, Brain, Droplet, Moon, BarChart3, Target, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import MobileHeader from '../components/mobile/MobileHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -265,20 +266,12 @@ export default function Wearables() {
     <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link to={createPageUrl('Dashboard')}>
-          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <Watch className="w-8 h-8 text-purple-500" />
-            Wearables
-          </h1>
-          <p className="text-gray-400 mt-1">Connect your devices</p>
-        </div>
-      </div>
+      <MobileHeader
+        title="Wearables"
+        subtitle="Connect your devices"
+        icon={Watch}
+        iconColor="text-purple-500"
+      />
 
       {/* Tabs for different views */}
       <Tabs defaultValue="overview" className="w-full">

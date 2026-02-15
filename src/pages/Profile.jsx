@@ -3,8 +3,9 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Settings, ArrowLeft, User, Mail, Lock, Save, MapPin, Navigation, Loader2, Map, Camera, Upload, Trash2, AlertTriangle } from 'lucide-react';
+import { Settings, User, Mail, Lock, Save, MapPin, Navigation, Loader2, Map, Camera, Upload, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import MobileHeader from '../components/mobile/MobileHeader';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -315,20 +316,12 @@ export default function Profile() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link to={createPageUrl('Dashboard')}>
-          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <Settings className="w-8 h-8 text-lime-500" />
-            Profile
-          </h1>
-          <p className="text-gray-400 mt-1">Account settings</p>
-        </div>
-      </div>
+      <MobileHeader
+        title="Profile"
+        subtitle="Account settings"
+        icon={Settings}
+        iconColor="text-lime-500"
+      />
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Account Info */}

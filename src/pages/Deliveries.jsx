@@ -4,8 +4,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from '../components/mobile/PullToRefresh';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Truck, ArrowLeft, Package, Clock, CheckCircle, MapPin } from 'lucide-react';
+import { Truck, Package, Clock, CheckCircle, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import MobileHeader from '../components/mobile/MobileHeader';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
@@ -65,20 +66,12 @@ export default function Deliveries() {
     <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link to={createPageUrl('Dashboard')}>
-          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <Truck className="w-8 h-8 text-orange-500" />
-            Deliveries
-          </h1>
-          <p className="text-gray-400 mt-1">Track your packages</p>
-        </div>
-      </div>
+      <MobileHeader
+        title="Deliveries"
+        subtitle="Track your packages"
+        icon={Truck}
+        iconColor="text-orange-500"
+      />
 
       {isLoading ? (
         <div className="space-y-4">

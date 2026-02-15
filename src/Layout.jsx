@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from './utils';
+import PageTransition from './components/mobile/PageTransition';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
@@ -30,6 +31,15 @@ export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const location = useLocation();
   const mainContentRef = React.useRef(null);
+  const navigate = useNavigate();
+  
+  // Track navigation history per tab
+  const tabHistory = React.useRef({
+    Dashboard: ['/Dashboard'],
+    Shop: ['/Shop'],
+    VantaBot: ['/VantaBot'],
+    Community: ['/Community'],
+  });
 
   useEffect(() => {
     const loadUser = async () => {
@@ -73,13 +83,28 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Community', page: 'Community', icon: Users },
   ];
 
-  const handleTabClick = (page) => {
+  const handleTabClick = (page, e) => {
+    const targetPath = createPageUrl(page);
+    
     if (currentPageName === page) {
-      // Scroll to top if already on this page
+      // Already on this tab - reset to root and scroll to top
+      e.preventDefault();
+      
+      // If not at root, navigate to root
+      if (location.pathname !== targetPath) {
+        navigate(targetPath);
+      }
+      
+      // Scroll to top
       if (mainContentRef.current) {
         mainContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      // Track history for the new tab
+      if (tabHistory.current[page]) {
+        tabHistory.current[page].push(targetPath);
       }
     }
   };
@@ -218,8 +243,10 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Main Content */}
-      <main ref={mainContentRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6">
-        {children}
+      <main ref={mainContentRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6 overflow-hidden">
+        <PageTransition pageKey={location.pathname}>
+          {children}
+        </PageTransition>
       </main>
 
       {/* Bottom Navigation - Mobile Only */}
@@ -232,7 +259,7 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 key={item.page}
                 to={createPageUrl(item.page)}
-                onClick={() => handleTabClick(item.page)}
+                onClick={(e) => handleTabClick(item.page, e)}
                 className={`flex flex-col items-center justify-center gap-1 select-none ${
                   isActive ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'
                 }`}
