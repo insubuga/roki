@@ -39,37 +39,36 @@ export default function LockerCheckout({ open, onClose, gym, onSuccess, user }) 
     mutationFn: async () => {
       setProcessing(true);
       
-      // Create payment record
-      const payment = await base44.entities.Payment.create({
-        user_email: user.email,
-        amount: selectedPrice,
-        payment_type: 'locker_rental',
-        status: 'pending',
-        description: `Locker rental at ${gym.name} for ${durations.find(d => d.value === duration)?.label}`,
-        rental_duration_hours: parseInt(duration)
+      // Check if running in iframe (preview mode)
+      if (window.self !== window.top) {
+        throw new Error('IFRAME_CHECKOUT');
+      }
+
+      // Create Stripe checkout session
+      const response = await base44.functions.invoke('createCheckoutSession', {
+        duration: duration,
+        gym_name: gym.name,
+        gym_address: gym.address
       });
 
-      // Simulate Stripe payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      if (!response.data.url) {
+        throw new Error('Failed to create checkout session');
+      }
 
-      // Update payment status
-      await base44.entities.Payment.update(payment.id, {
-        status: 'completed',
-        stripe_payment_id: `pi_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      });
-
-      return { payment, duration: parseInt(duration) };
-    },
-    onSuccess: async (data) => {
-      setProcessing(false);
-      toast.success('Payment successful!');
-      queryClient.invalidateQueries({ queryKey: ['payments'] });
-      onSuccess(data.duration);
-      onClose();
+      // Redirect to Stripe Checkout
+      window.location.href = response.data.url;
+      
+      return response.data;
     },
     onError: (error) => {
       setProcessing(false);
-      toast.error('Payment failed. Please try again.');
+      if (error.message === 'IFRAME_CHECKOUT') {
+        toast.error('Please publish your app to complete checkout', {
+          description: 'Payments can only be processed in the published app, not in preview mode.'
+        });
+      } else {
+        toast.error('Failed to initiate checkout. Please try again.');
+      }
     }
   });
 
