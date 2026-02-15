@@ -47,12 +47,32 @@ export default function RushMode() {
     enabled: !!user?.email,
   });
 
+  const { data: subscription } = useQuery({
+    queryKey: ['subscription', user?.email],
+    queryFn: async () => {
+      const subs = await base44.entities.Subscription.filter({ user_email: user?.email });
+      if (subs.length > 0) return subs[0];
+      return {
+        plan: 'free',
+        rush_deliveries_included: 0,
+        rush_deliveries_used: 0,
+        rush_delivery_fee: 15,
+        priority_dispatch: false
+      };
+    },
+    enabled: !!user?.email,
+  });
+
   const createRushOrderMutation = useMutation({
     mutationFn: async () => {
       const selectedProduct = cartItems.find(item => item.product_id === selectedItem) ||
         recentOrders.flatMap(o => o.items || []).find(i => i.product_id === selectedItem);
       
-      return base44.entities.Order.create({
+      const rushFee = subscription.rush_delivery_fee || 15;
+      const freeRushesRemaining = (subscription.rush_deliveries_included || 0) - (subscription.rush_deliveries_used || 0);
+      const actualRushFee = freeRushesRemaining > 0 ? 0 : rushFee;
+      
+      const order = await base44.entities.Order.create({
         user_email: user.email,
         items: [{
           product_id: selectedItem,
@@ -60,17 +80,27 @@ export default function RushMode() {
           quantity: 1,
           price: selectedProduct?.price || 0
         }],
-        total: (selectedProduct?.price || 0) + 15,
+        total: (selectedProduct?.price || 0) + actualRushFee,
         delivery_type: 'rush',
         delivery_location: deliveryLocation,
         special_instructions: specialInstructions,
         status: 'confirmed',
         estimated_delivery: new Date(Date.now() + 30 * 60000).toISOString()
       });
+
+      // Update rush delivery usage if applicable
+      if (freeRushesRemaining > 0 && subscription.id) {
+        await base44.entities.Subscription.update(subscription.id, {
+          rush_deliveries_used: (subscription.rush_deliveries_used || 0) + 1
+        });
+      }
+
+      return order;
     },
     onSuccess: () => {
       toast.success("We've got it. Delivery in ~30 minutes.");
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
       setSelectedItem('');
       setSpecialInstructions('');
     },
@@ -222,7 +252,14 @@ export default function RushMode() {
             disabled={!selectedItem || !deliveryLocation || createRushOrderMutation.isPending}
           >
             <Zap className="w-5 h-5 mr-2" />
-            {createRushOrderMutation.isPending ? 'Handling...' : 'Confirm Rush - $15.00'}
+            {createRushOrderMutation.isPending ? 'Handling...' : 
+              (() => {
+                const rushFee = subscription?.rush_delivery_fee || 15;
+                const freeRushesRemaining = (subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0);
+                const actualRushFee = freeRushesRemaining > 0 ? 0 : rushFee;
+                return actualRushFee === 0 ? 'Confirm Rush - Free (Included)' : `Confirm Rush - $${actualRushFee.toFixed(2)}`;
+              })()
+            }
           </Button>
         </div>
 
@@ -256,21 +293,36 @@ export default function RushMode() {
             </div>
           </div>
 
-          {/* Rush Pricing */}
+          {/* Rush Pricing & Benefits */}
           <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800">
-            <h3 className="text-white font-bold text-center mb-4">Rush Pricing</h3>
+            <h3 className="text-white font-bold text-center mb-4">Your Rush Benefits</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-400">Base Item Price</span>
-                <span className="text-white">Varies</span>
+                <span className="text-gray-400">Plan</span>
+                <span className="text-white capitalize">{subscription?.plan || 'free'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Rush Delivery Fee</span>
-                <span className="text-[#7cfc00] font-bold">$15.00</span>
+                <span className="text-gray-400">Free Rushes</span>
+                <span className="text-[#7cfc00] font-bold">
+                  {((subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0)) === 999 ? '∞' : 
+                   ((subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0))} remaining
+                </span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Rush Fee After</span>
+                <span className="text-white">${subscription?.rush_delivery_fee?.toFixed(2) || '15.00'}</span>
+              </div>
+              {subscription?.priority_dispatch && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Priority Dispatch</span>
+                  <span className="text-[#7cfc00]">✓ Enabled</span>
+                </div>
+              )}
               <div className="flex justify-between border-t border-gray-700 pt-3">
                 <span className="text-white font-semibold">Delivery Time</span>
-                <span className="text-[#7cfc00] font-bold">≤ 30 min</span>
+                <span className="text-[#7cfc00] font-bold">
+                  {subscription?.priority_dispatch ? '≤ 20 min' : '≤ 30 min'}
+                </span>
               </div>
             </div>
           </div>

@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { CreditCard, ArrowLeft, Check, Zap, Shirt, Lock, Crown } from 'lucide-react';
+import { CreditCard, ArrowLeft, Check, Zap, Shirt, Lock, Crown, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
@@ -14,11 +14,20 @@ const plans = [
     id: 'free',
     name: 'Free',
     price: 0,
+    laundryCredits: 2,
+    laundryTurnaround: 48,
+    sneakerCleaning: 0,
+    premiumSneaker: false,
+    rushDeliveries: 0,
+    rushFee: 15,
+    priorityDispatch: false,
     features: [
       '2 laundry credits/month',
+      '48hr turnaround',
+      '$10 sneaker cleaning',
       'Standard delivery',
+      '$15 rush fee',
       'Basic locker access',
-      'Community access',
     ],
     color: 'border-gray-600',
     buttonClass: 'bg-gray-600 hover:bg-gray-700',
@@ -27,11 +36,20 @@ const plans = [
     id: 'basic',
     name: 'Basic',
     price: 9.99,
+    laundryCredits: 5,
+    laundryTurnaround: 36,
+    sneakerCleaning: 30,
+    premiumSneaker: false,
+    rushDeliveries: 1,
+    rushFee: 12,
+    priorityDispatch: false,
     features: [
       '5 laundry credits/month',
+      '36hr turnaround',
+      '30% off sneaker cleaning',
       '1 free rush delivery/month',
+      '$12 rush fee after',
       'Priority locker selection',
-      '10% off supplements',
     ],
     color: 'border-blue-500',
     buttonClass: 'bg-blue-500 hover:bg-blue-600',
@@ -41,12 +59,21 @@ const plans = [
     name: 'Pro',
     price: 19.99,
     popular: true,
+    laundryCredits: 10,
+    laundryTurnaround: 24,
+    sneakerCleaning: 50,
+    premiumSneaker: false,
+    rushDeliveries: 3,
+    rushFee: 10,
+    priorityDispatch: true,
     features: [
       '10 laundry credits/month',
+      '24hr express turnaround',
+      '50% off sneaker cleaning',
       '3 free rush deliveries/month',
+      '$10 rush fee after',
+      'Priority dispatch',
       'VIP locker zones',
-      '15% off supplements',
-      'Priority VantaBot support',
     ],
     color: 'border-[#7cfc00]',
     buttonClass: 'bg-[#7cfc00] hover:bg-[#6be600] text-black',
@@ -55,13 +82,21 @@ const plans = [
     id: 'elite',
     name: 'Elite',
     price: 49.99,
+    laundryCredits: 999,
+    laundryTurnaround: 12,
+    sneakerCleaning: 100,
+    premiumSneaker: true,
+    rushDeliveries: 999,
+    rushFee: 0,
+    priorityDispatch: true,
     features: [
       'Unlimited laundry',
+      '12hr premium turnaround',
+      'Free premium sneaker cleaning',
       'Unlimited rush deliveries',
+      'Always priority dispatch',
       'Premium locker locations',
-      '25% off supplements',
       'Personal VantaBot assistant',
-      'Early access to new features',
     ],
     color: 'border-purple-500',
     buttonClass: 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600',
@@ -96,17 +131,20 @@ export default function Subscription() {
   const updateSubscriptionMutation = useMutation({
     mutationFn: async (planId) => {
       const plan = plans.find(p => p.id === planId);
-      const laundryCredits = planId === 'elite' ? 999 : planId === 'pro' ? 10 : planId === 'basic' ? 5 : 2;
-      const rushDeliveries = planId === 'elite' ? 999 : planId === 'pro' ? 3 : planId === 'basic' ? 1 : 0;
       
       if (subscription) {
         return base44.entities.Subscription.update(subscription.id, {
           plan: planId,
           monthly_price: plan.price,
-          laundry_credits: laundryCredits,
+          laundry_credits: plan.laundryCredits,
           laundry_credits_used: 0,
-          rush_deliveries_included: rushDeliveries,
+          laundry_turnaround_hours: plan.laundryTurnaround,
+          premium_sneaker_cleaning: plan.premiumSneaker,
+          sneaker_cleaning_discount: plan.sneakerCleaning,
+          rush_deliveries_included: plan.rushDeliveries,
           rush_deliveries_used: 0,
+          rush_delivery_fee: plan.rushFee,
+          priority_dispatch: plan.priorityDispatch,
           priority_locker: planId !== 'free',
         });
       } else {
@@ -114,10 +152,15 @@ export default function Subscription() {
           user_email: user.email,
           plan: planId,
           monthly_price: plan.price,
-          laundry_credits: laundryCredits,
+          laundry_credits: plan.laundryCredits,
           laundry_credits_used: 0,
-          rush_deliveries_included: rushDeliveries,
+          laundry_turnaround_hours: plan.laundryTurnaround,
+          premium_sneaker_cleaning: plan.premiumSneaker,
+          sneaker_cleaning_discount: plan.sneakerCleaning,
+          rush_deliveries_included: plan.rushDeliveries,
           rush_deliveries_used: 0,
+          rush_delivery_fee: plan.rushFee,
+          priority_dispatch: plan.priorityDispatch,
           priority_locker: planId !== 'free',
         });
       }
@@ -166,21 +209,51 @@ export default function Subscription() {
             </div>
             <Crown className="w-10 h-10 text-[#7cfc00]" />
           </div>
-          <div className="grid grid-cols-3 gap-4 mt-4">
-            <div className="bg-[#0d1320] rounded-lg p-3 text-center">
-              <Shirt className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
-              <p className="text-white font-bold">{subscription.laundry_credits - subscription.laundry_credits_used}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+            <div className="bg-[#0d1320] rounded-lg p-3">
+              <Shirt className="w-5 h-5 text-cyan-400 mb-1" />
+              <p className="text-white font-bold text-lg">
+                {subscription.laundry_credits - subscription.laundry_credits_used}
+                <span className="text-gray-500 text-sm">/{subscription.laundry_credits === 999 ? '∞' : subscription.laundry_credits}</span>
+              </p>
               <p className="text-gray-400 text-xs">Laundry Credits</p>
+              <div className="mt-2 bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                <div 
+                  className="bg-cyan-400 h-full transition-all"
+                  style={{ 
+                    width: subscription.laundry_credits === 999 ? '100%' : 
+                    `${((subscription.laundry_credits - subscription.laundry_credits_used) / subscription.laundry_credits * 100)}%` 
+                  }}
+                />
+              </div>
             </div>
-            <div className="bg-[#0d1320] rounded-lg p-3 text-center">
-              <Zap className="w-5 h-5 text-orange-400 mx-auto mb-1" />
-              <p className="text-white font-bold">{subscription.rush_deliveries_included - subscription.rush_deliveries_used}</p>
+            <div className="bg-[#0d1320] rounded-lg p-3">
+              <Zap className="w-5 h-5 text-orange-400 mb-1" />
+              <p className="text-white font-bold text-lg">
+                {subscription.rush_deliveries_included - subscription.rush_deliveries_used}
+                <span className="text-gray-500 text-sm">/{subscription.rush_deliveries_included === 999 ? '∞' : subscription.rush_deliveries_included}</span>
+              </p>
               <p className="text-gray-400 text-xs">Rush Deliveries</p>
+              <div className="mt-2 bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                <div 
+                  className="bg-orange-400 h-full transition-all"
+                  style={{ 
+                    width: subscription.rush_deliveries_included === 999 ? '100%' : 
+                    subscription.rush_deliveries_included === 0 ? '0%' :
+                    `${((subscription.rush_deliveries_included - subscription.rush_deliveries_used) / subscription.rush_deliveries_included * 100)}%` 
+                  }}
+                />
+              </div>
             </div>
-            <div className="bg-[#0d1320] rounded-lg p-3 text-center">
-              <Lock className="w-5 h-5 text-purple-400 mx-auto mb-1" />
-              <p className="text-white font-bold">{subscription.priority_locker ? 'Yes' : 'No'}</p>
-              <p className="text-gray-400 text-xs">Priority Locker</p>
+            <div className="bg-[#0d1320] rounded-lg p-3">
+              <Clock className="w-5 h-5 text-green-400 mb-1" />
+              <p className="text-white font-bold text-lg">{subscription.laundry_turnaround_hours || 48}h</p>
+              <p className="text-gray-400 text-xs">Laundry Turnaround</p>
+            </div>
+            <div className="bg-[#0d1320] rounded-lg p-3">
+              <Lock className="w-5 h-5 text-purple-400 mb-1" />
+              <p className="text-white font-bold text-lg">{subscription.priority_dispatch ? 'Yes' : 'No'}</p>
+              <p className="text-gray-400 text-xs">Priority Dispatch</p>
             </div>
           </div>
         </div>
