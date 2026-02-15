@@ -41,6 +41,20 @@ export default function Profile() {
           phone: userData.phone || '',
           notifications_enabled: userData.notifications_enabled !== false,
         });
+
+        // Check for payment status in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentStatus = urlParams.get('payment');
+        
+        if (paymentStatus === 'success') {
+          toast.success('Payment successful! Your locker has been booked.');
+          queryClient.invalidateQueries({ queryKey: ['userLocker'] });
+          // Clean up URL
+          window.history.replaceState({}, '', window.location.pathname);
+        } else if (paymentStatus === 'cancelled') {
+          toast.error('Payment was cancelled.');
+          window.history.replaceState({}, '', window.location.pathname);
+        }
       } catch (e) {
         base44.auth.redirectToLogin();
       }
