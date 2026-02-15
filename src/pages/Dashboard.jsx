@@ -56,6 +56,7 @@ export default function Dashboard() {
   const accountManagement = [
     { icon: Settings, title: 'Profile', subtitle: 'Account settings', page: 'Profile', iconBg: 'bg-lime-500' },
     { icon: CreditCard, title: 'Subscription', subtitle: 'Manage plan', page: 'Subscription', iconBg: 'bg-indigo-500' },
+    { icon: CreditCard, title: 'Payments', subtitle: 'Transaction history', page: 'PaymentHistory', iconBg: 'bg-green-500' },
   ];
 
   const helpCommunity = [
@@ -112,7 +113,7 @@ export default function Dashboard() {
       {/* Account & Management */}
       <div>
         <SectionHeader title="Your Account" subtitle="Preferences and settings" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {accountManagement.map((action) => (
             <ActionCard key={action.title} {...action} />
           ))}

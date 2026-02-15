@@ -15,6 +15,7 @@ import LockerControls from '../components/locker/LockerControls';
 import ReportIssueDialog from '../components/locker/ReportIssueDialog';
 import GymMapView from '../components/locker/GymMapView';
 import BookingExtension from '../components/locker/BookingExtension';
+import LockerCheckout from '../components/payment/LockerCheckout';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -27,6 +28,7 @@ export default function Profile() {
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const [selectedGymOnMap, setSelectedGymOnMap] = useState(null);
+  const [showCheckout, setShowCheckout] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -465,12 +467,22 @@ export default function Profile() {
                 )}
                 <Button
                   className="w-full bg-[#7cfc00] text-black hover:bg-[#6be600]"
-                  onClick={() => claimLockerMutation.mutate()}
-                  disabled={!formData.preferred_gym || claimLockerMutation.isPending}
+                  onClick={() => setShowCheckout(true)}
+                  disabled={!formData.preferred_gym}
                 >
                   <Lock className="w-4 h-4 mr-2" />
-                  {claimLockerMutation.isPending ? 'Setting up...' : 'Claim Locker'}
+                  Book Locker
                 </Button>
+                
+                {showCheckout && formData.preferred_gym && (
+                  <LockerCheckout
+                    open={showCheckout}
+                    onClose={() => setShowCheckout(false)}
+                    gym={nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym)}
+                    user={user}
+                    onSuccess={(duration) => claimLockerMutation.mutate(duration)}
+                  />
+                )}
               </div>
             )}
           </CardContent>
