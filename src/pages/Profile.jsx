@@ -48,65 +48,81 @@ export default function Profile() {
     enabled: !!user?.email,
   });
 
-  const { data: gyms = [] } = useQuery({
-    queryKey: ['gyms'],
-    queryFn: () => base44.entities.Gym.list(),
+  const { data: nearbyGyms = [], isLoading: loadingGyms, refetch: refetchGyms } = useQuery({
+    queryKey: ['nearbyGyms', userLocation],
+    queryFn: async () => {
+      if (!userLocation) return [];
+      
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Find 10 real gym locations near latitude ${userLocation.latitude}, longitude ${userLocation.longitude}. Include popular chains like Planet Fitness, LA Fitness, 24 Hour Fitness, Equinox, Gold's Gym, Crunch Fitness, Anytime Fitness, etc. Return ONLY a JSON array with this exact structure, no other text:
+[
+  {
+    "name": "Gym Name",
+    "address": "Full address",
+    "distance_miles": 0.5,
+    "latitude": 40.7128,
+    "longitude": -74.0060
+  }
+]`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            gyms: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  address: { type: "string" },
+                  distance_miles: { type: "number" },
+                  latitude: { type: "number" },
+                  longitude: { type: "number" }
+                }
+              }
+            }
+          }
+        }
+      });
+      
+      return result.gyms || [];
+    },
+    enabled: !!userLocation,
   });
 
   const { data: lockerAvailability = {} } = useQuery({
-    queryKey: ['lockerAvailability'],
+    queryKey: ['lockerAvailability', nearbyGyms],
     queryFn: async () => {
       const availability = {};
-      for (const gym of gyms) {
-        const availableLockers = await base44.entities.Locker.filter({
-          gym_id: gym.id,
-          status: 'available'
+      for (const gym of nearbyGyms) {
+        const gymKey = `${gym.name}_${gym.address}`;
+        // Check if this gym exists in our system
+        const existingGyms = await base44.entities.Gym.filter({
+          name: gym.name,
+          address: gym.address
         });
-        availability[gym.id] = availableLockers.length;
+        
+        if (existingGyms.length > 0) {
+          const availableLockers = await base44.entities.Locker.filter({
+            gym_id: existingGyms[0].id,
+            status: 'available'
+          });
+          availability[gymKey] = availableLockers.length;
+        } else {
+          availability[gymKey] = 0; // No lockers available if gym not in system
+        }
       }
       return availability;
     },
-    enabled: gyms.length > 0,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    enabled: nearbyGyms.length > 0,
+    refetchInterval: 30000,
   });
 
-  const getDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 3958.8; // Earth's radius in miles
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  };
-
-  const gymsWithDistance = gyms.map(gym => {
-    // Parse address to extract coordinates (simplified - in production use geocoding API)
-    // For demo, using mock coordinates based on city
-    const mockCoordinates = {
-      'New York': { lat: 40.7128, lon: -74.0060 },
-      'Los Angeles': { lat: 34.0522, lon: -118.2437 },
-      'Chicago': { lat: 41.8781, lon: -87.6298 },
-      'San Francisco': { lat: 37.7749, lon: -122.4194 },
-    };
-    
-    const gymCoords = mockCoordinates[gym.city] || { lat: 40.7128, lon: -74.0060 };
-    
-    if (userLocation) {
-      const distance = getDistance(
-        userLocation.latitude,
-        userLocation.longitude,
-        gymCoords.lat,
-        gymCoords.lon
-      );
-      return { ...gym, distance: distance.toFixed(1), coords: gymCoords };
-    }
-    return { ...gym, distance: null, coords: gymCoords };
-  }).sort((a, b) => {
-    if (a.distance === null) return 0;
-    return parseFloat(a.distance) - parseFloat(b.distance);
-  });
+  const gymsWithDistance = nearbyGyms.map(gym => ({
+    ...gym,
+    distance: gym.distance_miles.toFixed(1),
+    gymKey: `${gym.name}_${gym.address}`
+  })).sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
 
   const requestLocation = () => {
     setLoadingLocation(true);
@@ -118,7 +134,7 @@ export default function Profile() {
             longitude: position.coords.longitude,
           });
           setLoadingLocation(false);
-          toast.success('Location detected!');
+          toast.success('Finding gyms near you...');
         },
         (error) => {
           setLoadingLocation(false);
@@ -141,11 +157,44 @@ export default function Profile() {
 
   const claimLockerMutation = useMutation({
     mutationFn: async () => {
-      const gym = gyms.find(g => g.id === formData.preferred_gym);
-      if (!gym) throw new Error('Please select a gym first');
+      const selectedGym = nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym);
+      if (!selectedGym) throw new Error('Please select a gym first');
+      
+      // Check if gym exists in our system, if not create it
+      let existingGyms = await base44.entities.Gym.filter({
+        name: selectedGym.name,
+        address: selectedGym.address
+      });
+      
+      let gymId;
+      if (existingGyms.length === 0) {
+        const newGym = await base44.entities.Gym.create({
+          name: selectedGym.name,
+          address: selectedGym.address,
+          city: selectedGym.address.split(',').slice(-2)[0]?.trim() || 'Unknown',
+          total_lockers: 50
+        });
+        gymId = newGym.id;
+        
+        // Create initial lockers for this gym
+        const lockerPromises = [];
+        for (let i = 1; i <= 50; i++) {
+          lockerPromises.push(
+            base44.entities.Locker.create({
+              gym_id: gymId,
+              locker_number: String(i).padStart(3, '0'),
+              access_code: String(Math.floor(1000 + Math.random() * 9000)),
+              status: 'available'
+            })
+          );
+        }
+        await Promise.all(lockerPromises);
+      } else {
+        gymId = existingGyms[0].id;
+      }
       
       const availableLockers = await base44.entities.Locker.filter({
-        gym_id: gym.id,
+        gym_id: gymId,
         status: 'available'
       });
       
@@ -253,9 +302,9 @@ export default function Profile() {
                   variant="ghost"
                   className="text-[#7cfc00] hover:text-[#6be600] h-7 text-xs"
                   onClick={requestLocation}
-                  disabled={loadingLocation}
+                  disabled={loadingLocation || loadingGyms}
                 >
-                  {loadingLocation ? (
+                  {loadingLocation || loadingGyms ? (
                     <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                   ) : (
                     <Navigation className="w-3 h-3 mr-1" />
@@ -263,41 +312,75 @@ export default function Profile() {
                   {userLocation ? 'Update Location' : 'Use My Location'}
                 </Button>
               </div>
-              <Select
-                value={formData.preferred_gym}
-                onValueChange={(value) => setFormData({ ...formData, preferred_gym: value })}
-              >
-                <SelectTrigger className="bg-[#0d1320] border-gray-700 text-white">
-                  <SelectValue placeholder="Select a gym" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#1a2332] border-gray-700 max-h-72">
-                  {gymsWithDistance.map((gym) => (
-                    <SelectItem key={gym.id} value={gym.id} className="text-white">
-                      <div className="flex items-center justify-between w-full">
-                        <span>{gym.name}</span>
-                        <div className="flex items-center gap-2 ml-4">
-                          {gym.distance && (
-                            <span className="text-[#7cfc00] text-xs flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {gym.distance} mi
-                            </span>
-                          )}
-                          {lockerAvailability[gym.id] !== undefined && (
-                            <span className={`text-xs ${lockerAvailability[gym.id] > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                              {lockerAvailability[gym.id]} lockers
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {userLocation && gymsWithDistance[0]?.distance && (
-                <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  Nearest: {gymsWithDistance[0].name} ({gymsWithDistance[0].distance} mi away)
-                </p>
+              {!userLocation ? (
+                <div className="bg-[#0d1320] rounded-lg p-6 border border-gray-700 text-center">
+                  <Navigation className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+                  <p className="text-gray-400 text-sm">Enable location to find gyms near you</p>
+                  <Button
+                    size="sm"
+                    className="mt-3 bg-[#7cfc00] text-black hover:bg-[#6be600]"
+                    onClick={requestLocation}
+                    disabled={loadingLocation}
+                  >
+                    {loadingLocation ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Navigation className="w-3 h-3 mr-1" />}
+                    Find Gyms Near Me
+                  </Button>
+                </div>
+              ) : loadingGyms ? (
+                <div className="bg-[#0d1320] rounded-lg p-6 border border-gray-700 text-center">
+                  <Loader2 className="w-8 h-8 text-[#7cfc00] mx-auto mb-2 animate-spin" />
+                  <p className="text-gray-400 text-sm">Finding gyms near you...</p>
+                </div>
+              ) : gymsWithDistance.length === 0 ? (
+                <div className="bg-[#0d1320] rounded-lg p-6 border border-gray-700 text-center">
+                  <p className="text-gray-400 text-sm">No gyms found nearby</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-3"
+                    onClick={() => refetchGyms()}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Select
+                    value={formData.preferred_gym}
+                    onValueChange={(value) => setFormData({ ...formData, preferred_gym: value })}
+                  >
+                    <SelectTrigger className="bg-[#0d1320] border-gray-700 text-white">
+                      <SelectValue placeholder="Select a gym" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1a2332] border-gray-700 max-h-72">
+                      {gymsWithDistance.map((gym, index) => (
+                        <SelectItem key={index} value={gym.gymKey} className="text-white">
+                          <div className="flex flex-col gap-1 py-1">
+                            <div className="flex items-center justify-between w-full">
+                              <span className="font-semibold">{gym.name}</span>
+                              <span className="text-[#7cfc00] text-xs flex items-center gap-1 ml-4">
+                                <MapPin className="w-3 h-3" />
+                                {gym.distance} mi
+                              </span>
+                            </div>
+                            <span className="text-gray-400 text-xs">{gym.address}</span>
+                            {lockerAvailability[gym.gymKey] !== undefined && (
+                              <span className={`text-xs ${lockerAvailability[gym.gymKey] > 0 ? 'text-green-400' : 'text-gray-500'}`}>
+                                {lockerAvailability[gym.gymKey] > 0 ? `${lockerAvailability[gym.gymKey]} lockers available` : 'Setup required'}
+                              </span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {gymsWithDistance[0] && (
+                    <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />
+                      Nearest: {gymsWithDistance[0].name} ({gymsWithDistance[0].distance} mi away)
+                    </p>
+                  )}
+                </>
               )}
             </div>
 
@@ -317,10 +400,13 @@ export default function Profile() {
                     <p className="text-[#7cfc00] font-mono font-bold text-2xl">{locker.access_code}</p>
                   </div>
                 </div>
-                {formData.preferred_gym && gyms.find(g => g.id === formData.preferred_gym) && (
+{formData.preferred_gym && nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym) && (
                   <div className="mt-3 pt-3 border-t border-gray-700">
                     <p className="text-gray-400 text-xs">
-                      Location: {gyms.find(g => g.id === formData.preferred_gym)?.name}
+                      Location: {nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym)?.name}
+                    </p>
+                    <p className="text-gray-500 text-xs mt-1">
+                      {nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym)?.address}
                     </p>
                   </div>
                 )}
@@ -332,19 +418,19 @@ export default function Profile() {
                     ? 'No lockers available at this gym' 
                     : "You don't have a locker yet"}
                 </p>
-                {formData.preferred_gym && lockerAvailability[formData.preferred_gym] > 0 && (
+{formData.preferred_gym && lockerAvailability[formData.preferred_gym] !== undefined && (
                   <p className="text-green-400 text-sm mb-3 flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    {lockerAvailability[formData.preferred_gym]} lockers available now
+                    {lockerAvailability[formData.preferred_gym] === 0 ? 'Locker setup available' : `${lockerAvailability[formData.preferred_gym]} lockers available`}
                   </p>
                 )}
                 <Button
                   className="w-full bg-[#7cfc00] text-black hover:bg-[#6be600]"
                   onClick={() => claimLockerMutation.mutate()}
-                  disabled={!formData.preferred_gym || claimLockerMutation.isPending || lockerAvailability[formData.preferred_gym] === 0}
+                  disabled={!formData.preferred_gym || claimLockerMutation.isPending}
                 >
                   <Lock className="w-4 h-4 mr-2" />
-                  {lockerAvailability[formData.preferred_gym] === 0 ? 'No Lockers Available' : 'Claim Locker'}
+                  {claimLockerMutation.isPending ? 'Setting up...' : 'Claim Locker'}
                 </Button>
               </div>
             )}
