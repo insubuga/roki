@@ -354,21 +354,21 @@ export default function Profile() {
                     </SelectTrigger>
                     <SelectContent className="bg-[#1a2332] border-gray-700 max-h-72">
                       {gymsWithDistance.map((gym, index) => (
-                        <SelectItem key={index} value={gym.gymKey} className="text-white">
-                          <div className="flex flex-col gap-1 py-1">
-                            <div className="flex items-center justify-between w-full">
-                              <span className="font-semibold">{gym.name}</span>
-                              <span className="text-[#7cfc00] text-xs flex items-center gap-1 ml-4">
-                                <MapPin className="w-3 h-3" />
-                                {gym.distance} mi
-                              </span>
+                        <SelectItem key={index} value={gym.gymKey} className="text-white h-auto py-3">
+                          <div className="flex items-start justify-between gap-3 w-full">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-white truncate">{gym.name}</div>
+                              <div className="text-gray-400 text-xs mt-1">{gym.address}</div>
+                              {lockerAvailability[gym.gymKey] !== undefined && (
+                                <div className={`text-xs mt-1 ${lockerAvailability[gym.gymKey] > 0 ? 'text-green-400' : 'text-gray-500'}`}>
+                                  {lockerAvailability[gym.gymKey] > 0 ? `${lockerAvailability[gym.gymKey]} lockers available` : 'Setup required'}
+                                </div>
+                              )}
                             </div>
-                            <span className="text-gray-400 text-xs">{gym.address}</span>
-                            {lockerAvailability[gym.gymKey] !== undefined && (
-                              <span className={`text-xs ${lockerAvailability[gym.gymKey] > 0 ? 'text-green-400' : 'text-gray-500'}`}>
-                                {lockerAvailability[gym.gymKey] > 0 ? `${lockerAvailability[gym.gymKey]} lockers available` : 'Setup required'}
-                              </span>
-                            )}
+                            <span className="text-[#7cfc00] text-xs flex items-center gap-1 flex-shrink-0">
+                              <MapPin className="w-3 h-3" />
+                              {gym.distance} mi
+                            </span>
                           </div>
                         </SelectItem>
                       ))}
