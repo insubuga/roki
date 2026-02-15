@@ -3,13 +3,18 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Settings, ArrowLeft, User, Mail, Lock, Save, MapPin, Navigation, Loader2 } from 'lucide-react';
+import { Settings, ArrowLeft, User, Mail, Lock, Save, MapPin, Navigation, Loader2, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { addHours } from 'date-fns';
+import LockerControls from '../components/locker/LockerControls';
+import ReportIssueDialog from '../components/locker/ReportIssueDialog';
+import GymMapView from '../components/locker/GymMapView';
+import BookingExtension from '../components/locker/BookingExtension';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -20,6 +25,8 @@ export default function Profile() {
   });
   const [userLocation, setUserLocation] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [selectedGymOnMap, setSelectedGymOnMap] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -156,7 +163,7 @@ export default function Profile() {
   });
 
   const claimLockerMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (bookingDuration = 24) => {
       const selectedGym = nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym);
       if (!selectedGym) throw new Error('Please select a gym first');
       
@@ -184,7 +191,8 @@ export default function Profile() {
               gym_id: gymId,
               locker_number: String(i).padStart(3, '0'),
               access_code: String(Math.floor(1000 + Math.random() * 9000)),
-              status: 'available'
+              status: 'available',
+              is_locked: true
             })
           );
         }
@@ -202,10 +210,16 @@ export default function Profile() {
         throw new Error('No available lockers at this gym');
       }
       
+      const now = new Date();
+      const bookingEnd = addHours(now, bookingDuration);
+      
       const locker = availableLockers[0];
       return base44.entities.Locker.update(locker.id, {
         user_email: user.email,
-        status: 'claimed'
+        status: 'claimed',
+        is_locked: true,
+        booking_start: now.toISOString(),
+        booking_end: bookingEnd.toISOString()
       });
     },
     onSuccess: () => {
@@ -374,42 +388,67 @@ export default function Profile() {
                       ))}
                     </SelectContent>
                   </Select>
-                  {gymsWithDistance[0] && (
-                    <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      Nearest: {gymsWithDistance[0].name} ({gymsWithDistance[0].distance} mi away)
-                    </p>
+                  <div className="flex items-center justify-between mt-1">
+                    {gymsWithDistance[0] && (
+                      <p className="text-gray-500 text-xs flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        Nearest: {gymsWithDistance[0].name} ({gymsWithDistance[0].distance} mi away)
+                      </p>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-[#7cfc00] hover:text-[#6be600] h-7 text-xs"
+                      onClick={() => setShowMap(!showMap)}
+                    >
+                      <Map className="w-3 h-3 mr-1" />
+                      {showMap ? 'Hide Map' : 'View Map'}
+                    </Button>
+                  </div>
+                  {showMap && gymsWithDistance.length > 0 && (
+                    <div className="mt-4">
+                      <GymMapView 
+                        gyms={gymsWithDistance}
+                        selectedGym={selectedGymOnMap}
+                        onSelectGym={(gym) => {
+                          setSelectedGymOnMap(gym);
+                          setFormData({ ...formData, preferred_gym: gym.gymKey });
+                        }}
+                      />
+                    </div>
                   )}
                 </>
               )}
             </div>
 
             {locker ? (
-              <div className="bg-gradient-to-br from-[#7cfc00]/10 to-teal-500/10 rounded-lg p-4 border border-[#7cfc00]/30">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-gray-400 text-sm">Your Locker</p>
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <div className="space-y-4">
+                <div className="bg-gradient-to-br from-[#7cfc00]/10 to-teal-500/10 rounded-lg p-4 border border-[#7cfc00]/30">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-gray-400 text-sm">Your Locker</p>
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white font-bold text-xl">#{locker.locker_number}</p>
+                      <p className="text-[#7cfc00] text-sm">Active</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-gray-400 text-sm">Access Code</p>
+                      <p className="text-[#7cfc00] font-mono font-bold text-2xl">{locker.access_code}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-bold text-xl">#{locker.locker_number}</p>
-                    <p className="text-[#7cfc00] text-sm">Active</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-gray-400 text-sm">Access Code</p>
-                    <p className="text-[#7cfc00] font-mono font-bold text-2xl">{locker.access_code}</p>
-                  </div>
+
+                <LockerControls 
+                  locker={locker} 
+                  gym={nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym)} 
+                />
+
+                <div className="grid grid-cols-2 gap-2">
+                  <BookingExtension locker={locker} />
+                  <ReportIssueDialog locker={locker} user={user} />
                 </div>
-{formData.preferred_gym && nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym) && (
-                  <div className="mt-3 pt-3 border-t border-gray-700">
-                    <p className="text-gray-400 text-xs">
-                      Location: {nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym)?.name}
-                    </p>
-                    <p className="text-gray-500 text-xs mt-1">
-                      {nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym)?.address}
-                    </p>
-                  </div>
-                )}
               </div>
             ) : (
               <div className="bg-[#0d1320] rounded-lg p-4 border border-gray-700">
