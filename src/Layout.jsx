@@ -131,8 +131,12 @@ export default function Layout({ children, currentPageName }) {
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button className="w-10 h-10 rounded-full bg-[#7cfc00] text-black font-bold hover:bg-[#6be600]">
-                      {getInitials(user.full_name)}
+                    <Button className="w-10 h-10 rounded-full bg-[#7cfc00] text-black font-bold hover:bg-[#6be600] overflow-hidden p-0">
+                      {user.profile_photo ? (
+                        <img src={user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{getInitials(user.full_name)}</span>
+                      )}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="bg-[#1a2332] border-gray-700" align="end">

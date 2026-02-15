@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Settings, ArrowLeft, User, Mail, Lock, Save, MapPin, Navigation, Loader2, Map } from 'lucide-react';
+import { Settings, ArrowLeft, User, Mail, Lock, Save, MapPin, Navigation, Loader2, Map, Camera, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,6 +29,8 @@ export default function Profile() {
   const [showMap, setShowMap] = useState(false);
   const [selectedGymOnMap, setSelectedGymOnMap] = useState(null);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -178,6 +180,33 @@ export default function Profile() {
     },
   });
 
+  const uploadPhotoMutation = useMutation({
+    mutationFn: async (file) => {
+      const formData = new FormData();
+      formData.append('photo', file);
+      
+      const response = await base44.functions.invoke('uploadProfilePhoto', formData);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success('Profile photo updated!');
+      setUser({ ...user, profile_photo: data.file_url });
+      setUploadingPhoto(false);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || 'Failed to upload photo');
+      setUploadingPhoto(false);
+    }
+  });
+
+  const handlePhotoSelect = (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploadingPhoto(true);
+      uploadPhotoMutation.mutate(file);
+    }
+  };
+
   const claimLockerMutation = useMutation({
     mutationFn: async (bookingDuration = 24) => {
       const selectedGym = nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym);
@@ -284,6 +313,45 @@ export default function Profile() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Profile Photo */}
+            <div className="flex items-center gap-4 pb-4 border-b border-gray-700">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-full bg-[#7cfc00]/20 flex items-center justify-center overflow-hidden border-2 border-[#7cfc00]">
+                  {user.profile_photo ? (
+                    <img src={user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-10 h-10 text-[#7cfc00]" />
+                  )}
+                </div>
+                {uploadingPhoto && (
+                  <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                    <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="text-white font-semibold mb-1">Profile Photo</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handlePhotoSelect}
+                  className="hidden"
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingPhoto}
+                  className="border-gray-700 text-white hover:bg-gray-800"
+                >
+                  <Upload className="w-3 h-3 mr-2" />
+                  {uploadingPhoto ? 'Uploading...' : 'Upload Photo'}
+                </Button>
+                <p className="text-gray-500 text-xs mt-1">JPG, PNG or WebP. Max 5MB.</p>
+              </div>
+            </div>
+
             <div>
               <Label className="text-gray-400">Full Name</Label>
               <Input
