@@ -21,13 +21,34 @@ export default function LockerControls({ locker, gym }) {
         last_unlocked: action === 'unlock' ? new Date().toISOString() : locker.last_unlocked
       });
     },
+    onMutate: async (action) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['userLocker'] });
+
+      // Snapshot the previous value
+      const previousLocker = queryClient.getQueryData(['userLocker', locker.user_email]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['userLocker', locker.user_email], (old) => {
+        if (!old) return old;
+        return [{
+          ...old[0],
+          is_locked: action === 'lock',
+          last_unlocked: action === 'unlock' ? new Date().toISOString() : old[0].last_unlocked
+        }];
+      });
+
+      return { previousLocker };
+    },
     onSuccess: (data, action) => {
       setIsToggling(false);
       queryClient.invalidateQueries({ queryKey: ['userLocker'] });
       toast.success(action === 'lock' ? 'Locker secured' : 'Locker unlocked');
     },
-    onError: () => {
+    onError: (err, action, context) => {
       setIsToggling(false);
+      // Rollback to the previous value
+      queryClient.setQueryData(['userLocker', locker.user_email], context.previousLocker);
       toast.error('Failed to control locker');
     }
   });
@@ -63,15 +84,17 @@ export default function LockerControls({ locker, gym }) {
           <Button
             onClick={() => toggleLockMutation.mutate('unlock')}
             disabled={!locker.is_locked || isToggling}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
+            className="bg-orange-500 hover:bg-orange-600 text-white select-none"
           >
+            <Unlock className="w-4 h-4 mr-1 select-none" />
             {isToggling ? 'Processing...' : 'Unlock'}
           </Button>
           <Button
             onClick={() => toggleLockMutation.mutate('lock')}
             disabled={locker.is_locked || isToggling}
-            className="bg-[#7cfc00] hover:bg-[#6be600] text-black"
+            className="bg-[#7cfc00] hover:bg-[#6be600] text-black select-none"
           >
+            <Lock className="w-4 h-4 mr-1 select-none" />
             {isToggling ? 'Processing...' : 'Lock'}
           </Button>
         </div>

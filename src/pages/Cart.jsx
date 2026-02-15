@@ -33,11 +33,38 @@ export default function Cart() {
 
   const updateQuantityMutation = useMutation({
     mutationFn: ({ id, quantity }) => base44.entities.CartItem.update(id, { quantity }),
+    onMutate: async ({ id, quantity }) => {
+      await queryClient.cancelQueries({ queryKey: ['cartItems', user?.email] });
+      const previousItems = queryClient.getQueryData(['cartItems', user?.email]);
+
+      queryClient.setQueryData(['cartItems', user?.email], (old) =>
+        old?.map((item) => (item.id === id ? { ...item, quantity } : item))
+      );
+
+      return { previousItems };
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(['cartItems', user?.email], context.previousItems);
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cartItems'] }),
   });
 
   const removeItemMutation = useMutation({
     mutationFn: (id) => base44.entities.CartItem.delete(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['cartItems', user?.email] });
+      const previousItems = queryClient.getQueryData(['cartItems', user?.email]);
+
+      queryClient.setQueryData(['cartItems', user?.email], (old) =>
+        old?.filter((item) => item.id !== id)
+      );
+
+      return { previousItems };
+    },
+    onError: (err, id, context) => {
+      queryClient.setQueryData(['cartItems', user?.email], context.previousItems);
+      toast.error('Failed to remove item');
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cartItems'] });
       toast.success('Item removed from cart');
@@ -118,23 +145,23 @@ export default function Cart() {
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 border-gray-700 text-gray-400"
+                        className="h-8 w-8 border-gray-700 text-gray-400 select-none"
                         onClick={() => {
                           if ((item.quantity || 1) > 1) {
                             updateQuantityMutation.mutate({ id: item.id, quantity: (item.quantity || 1) - 1 });
                           }
                         }}
                       >
-                        <Minus className="w-4 h-4" />
+                        <Minus className="w-4 h-4 select-none" />
                       </Button>
                       <span className="text-white font-medium w-8 text-center">{item.quantity || 1}</span>
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 border-gray-700 text-gray-400"
+                        className="h-8 w-8 border-gray-700 text-gray-400 select-none"
                         onClick={() => updateQuantityMutation.mutate({ id: item.id, quantity: (item.quantity || 1) + 1 })}
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-4 h-4 select-none" />
                       </Button>
                     </div>
                   </div>
@@ -142,10 +169,10 @@ export default function Cart() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-gray-400 hover:text-red-500"
+                      className="text-gray-400 hover:text-red-500 select-none"
                       onClick={() => removeItemMutation.mutate(item.id)}
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-5 h-5 select-none" />
                     </Button>
                     <p className="text-white font-bold">${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</p>
                   </div>

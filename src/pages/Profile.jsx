@@ -3,12 +3,23 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Settings, ArrowLeft, User, Mail, Lock, Save, MapPin, Navigation, Loader2, Map, Camera, Upload } from 'lucide-react';
+import { Settings, ArrowLeft, User, Mail, Lock, Save, MapPin, Navigation, Loader2, Map, Camera, Upload, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { addHours } from 'date-fns';
 import LockerControls from '../components/locker/LockerControls';
@@ -206,6 +217,22 @@ export default function Profile() {
       uploadPhotoMutation.mutate(file);
     }
   };
+
+  const deleteAccountMutation = useMutation({
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('deleteUserAccount', {});
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success('Account deleted successfully');
+      setTimeout(() => {
+        base44.auth.logout();
+      }, 1500);
+    },
+    onError: (error) => {
+      toast.error('Failed to delete account');
+    },
+  });
 
   const claimLockerMutation = useMutation({
     mutationFn: async (bookingDuration = 24) => {
@@ -570,15 +597,59 @@ export default function Profile() {
         </Card>
       </div>
 
-      {/* Save Button */}
-      <Button
-        className="bg-[#7cfc00] text-black hover:bg-[#6be600]"
-        onClick={() => updateProfileMutation.mutate(formData)}
-        disabled={updateProfileMutation.isPending}
-      >
-        <Save className="w-4 h-4 mr-2" />
-        Save Changes
-      </Button>
+      {/* Actions */}
+      <div className="flex items-center justify-between gap-4">
+        <Button
+          className="bg-[#7cfc00] text-black hover:bg-[#6be600] select-none"
+          onClick={() => updateProfileMutation.mutate(formData)}
+          disabled={updateProfileMutation.isPending}
+        >
+          <Save className="w-4 h-4 mr-2 select-none" />
+          Save Changes
+        </Button>
+
+        {/* Delete Account */}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" className="border-red-500 text-red-500 hover:bg-red-500/10 select-none">
+              <Trash2 className="w-4 h-4 mr-2 select-none" />
+              Delete Account
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="bg-[#1a2332] border-red-500/50">
+            <AlertDialogHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-red-500 select-none" />
+                </div>
+                <AlertDialogTitle className="text-white text-xl">Delete Account</AlertDialogTitle>
+              </div>
+              <AlertDialogDescription className="text-gray-400">
+                This action cannot be undone. This will permanently delete your account and remove all your data including:
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>Profile information and photos</li>
+                  <li>Locker bookings and history</li>
+                  <li>Orders and payment records</li>
+                  <li>Subscription details</li>
+                  <li>All notifications and preferences</li>
+                </ul>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-gray-700 text-white border-gray-600 select-none">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-500 hover:bg-red-600 text-white select-none"
+                onClick={() => deleteAccountMutation.mutate()}
+                disabled={deleteAccountMutation.isPending}
+              >
+                {deleteAccountMutation.isPending ? 'Deleting...' : 'Delete Account'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </div>
   );
 }
