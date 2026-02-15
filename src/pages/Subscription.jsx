@@ -130,6 +130,19 @@ export default function Subscription() {
 
   const updateSubscriptionMutation = useMutation({
     mutationFn: async (planId) => {
+      // For paid plans, redirect to Stripe checkout
+      if (planId !== 'free') {
+        const response = await base44.functions.invoke('createSubscriptionCheckout', {
+          plan_id: planId
+        });
+        
+        if (response.data.url) {
+          window.location.href = response.data.url;
+        }
+        return null;
+      }
+      
+      // For free plan, update directly (downgrade)
       const plan = plans.find(p => p.id === planId);
       
       if (subscription) {
@@ -166,6 +179,8 @@ export default function Subscription() {
       }
     },
     onSuccess: async (data, variables) => {
+      if (!data) return; // Redirected to Stripe
+      
       const oldPlan = subscription?.plan || 'free';
       const newPlan = variables;
       
@@ -184,6 +199,19 @@ export default function Subscription() {
           await NotificationTriggers.subscriptionDowngraded(user.email, newPlan);
         }
       }
+    },
+  });
+
+  const cancelSubscriptionMutation = useMutation({
+    mutationFn: () => base44.functions.invoke('manageSubscription', {
+      action: 'cancel'
+    }),
+    onSuccess: () => {
+      toast.success('Subscription will cancel at period end');
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+    },
+    onError: () => {
+      toast.error('Failed to cancel subscription');
     },
   });
 
@@ -222,8 +250,31 @@ export default function Subscription() {
             <div>
               <p className="text-gray-400 text-sm">Current Plan</p>
               <p className="text-white text-2xl font-bold capitalize">{currentPlan}</p>
+              {subscription.status === 'canceling' && (
+                <Badge className="mt-2 bg-yellow-500 text-black">
+                  Cancels on {subscription.renewal_date}
+                </Badge>
+              )}
+              {subscription.renewal_date && subscription.status === 'active' && currentPlan !== 'free' && (
+                <p className="text-gray-400 text-sm mt-1">
+                  Renews on {new Date(subscription.renewal_date).toLocaleDateString()}
+                </p>
+              )}
             </div>
-            <Crown className="w-10 h-10 text-[#7cfc00]" />
+            <div className="flex items-center gap-3">
+              {subscription.stripe_subscription_id && subscription.status !== 'canceling' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => cancelSubscriptionMutation.mutate()}
+                  disabled={cancelSubscriptionMutation.isPending}
+                  className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                >
+                  Cancel
+                </Button>
+              )}
+              <Crown className="w-10 h-10 text-[#7cfc00]" />
+            </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
             <div className="bg-[#0d1320] rounded-lg p-3">

@@ -27,57 +27,188 @@ Deno.serve(async (req) => {
   console.log('Processing webhook event:', event.type);
 
   try {
+    // Handle one-time payment checkout
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       const metadata = session.metadata;
 
-      console.log('Checkout completed for:', metadata.user_email);
+      console.log('Checkout completed for:', metadata.user_email, 'mode:', session.mode);
 
-      // Create payment record
-      const payment = await base44.asServiceRole.entities.Payment.create({
-        user_email: metadata.user_email,
-        amount: session.amount_total / 100,
-        payment_type: metadata.payment_type || 'locker_rental',
-        status: 'completed',
-        stripe_payment_id: session.payment_intent,
-        description: `Locker rental for ${metadata.duration} hours at ${metadata.gym_name}`,
-        rental_duration_hours: parseInt(metadata.duration),
-      });
-
-      console.log('Payment record created:', payment.id);
-
-      // Find available locker at the gym
-      const gyms = await base44.asServiceRole.entities.Gym.filter({
-        name: metadata.gym_name,
-        address: metadata.gym_address,
-      });
-
-      if (gyms.length > 0) {
-        const gymId = gyms[0].id;
-        const availableLockers = await base44.asServiceRole.entities.Locker.filter({
-          gym_id: gymId,
-          status: 'available',
+      // Handle subscription checkout
+      if (session.mode === 'subscription') {
+        const subscription = await stripe.subscriptions.retrieve(session.subscription);
+        
+        // Update or create subscription in database
+        const existingSubs = await base44.asServiceRole.entities.Subscription.filter({
+          user_email: metadata.user_email
         });
 
-        if (availableLockers.length > 0) {
-          const locker = availableLockers[0];
-          const now = new Date();
-          const bookingEnd = new Date(now.getTime() + parseInt(metadata.duration) * 60 * 60 * 1000);
+        const planDetails = {
+          basic: { credits: 5, turnaround: 36, sneaker: 30, premium: false, rush: 1, rushFee: 12, dispatch: false, price: 9.99 },
+          pro: { credits: 10, turnaround: 24, sneaker: 50, premium: false, rush: 3, rushFee: 10, dispatch: true, price: 19.99 },
+          elite: { credits: 999, turnaround: 12, sneaker: 100, premium: true, rush: 999, rushFee: 0, dispatch: true, price: 49.99 },
+        };
 
-          await base44.asServiceRole.entities.Locker.update(locker.id, {
+        const plan = planDetails[metadata.plan_id] || planDetails.basic;
+
+        if (existingSubs[0]) {
+          await base44.asServiceRole.entities.Subscription.update(existingSubs[0].id, {
+            plan: metadata.plan_id,
+            monthly_price: plan.price,
+            stripe_customer_id: session.customer,
+            stripe_subscription_id: subscription.id,
+            status: 'active',
+            laundry_credits: plan.credits,
+            laundry_turnaround_hours: plan.turnaround,
+            sneaker_cleaning_discount: plan.sneaker,
+            premium_sneaker_cleaning: plan.premium,
+            rush_deliveries_included: plan.rush,
+            rush_delivery_fee: plan.rushFee,
+            priority_dispatch: plan.dispatch,
+            priority_locker: true,
+            renewal_date: new Date(subscription.current_period_end * 1000).toISOString().split('T')[0],
+          });
+        } else {
+          await base44.asServiceRole.entities.Subscription.create({
             user_email: metadata.user_email,
-            status: 'claimed',
-            is_locked: true,
-            booking_start: now.toISOString(),
-            booking_end: bookingEnd.toISOString(),
+            plan: metadata.plan_id,
+            monthly_price: plan.price,
+            stripe_customer_id: session.customer,
+            stripe_subscription_id: subscription.id,
+            status: 'active',
+            laundry_credits: plan.credits,
+            laundry_turnaround_hours: plan.turnaround,
+            sneaker_cleaning_discount: plan.sneaker,
+            premium_sneaker_cleaning: plan.premium,
+            rush_deliveries_included: plan.rush,
+            rush_delivery_fee: plan.rushFee,
+            priority_dispatch: plan.dispatch,
+            priority_locker: true,
+            renewal_date: new Date(subscription.current_period_end * 1000).toISOString().split('T')[0],
+          });
+        }
+
+        console.log('Subscription activated:', metadata.plan_id, 'for', metadata.user_email);
+      } 
+      // Handle one-time payment (locker rental)
+      else if (metadata.payment_type === 'locker_rental') {
+        // Create payment record
+        const payment = await base44.asServiceRole.entities.Payment.create({
+          user_email: metadata.user_email,
+          amount: session.amount_total / 100,
+          payment_type: metadata.payment_type || 'locker_rental',
+          status: 'completed',
+          stripe_payment_id: session.payment_intent,
+          description: `Locker rental for ${metadata.duration} hours at ${metadata.gym_name}`,
+          rental_duration_hours: parseInt(metadata.duration),
+        });
+
+        console.log('Payment record created:', payment.id);
+
+        // Find available locker at the gym
+        const gyms = await base44.asServiceRole.entities.Gym.filter({
+          name: metadata.gym_name,
+          address: metadata.gym_address,
+        });
+
+        if (gyms.length > 0) {
+          const gymId = gyms[0].id;
+          const availableLockers = await base44.asServiceRole.entities.Locker.filter({
+            gym_id: gymId,
+            status: 'available',
           });
 
-          console.log('Locker claimed:', locker.id);
+          if (availableLockers.length > 0) {
+            const locker = availableLockers[0];
+            const now = new Date();
+            const bookingEnd = new Date(now.getTime() + parseInt(metadata.duration) * 60 * 60 * 1000);
+
+            await base44.asServiceRole.entities.Locker.update(locker.id, {
+              user_email: metadata.user_email,
+              status: 'claimed',
+              is_locked: true,
+              booking_start: now.toISOString(),
+              booking_end: bookingEnd.toISOString(),
+            });
+
+            console.log('Locker claimed:', locker.id);
+          } else {
+            console.error('No available lockers at gym:', gymId);
+          }
         } else {
-          console.error('No available lockers at gym:', gymId);
+          console.error('Gym not found:', metadata.gym_name);
         }
-      } else {
-        console.error('Gym not found:', metadata.gym_name);
+      }
+    }
+
+    // Handle subscription renewal
+    if (event.type === 'invoice.payment_succeeded') {
+      const invoice = event.data.object;
+      
+      if (invoice.subscription) {
+        const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
+        const customerEmail = invoice.customer_email;
+
+        // Reset usage counters on renewal
+        const subs = await base44.asServiceRole.entities.Subscription.filter({
+          stripe_subscription_id: subscription.id
+        });
+
+        if (subs[0]) {
+          await base44.asServiceRole.entities.Subscription.update(subs[0].id, {
+            laundry_credits_used: 0,
+            rush_deliveries_used: 0,
+            renewal_date: new Date(subscription.current_period_end * 1000).toISOString().split('T')[0],
+          });
+
+          console.log('Subscription renewed and credits reset for:', customerEmail);
+        }
+      }
+    }
+
+    // Handle subscription cancellation
+    if (event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object;
+      
+      const subs = await base44.asServiceRole.entities.Subscription.filter({
+        stripe_subscription_id: subscription.id
+      });
+
+      if (subs[0]) {
+        await base44.asServiceRole.entities.Subscription.update(subs[0].id, {
+          plan: 'free',
+          status: 'canceled',
+          stripe_subscription_id: null,
+          monthly_price: 0,
+          laundry_credits: 2,
+          laundry_turnaround_hours: 48,
+          sneaker_cleaning_discount: 0,
+          premium_sneaker_cleaning: false,
+          rush_deliveries_included: 0,
+          rush_delivery_fee: 15,
+          priority_dispatch: false,
+        });
+
+        console.log('Subscription canceled and downgraded to free:', subs[0].user_email);
+      }
+    }
+
+    // Handle subscription updates
+    if (event.type === 'customer.subscription.updated') {
+      const subscription = event.data.object;
+      
+      const subs = await base44.asServiceRole.entities.Subscription.filter({
+        stripe_subscription_id: subscription.id
+      });
+
+      if (subs[0]) {
+        const status = subscription.cancel_at_period_end ? 'canceling' : 'active';
+        await base44.asServiceRole.entities.Subscription.update(subs[0].id, {
+          status: status,
+          renewal_date: new Date(subscription.current_period_end * 1000).toISOString().split('T')[0],
+        });
+
+        console.log('Subscription status updated:', status);
       }
     }
 
