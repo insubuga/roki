@@ -60,7 +60,14 @@ export default function Activewear() {
     queryKey: ['subscription', user?.email],
     queryFn: async () => {
       const subs = await base44.entities.Subscription.filter({ user_email: user?.email });
-      return subs[0] || { plan: 'free', laundry_credits: 2, laundry_credits_used: 0 };
+      return subs[0] || { 
+        plan: 'free', 
+        laundry_credits: 2, 
+        laundry_credits_used: 0,
+        laundry_turnaround_hours: 48,
+        sneaker_cleaning_discount: 0,
+        premium_sneaker_cleaning: false
+      };
     },
     enabled: !!user?.email,
   });
@@ -70,12 +77,26 @@ export default function Activewear() {
       if (selectedItems.length === 0) {
         throw new Error('Please select at least one item');
       }
+
+      const creditsRemaining = subscription.laundry_credits - subscription.laundry_credits_used;
+      if (creditsRemaining <= 0) {
+        throw new Error('No laundry credits remaining');
+      }
       
       const orderNumber = Math.random().toString(36).substring(2, 10).toUpperCase();
-      const sneakerFee = includeSneakers ? 15 : 0;
-      const itemsCount = selectedItems.length;
+      let sneakerFee = 0;
       
-      return base44.entities.LaundryOrder.create({
+      if (includeSneakers) {
+        if (subscription.premium_sneaker_cleaning) {
+          sneakerFee = 0;
+        } else {
+          const originalPrice = 15;
+          const discount = subscription.sneaker_cleaning_discount || 0;
+          sneakerFee = originalPrice * (1 - discount / 100);
+        }
+      }
+      
+      const order = await base44.entities.LaundryOrder.create({
         user_email: user.email,
         order_number: orderNumber,
         drop_off_date: new Date().toISOString().split('T')[0],
@@ -86,10 +107,19 @@ export default function Activewear() {
         sneaker_fee: sneakerFee,
         total_cost: sneakerFee
       });
+
+      if (subscription.id) {
+        await base44.entities.Subscription.update(subscription.id, {
+          laundry_credits_used: subscription.laundry_credits_used + 1
+        });
+      }
+
+      return order;
     },
     onSuccess: () => {
       toast.success('Laundry drop-off scheduled!');
       queryClient.invalidateQueries({ queryKey: ['laundryOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
       setSelectedItems([]);
       setIncludeSneakers(false);
     },
@@ -215,8 +245,8 @@ export default function Activewear() {
                         ))}
                         {order.includes_sneakers && (
                           <Badge variant="outline" className="bg-orange-500/20 text-orange-400 border-orange-500/30">
-                            <Footprints className="w-3 h-3 mr-1" />
-                            Sneakers +$15
+                           <Footprints className="w-3 h-3 mr-1" />
+                           Sneakers {order.sneaker_fee === 0 ? '(Free)' : `+$${order.sneaker_fee.toFixed(2)}`}
                           </Badge>
                         )}
                       </div>
@@ -277,7 +307,15 @@ export default function Activewear() {
                   <p className="text-gray-400 text-sm mt-1">
                     Professional sneaker cleaning and deodorizing service
                   </p>
-                  <p className="text-orange-400 font-bold text-sm mt-2">+ $15.00</p>
+                  <p className="text-orange-400 font-bold text-sm mt-2">
+                    {subscription?.premium_sneaker_cleaning ? (
+                      <>✓ Free (Elite)</>
+                    ) : subscription?.sneaker_cleaning_discount > 0 ? (
+                      <>+ ${(15 * (1 - subscription.sneaker_cleaning_discount / 100)).toFixed(2)} ({subscription.sneaker_cleaning_discount}% off)</>
+                    ) : (
+                      <>+ $15.00</>
+                    )}
+                  </p>
                 </div>
               </div>
             </div>
@@ -291,12 +329,23 @@ export default function Activewear() {
               {includeSneakers && (
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-400">Sneaker cleaning:</span>
-                  <span className="text-orange-400 font-semibold">$15.00</span>
+                  <span className="text-orange-400 font-semibold">
+                    {subscription?.premium_sneaker_cleaning ? (
+                      'Free'
+                    ) : (
+                      `$${(15 * (1 - (subscription?.sneaker_cleaning_discount || 0) / 100)).toFixed(2)}`
+                    )}
+                  </span>
                 </div>
               )}
               <div className="flex justify-between pt-2 border-t border-gray-700">
                 <span className="text-white font-semibold">Total cost:</span>
-                <span className="text-[#7cfc00] font-bold">${includeSneakers ? '15.00' : '0.00'}</span>
+                <span className="text-[#7cfc00] font-bold">
+                  ${includeSneakers ? (
+                    subscription?.premium_sneaker_cleaning ? '0.00' : 
+                    (15 * (1 - (subscription?.sneaker_cleaning_discount || 0) / 100)).toFixed(2)
+                  ) : '0.00'}
+                </span>
               </div>
             </div>
 
@@ -325,7 +374,7 @@ export default function Activewear() {
             <div className="mb-4">
               <div className="text-center mb-2">
                 <p className="text-gray-400 text-sm mb-1">Laundry Credits</p>
-                <p className="text-5xl font-bold text-[#7cfc00]">{creditsRemaining}</p>
+                <p className="text-5xl font-bold text-[#7cfc00]">{creditsRemaining === 999 ? '∞' : creditsRemaining}</p>
               </div>
               {subscription?.plan === 'elite' && (
                 <div className="text-center">
@@ -333,22 +382,46 @@ export default function Activewear() {
                 </div>
               )}
             </div>
+            {subscription?.plan !== 'elite' && (
+              <div className="mb-4 bg-gray-700 rounded-full h-2 overflow-hidden">
+                <div 
+                  className="bg-[#7cfc00] h-full transition-all"
+                  style={{ 
+                    width: `${((subscription?.laundry_credits - subscription?.laundry_credits_used) / subscription?.laundry_credits * 100)}%` 
+                  }}
+                />
+              </div>
+            )}
             {subscription?.plan === 'elite' && (
               <div className="h-2 bg-gradient-to-r from-[#7cfc00] to-cyan-500 rounded-full mb-4" />
             )}
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-sm border-t border-gray-700 pt-4">
               <div className="flex justify-between">
                 <span className="text-gray-400">Plan:</span>
                 <span className="text-white capitalize">{subscription?.plan || 'Free'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Monthly Allowance:</span>
-                <span className="text-white">{subscription?.laundry_credits || 2}</span>
+                <span className="text-gray-400">Used This Month:</span>
+                <span className="text-white">
+                  {subscription?.laundry_credits_used || 0} / {subscription?.laundry_credits === 999 ? '∞' : (subscription?.laundry_credits || 2)}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Used This Month:</span>
-                <span className="text-white">{subscription?.laundry_credits_used || 0}</span>
+                <span className="text-gray-400">Turnaround:</span>
+                <span className="text-[#7cfc00]">{subscription?.laundry_turnaround_hours || 48}h</span>
               </div>
+              {subscription?.sneaker_cleaning_discount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Sneaker Discount:</span>
+                  <span className="text-[#7cfc00]">{subscription.sneaker_cleaning_discount}% off</span>
+                </div>
+              )}
+              {subscription?.premium_sneaker_cleaning && (
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Premium Sneaker:</span>
+                  <span className="text-[#7cfc00]">Free</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -361,7 +434,7 @@ export default function Activewear() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-400">Processing Time:</span>
-                <span className="text-white font-semibold">24-48 hours</span>
+                <span className="text-white font-semibold">{subscription?.laundry_turnaround_hours || 48} hours</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Pick-up Location:</span>
