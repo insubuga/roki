@@ -340,10 +340,9 @@ export default function Profile() {
                 />
                 <Button
                   size="sm"
-                  variant="outline"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingPhoto}
-                  className="border-gray-700 text-white hover:bg-gray-800"
+                  className="bg-[#7cfc00] text-black hover:bg-[#6be600]"
                 >
                   <Upload className="w-3 h-3 mr-2" />
                   {uploadingPhoto ? 'Uploading...' : 'Upload Photo'}

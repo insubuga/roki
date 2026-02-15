@@ -74,8 +74,12 @@ export default function Dashboard() {
       {/* Welcome Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#1a2332] rounded-full flex items-center justify-center border border-gray-700">
-            <span className="text-[#7cfc00] text-xl">👤</span>
+          <div className="w-12 h-12 bg-[#1a2332] rounded-full flex items-center justify-center border border-gray-700 overflow-hidden">
+            {user.profile_photo ? (
+              <img src={user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-[#7cfc00] text-xl">👤</span>
+            )}
           </div>
           <div>
             <h1 className="text-white text-xl font-bold">{user.full_name || 'User'}</h1>
