@@ -12,6 +12,7 @@ import {
   CreditCard,
   Bot,
   Users,
+  MessageCircle,
   MessageSquare,
   LogOut
 } from 'lucide-react';
