@@ -62,6 +62,7 @@ import Subscription from './pages/Subscription';
 import VantaBot from './pages/VantaBot';
 import Wearables from './pages/Wearables';
 import Support from './pages/Support';
+import SupportAdmin from './pages/SupportAdmin';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +82,7 @@ export const PAGES = {
     "VantaBot": VantaBot,
     "Wearables": Wearables,
     "Support": Support,
+    "SupportAdmin": SupportAdmin,
 }
 
 export const pagesConfig = {

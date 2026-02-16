@@ -68,6 +68,7 @@ export default function Dashboard() {
 
   const adminActions = user?.role === 'admin' ? [
     { icon: Settings, title: 'Admin Dashboard', subtitle: 'Manage application', page: 'AdminDashboard', iconBg: 'bg-red-500' },
+    { icon: MessageCircle, title: 'Support Admin', subtitle: 'Respond to customers', page: 'SupportAdmin', iconBg: 'bg-blue-500' },
   ] : [];
 
   const helpCommunity = [
