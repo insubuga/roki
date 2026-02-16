@@ -90,6 +90,43 @@ Deno.serve(async (req) => {
 
         console.log('Subscription activated:', metadata.plan_id, 'for', metadata.user_email);
       } 
+      // Handle supplement order
+      else if (metadata.payment_type === 'supplement_order') {
+        const cartItems = JSON.parse(metadata.cart_items);
+        
+        // Create order record
+        const order = await base44.asServiceRole.entities.Order.create({
+          user_email: metadata.user_email,
+          items: cartItems,
+          total: session.amount_total / 100,
+          delivery_type: metadata.delivery_type || 'standard',
+          status: 'confirmed',
+          estimated_delivery: new Date(Date.now() + (metadata.delivery_type === 'rush' ? 4 : 24) * 60 * 60 * 1000).toISOString(),
+        });
+
+        console.log('Order created:', order.id);
+
+        // Clear user's cart
+        const userCartItems = await base44.asServiceRole.entities.CartItem.filter({
+          user_email: metadata.user_email
+        });
+        
+        for (const item of userCartItems) {
+          await base44.asServiceRole.entities.CartItem.delete(item.id);
+        }
+
+        console.log('Cart cleared for user:', metadata.user_email);
+
+        // Send notification
+        await base44.asServiceRole.entities.Notification.create({
+          user_email: metadata.user_email,
+          type: 'delivery',
+          title: 'Order Confirmed!',
+          message: `Your order of ${cartItems.length} items is confirmed and will be delivered soon.`,
+          action_url: '/Deliveries',
+          priority: 'high',
+        });
+      }
       // Handle one-time payment (locker rental)
       else if (metadata.payment_type === 'locker_rental') {
         // Create payment record

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { ShoppingCart, Trash2, Plus, Minus, Zap, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, Zap, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MobileHeader from '../components/mobile/MobileHeader';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,9 @@ import { toast } from 'sonner';
 
 export default function Cart() {
   const [user, setUser] = useState(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -25,6 +27,19 @@ export default function Cart() {
     };
     loadUser();
   }, []);
+
+  // Handle payment status from URL
+  useEffect(() => {
+    const status = searchParams.get('payment');
+    if (status === 'success') {
+      toast.success('Order placed successfully! Check your deliveries.');
+      // Clear the URL params
+      window.history.replaceState({}, '', createPageUrl('Cart'));
+    } else if (status === 'cancelled') {
+      toast.error('Payment cancelled. Your cart is still here.');
+      window.history.replaceState({}, '', createPageUrl('Cart'));
+    }
+  }, [searchParams]);
 
   const { data: cartItems = [], isLoading } = useQuery({
     queryKey: ['cartItems', user?.email],
@@ -71,6 +86,41 @@ export default function Cart() {
       toast.success('Item removed from cart');
     },
   });
+
+  const handleCheckout = async (deliveryType = 'standard') => {
+    if (cartItems.length === 0) return;
+
+    // Check if running in iframe (preview mode)
+    if (window.self !== window.top) {
+      toast.error('Checkout only works in published apps. Please publish your app first.');
+      return;
+    }
+
+    setIsCheckingOut(true);
+    try {
+      const { data } = await base44.functions.invoke('createCartCheckout', {
+        cartItems: cartItems.map(item => ({
+          product_id: item.product_id,
+          product_name: item.product_name,
+          quantity: item.quantity || 1,
+          price: item.price,
+          image_url: item.image_url,
+        })),
+        deliveryType,
+      });
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error('Failed to create checkout session');
+        setIsCheckingOut(false);
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error('Failed to proceed to checkout');
+      setIsCheckingOut(false);
+    }
+  };
 
   const subtotal = cartItems.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
   const deliveryFee = subtotal > 50 ? 0 : 4.99;
@@ -195,16 +245,32 @@ export default function Cart() {
                   <span>${total.toFixed(2)}</span>
                 </div>
               </div>
-              <Button className="w-full mt-6 bg-[#7cfc00] text-black hover:bg-[#6be600] font-semibold">
-                Checkout
-                <ArrowRight className="w-4 h-4 ml-2" />
+              <Button 
+                className="w-full mt-6 bg-[#7cfc00] text-black hover:bg-[#6be600] font-semibold select-none"
+                onClick={() => handleCheckout('standard')}
+                disabled={isCheckingOut}
+              >
+                {isCheckingOut ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin select-none" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Checkout
+                    <ArrowRight className="w-4 h-4 ml-2 select-none" />
+                  </>
+                )}
               </Button>
-              <Link to={createPageUrl('RushMode')}>
-                <Button variant="outline" className="w-full mt-3 border-orange-500 text-orange-500 hover:bg-orange-500/10">
-                  <Zap className="w-4 h-4 mr-2" />
-                  Rush Delivery - $15
-                </Button>
-              </Link>
+              <Button 
+                variant="outline" 
+                className="w-full mt-3 border-orange-500 text-orange-500 hover:bg-orange-500/10 select-none"
+                onClick={() => handleCheckout('rush')}
+                disabled={isCheckingOut}
+              >
+                <Zap className="w-4 h-4 mr-2 select-none" />
+                Rush Delivery - $15
+              </Button>
             </div>
           </div>
         </div>
