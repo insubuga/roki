@@ -72,6 +72,7 @@ export default function Dashboard() {
   const helpCommunity = [
     { icon: Bot, title: 'VantaBot', subtitle: 'AI assistant', page: 'VantaBot', iconBg: 'bg-slate-600' },
     { icon: Users, title: 'Community', subtitle: 'Connect & share', page: 'Community', iconBg: 'bg-pink-500' },
+    { icon: MessageCircle, title: 'Support Chat', subtitle: 'Get help instantly', page: 'Support', iconBg: 'bg-blue-500' },
     { icon: MessageSquare, title: 'Beta Feedback', subtitle: 'Help us improve', page: 'Feedback', iconBg: 'bg-orange-500' },
   ];
 
