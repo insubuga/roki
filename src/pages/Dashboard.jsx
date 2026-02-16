@@ -63,6 +63,7 @@ export default function Dashboard() {
   const accountManagement = [
     { icon: Settings, title: 'Profile', subtitle: 'Account settings', page: 'Profile', iconBg: 'bg-lime-500' },
     { icon: CreditCard, title: 'Subscription', subtitle: 'Manage plan', page: 'Subscription', iconBg: 'bg-indigo-500' },
+    { icon: ShoppingCart, title: 'Order History', subtitle: 'Past supplement orders', page: 'OrderHistory', iconBg: 'bg-emerald-500' },
     { icon: CreditCard, title: 'Payments', subtitle: 'Transaction history', page: 'PaymentHistory', iconBg: 'bg-green-500' },
   ];
 
