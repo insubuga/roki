@@ -4,12 +4,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from '../components/mobile/PullToRefresh';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Truck, Package, Clock, CheckCircle, MapPin } from 'lucide-react';
+import { Truck, Package, Clock, CheckCircle, MapPin, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MobileHeader from '../components/mobile/MobileHeader';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
+import TrackingTimeline from '../components/delivery/TrackingTimeline';
+import { toast } from 'sonner';
 
 const statusColors = {
   pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
@@ -27,10 +29,38 @@ const statusLabels = {
 
 export default function Deliveries() {
   const [user, setUser] = useState(null);
+  const [expandedOrder, setExpandedOrder] = useState(null);
+  const [trackingData, setTrackingData] = useState({});
   const queryClient = useQueryClient();
 
   const handleRefresh = async () => {
     await queryClient.invalidateQueries(['orders']);
+    setTrackingData({});
+  };
+
+  const fetchTracking = async (order) => {
+    if (!order.tracking_number || !order.carrier) {
+      toast.error('No tracking information available');
+      return;
+    }
+
+    if (trackingData[order.id]) {
+      setExpandedOrder(expandedOrder === order.id ? null : order.id);
+      return;
+    }
+
+    try {
+      const { data } = await base44.functions.invoke('getShipmentTracking', {
+        tracking_number: order.tracking_number,
+        carrier: order.carrier,
+      });
+
+      setTrackingData(prev => ({ ...prev, [order.id]: data }));
+      setExpandedOrder(order.id);
+    } catch (error) {
+      console.error('Tracking fetch error:', error);
+      toast.error('Failed to load tracking information');
+    }
   };
 
   useEffect(() => {
@@ -141,12 +171,56 @@ export default function Deliveries() {
                           <span>ETA: {format(new Date(order.estimated_delivery), 'h:mm a')}</span>
                         </div>
                       )}
+                      {order.tracking_number && (
+                        <div className="flex items-center gap-2 text-gray-400 text-sm mt-2">
+                          <Package className="w-4 h-4" />
+                          <span className="font-mono text-xs">{order.tracking_number}</span>
+                          {order.tracking_url && (
+                            <a 
+                              href={order.tracking_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-400 hover:text-blue-300"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-700">
                       <span className="text-gray-400">Total</span>
                       <span className="text-[#7cfc00] font-bold text-lg">${order.total?.toFixed(2)}</span>
                     </div>
+
+                    {/* Track Shipment Button */}
+                    {order.tracking_number && order.status === 'in_transit' && (
+                      <>
+                        <Button
+                          variant="outline"
+                          className="w-full mt-4 border-gray-700 text-gray-300 hover:bg-gray-800 select-none"
+                          onClick={() => fetchTracking(order)}
+                        >
+                          <Truck className="w-4 h-4 mr-2 select-none" />
+                          {expandedOrder === order.id ? 'Hide' : 'View'} Live Tracking
+                          {expandedOrder === order.id ? <ChevronUp className="w-4 h-4 ml-2 select-none" /> : <ChevronDown className="w-4 h-4 ml-2 select-none" />}
+                        </Button>
+
+                        <AnimatePresence>
+                          {expandedOrder === order.id && trackingData[order.id] && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="mt-4"
+                            >
+                              <TrackingTimeline trackingData={trackingData[order.id]} />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </>
+                    )}
                   </motion.div>
                 ))}
               </div>
