@@ -9,20 +9,25 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const formData = await req.formData();
-    const file = formData.get('photo');
+    // Get the payload from Base44 SDK
+    const { file_data, file_name, file_type } = await req.json();
 
-    if (!file) {
+    if (!file_data) {
       return Response.json({ error: 'No file provided' }, { status: 400 });
     }
 
     // Validate file type
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
+    if (!validTypes.includes(file_type)) {
       return Response.json({ 
         error: 'Invalid file type. Only JPEG, PNG, and WebP are allowed.' 
       }, { status: 400 });
     }
+
+    // Convert base64 to file
+    const base64Data = file_data.split(',')[1] || file_data;
+    const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+    const file = new File([binaryData], file_name, { type: file_type });
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
@@ -32,7 +37,7 @@ Deno.serve(async (req) => {
     }
 
     // Upload file
-    const uploadResult = await base44.integrations.Core.UploadFile({ file });
+    const uploadResult = await base44.asServiceRole.integrations.Core.UploadFile({ file });
 
     if (!uploadResult.file_url) {
       throw new Error('Upload failed');

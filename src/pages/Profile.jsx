@@ -197,15 +197,25 @@ export default function Profile() {
 
   const uploadPhotoMutation = useMutation({
     mutationFn: async (file) => {
-      const formData = new FormData();
-      formData.append('photo', file);
+      // Convert file to base64
+      const reader = new FileReader();
+      const fileData = await new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
       
-      const response = await base44.functions.invoke('uploadProfilePhoto', formData);
+      const response = await base44.functions.invoke('uploadProfilePhoto', {
+        file_data: fileData,
+        file_name: file.name,
+        file_type: file.type
+      });
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       toast.success('Profile photo updated!');
-      setUser({ ...user, profile_photo: data.file_url });
+      const updatedUser = await base44.auth.me();
+      setUser(updatedUser);
       setUploadingPhoto(false);
     },
     onError: (error) => {
