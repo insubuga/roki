@@ -28,6 +28,7 @@ import ReportIssueDialog from '../components/locker/ReportIssueDialog';
 import GymMapView from '../components/locker/GymMapView';
 import BookingExtension from '../components/locker/BookingExtension';
 import LockerCheckout from '../components/payment/LockerCheckout';
+import AILockerRecommendations from '../components/locker/AILockerRecommendations';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -42,6 +43,8 @@ export default function Profile() {
   const [selectedGymOnMap, setSelectedGymOnMap] = useState(null);
   const [showCheckout, setShowCheckout] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [aiRecommendations, setAiRecommendations] = useState(null);
+  const [loadingAiRecs, setLoadingAiRecs] = useState(false);
   const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -305,6 +308,38 @@ export default function Profile() {
     },
   });
 
+  const fetchAIRecommendations = async (gymId) => {
+    if (!gymId) return;
+    
+    setLoadingAiRecs(true);
+    try {
+      const response = await base44.functions.invoke('getLockerRecommendations', { gym_id: gymId });
+      setAiRecommendations(response.data);
+    } catch (error) {
+      console.error('Failed to fetch AI recommendations:', error);
+      toast.error('Could not load AI recommendations');
+    } finally {
+      setLoadingAiRecs(false);
+    }
+  };
+
+  const handleGymSelection = async (gymKey) => {
+    setFormData({ ...formData, preferred_gym: gymKey });
+    
+    // Fetch gym ID and get AI recommendations
+    const selectedGym = nearbyGyms.find(g => `${g.name}_${g.address}` === gymKey);
+    if (selectedGym) {
+      const existingGyms = await base44.entities.Gym.filter({
+        name: selectedGym.name,
+        address: selectedGym.address
+      });
+      
+      if (existingGyms.length > 0) {
+        fetchAIRecommendations(existingGyms[0].id);
+      }
+    }
+  };
+
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -464,7 +499,7 @@ export default function Profile() {
                 <>
                   <Select
                     value={formData.preferred_gym}
-                    onValueChange={(value) => setFormData({ ...formData, preferred_gym: value })}
+                    onValueChange={handleGymSelection}
                   >
                     <SelectTrigger className="bg-[#0d1320] border-gray-700 text-white">
                       <SelectValue placeholder="Select a gym" />
@@ -554,36 +589,49 @@ export default function Profile() {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#0d1320] rounded-lg p-4 border border-gray-700">
-                <p className="text-gray-400 mb-3">
-                  {formData.preferred_gym && lockerAvailability[formData.preferred_gym] === 0 
-                    ? 'No lockers available at this gym' 
-                    : "You don't have a locker yet"}
-                </p>
-{formData.preferred_gym && lockerAvailability[formData.preferred_gym] !== undefined && (
-                  <p className="text-green-400 text-sm mb-3 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    {lockerAvailability[formData.preferred_gym] === 0 ? 'Locker setup available' : `${lockerAvailability[formData.preferred_gym]} lockers available`}
-                  </p>
-                )}
-                <Button
-                  className="w-full bg-[#7cfc00] text-black hover:bg-[#6be600]"
-                  onClick={() => setShowCheckout(true)}
-                  disabled={!formData.preferred_gym}
-                >
-                  <Lock className="w-4 h-4 mr-2" />
-                  Book Locker
-                </Button>
-                
-                {showCheckout && formData.preferred_gym && (
-                  <LockerCheckout
-                    open={showCheckout}
-                    onClose={() => setShowCheckout(false)}
-                    gym={nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym)}
-                    user={user}
-                    onSuccess={(duration) => claimLockerMutation.mutate(duration)}
+              <div className="space-y-4">
+                {/* AI Recommendations */}
+                {formData.preferred_gym && (
+                  <AILockerRecommendations
+                    recommendations={aiRecommendations}
+                    isLoading={loadingAiRecs}
+                    onSelectLocker={(lockerNumber) => {
+                      toast.success(`Selected locker #${lockerNumber}`);
+                    }}
                   />
                 )}
+                
+                <div className="bg-[#0d1320] rounded-lg p-4 border border-gray-700">
+                  <p className="text-gray-400 mb-3">
+                    {formData.preferred_gym && lockerAvailability[formData.preferred_gym] === 0 
+                      ? 'No lockers available at this gym' 
+                      : "You don't have a locker yet"}
+                  </p>
+                  {formData.preferred_gym && lockerAvailability[formData.preferred_gym] !== undefined && (
+                    <p className="text-green-400 text-sm mb-3 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                      {lockerAvailability[formData.preferred_gym] === 0 ? 'Locker setup available' : `${lockerAvailability[formData.preferred_gym]} lockers available`}
+                    </p>
+                  )}
+                  <Button
+                    className="w-full bg-[#7cfc00] text-black hover:bg-[#6be600]"
+                    onClick={() => setShowCheckout(true)}
+                    disabled={!formData.preferred_gym}
+                  >
+                    <Lock className="w-4 h-4 mr-2" />
+                    Book Locker
+                  </Button>
+                  
+                  {showCheckout && formData.preferred_gym && (
+                    <LockerCheckout
+                      open={showCheckout}
+                      onClose={() => setShowCheckout(false)}
+                      gym={nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym)}
+                      user={user}
+                      onSuccess={(duration) => claimLockerMutation.mutate(duration)}
+                    />
+                  )}
+                </div>
               </div>
             )}
           </CardContent>
