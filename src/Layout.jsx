@@ -78,10 +78,10 @@ export default function Layout({ children, currentPageName }) {
 
   const bottomNavItems = [
     { name: 'Home', page: 'Dashboard', icon: Home },
-    { name: 'Locker', page: 'Profile', icon: Lock },
+    { name: 'Locker', page: 'Profile', icon: Lock, key: 'locker' },
     { name: 'Rush', page: 'RushMode', icon: Zap },
     { name: 'Laundry', page: 'LaundryOrder', icon: Shirt },
-    { name: 'Profile', page: 'Profile', icon: User },
+    { name: 'Profile', page: 'Profile', icon: User, key: 'profile' },
   ];
 
   const handleTabClick = (page, e) => {
@@ -252,13 +252,13 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-bg-secondary)] border-t border-[var(--color-border)] z-50 select-none" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="grid grid-cols-4 h-16">
+        <div className="grid grid-cols-5 h-16">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPageName === item.page;
             return (
               <Link
-                key={item.page}
+                key={item.key || item.page}
                 to={createPageUrl(item.page)}
                 onClick={(e) => handleTabClick(item.page, e)}
                 className={`flex flex-col items-center justify-center gap-1 select-none ${

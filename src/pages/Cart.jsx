@@ -93,6 +93,14 @@ export default function Cart() {
   const handleCheckout = async (deliveryType = 'standard') => {
     if (cartItems.length === 0) return;
 
+    // Check if running in iframe (preview mode)
+    if (window.self !== window.top) {
+      toast.error('Checkout is not available in preview mode. Please publish your app to test payments.', {
+        duration: 5000,
+      });
+      return;
+    }
+
     setIsCheckingOut(true);
     try {
       console.log('Starting checkout with items:', cartItems.length);
@@ -112,7 +120,6 @@ export default function Cart() {
 
       if (data?.url) {
         console.log('Redirecting to Stripe:', data.url);
-        // Give user feedback before redirect
         toast.success('Redirecting to secure checkout...');
         setTimeout(() => {
           window.location.href = data.url;
