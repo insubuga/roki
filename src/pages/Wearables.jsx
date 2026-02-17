@@ -70,7 +70,7 @@ export default function Wearables() {
     queryKey: ['wearableData', user?.email],
     queryFn: async () => {
       const data = await base44.entities.WearableData.filter({ user_email: user?.email }, '-created_date', 1);
-      return data[0];
+      return data[0] || null;
     },
     enabled: !!user?.email,
     refetchInterval: 30000, // Refresh every 30 seconds
@@ -80,7 +80,7 @@ export default function Wearables() {
     queryKey: ['historicalWearableData', user?.email],
     queryFn: async () => {
       const data = await base44.entities.WearableData.filter({ user_email: user?.email }, '-created_date', 30);
-      return data;
+      return data || [];
     },
     enabled: !!user?.email,
   });
@@ -498,7 +498,7 @@ export default function Wearables() {
                 max="12"
                 step="0.5"
                 value={manualData.sleep_hours}
-                onChange={(e) => setManualData({...manualData, sleep_hours: parseFloat(e.target.value)})}
+                onChange={(e) => setManualData({...manualData, sleep_hours: parseFloat(e.target.value) || 0})}
                 className="w-full bg-[#0d1320] border border-gray-700 rounded-lg px-4 py-2 text-white"
               />
             </div>
@@ -508,7 +508,7 @@ export default function Wearables() {
                 type="number"
                 min="0"
                 value={manualData.steps}
-                onChange={(e) => setManualData({...manualData, steps: parseInt(e.target.value)})}
+                onChange={(e) => setManualData({...manualData, steps: parseInt(e.target.value) || 0})}
                 className="w-full bg-[#0d1320] border border-gray-700 rounded-lg px-4 py-2 text-white"
               />
             </div>
