@@ -1,3 +1,4 @@
+css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,8 +11,8 @@
   --color-border: #374151;
   --color-border-light: #4b5563;
   --color-text-primary: #ffffff;
-  --color-text-secondary: #9ca3af;
-  --color-text-muted: #6b7280;
+  --color-text-secondary: #d1d5db;
+  --color-text-muted: #9ca3af;
   --color-primary: #7cfc00;
   --color-primary-hover: #6be600;
   --color-primary-muted: rgba(124, 252, 0, 0.2);
@@ -25,7 +26,7 @@
     --color-border: #e5e7eb;
     --color-border-light: #d1d5db;
     --color-text-primary: #111827;
-    --color-text-secondary: #4b5563;
+    --color-text-secondary: #374151;
     --color-text-muted: #6b7280;
     --color-primary: #059669;
     --color-primary-hover: #047857;

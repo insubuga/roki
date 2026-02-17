@@ -128,18 +128,18 @@ export default function Layout({ children, currentPageName }) {
               {navItems.map((item) => (
                 item.hasDropdown ? (
                   <DropdownMenu key={item.name}>
-                    <DropdownMenuTrigger className="flex items-center gap-1 text-gray-300 hover:text-white transition-colors">
+                    <DropdownMenuTrigger className="flex items-center gap-1 text-[var(--color-text-primary)] hover:text-[var(--color-primary)] transition-colors font-medium">
                       {item.name}
                       <ChevronDown className="w-4 h-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="bg-[#1a2332] border-gray-700">
                       <DropdownMenuItem asChild>
-                        <Link to={createPageUrl('Shop')} className="text-gray-300 hover:text-white">
+                        <Link to={createPageUrl('Shop')} className="text-white hover:text-[var(--color-primary)]">
                           Browse Supplements
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to={createPageUrl('Cart')} className="text-gray-300 hover:text-white">
+                        <Link to={createPageUrl('Cart')} className="text-white hover:text-[var(--color-primary)]">
                           View Cart
                         </Link>
                       </DropdownMenuItem>
@@ -149,8 +149,8 @@ export default function Layout({ children, currentPageName }) {
                   <Link
                     key={item.name}
                     to={createPageUrl(item.page)}
-                    className={`text-gray-300 hover:text-white transition-colors ${
-                      currentPageName === item.page ? 'text-white' : ''
+                    className={`text-[var(--color-text-primary)] hover:text-[var(--color-primary)] transition-colors font-medium ${
+                      currentPageName === item.page ? 'text-[var(--color-primary)] font-semibold' : ''
                     }`}
                   >
                     {item.name}
@@ -225,20 +225,20 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-[#0d1320] border-t border-gray-800 py-4">
-            <nav className="flex flex-col gap-2 px-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={createPageUrl(item.page)}
-                  className="text-gray-300 hover:text-white py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
+        <div className="md:hidden bg-[#0d1320] border-t border-gray-800 py-4">
+          <nav className="flex flex-col gap-2 px-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                to={createPageUrl(item.page)}
+                className="text-[var(--color-text-primary)] hover:text-[var(--color-primary)] py-2 font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
         )}
       </header>
 
