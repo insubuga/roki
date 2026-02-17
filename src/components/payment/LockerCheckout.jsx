@@ -47,8 +47,8 @@ export default function LockerCheckout({ open, onClose, gym, onSuccess, user }) 
       // Create Stripe checkout session
       const response = await base44.functions.invoke('createCheckoutSession', {
         duration: duration,
-        gym_name: gym.name,
-        gym_address: gym.address
+        gym_name: gym?.name || 'Selected Gym',
+        gym_address: gym?.address || ''
       });
 
       if (!response.data.url) {
@@ -86,8 +86,8 @@ export default function LockerCheckout({ open, onClose, gym, onSuccess, user }) 
           {/* Gym Info */}
           <div className="bg-[#0d1320] rounded-lg p-3 border border-gray-700">
             <p className="text-gray-400 text-xs mb-1">Location</p>
-            <p className="text-white font-semibold">{gym.name}</p>
-            <p className="text-gray-500 text-xs mt-1">{gym.address}</p>
+            <p className="text-white font-semibold">{gym?.name || 'Selected Gym'}</p>
+            <p className="text-gray-500 text-xs mt-1">{gym?.address || ''}</p>
           </div>
 
           {/* Duration Selection */}
