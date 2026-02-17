@@ -69,6 +69,9 @@ Deno.serve(async (req) => {
     const refererUrl = req.headers.get('referer');
     const origin = req.headers.get('origin') || (refererUrl ? new URL(refererUrl).origin : 'https://vanta-app.base44.app');
     
+    console.log('Creating Stripe session with origin:', origin);
+    console.log('Line items:', lineItems.length);
+    
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -90,6 +93,14 @@ Deno.serve(async (req) => {
         }))),
       },
     });
+
+    console.log('Stripe session created:', session.id);
+    console.log('Checkout URL:', session.url);
+
+    if (!session.url) {
+      console.error('No checkout URL returned from Stripe session');
+      return Response.json({ error: 'No checkout URL available' }, { status: 500 });
+    }
 
     return Response.json({ 
       url: session.url,
