@@ -93,11 +93,10 @@ export default function Cart() {
   const handleCheckout = async (deliveryType = 'standard') => {
     if (cartItems.length === 0) return;
 
-    // Allow checkout in preview mode for testing
-    // In production, this would check: if (window.self !== window.top) { ... }
-
     setIsCheckingOut(true);
     try {
+      console.log('Starting checkout with items:', cartItems.length);
+      
       const { data } = await base44.functions.invoke('createCartCheckout', {
         cartItems: cartItems.map(item => ({
           product_id: item.product_id,
@@ -109,15 +108,23 @@ export default function Cart() {
         deliveryType,
       });
 
-      if (data.url) {
-        window.location.href = data.url;
+      console.log('Checkout response:', data);
+
+      if (data?.url) {
+        console.log('Redirecting to Stripe:', data.url);
+        // Give user feedback before redirect
+        toast.success('Redirecting to secure checkout...');
+        setTimeout(() => {
+          window.location.href = data.url;
+        }, 500);
       } else {
-        toast.error('Failed to create checkout session');
+        console.error('No URL in response:', data);
+        toast.error(data?.details || 'Failed to create checkout session');
         setIsCheckingOut(false);
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error('Failed to proceed to checkout');
+      toast.error(error.response?.data?.details || 'Failed to proceed to checkout');
       setIsCheckingOut(false);
     }
   };
