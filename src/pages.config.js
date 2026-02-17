@@ -64,6 +64,7 @@ import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
 import VantaBot from './pages/VantaBot';
 import Wearables from './pages/Wearables';
+import LaundryOrder from './pages/LaundryOrder';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +86,7 @@ export const PAGES = {
     "SupportAdmin": SupportAdmin,
     "VantaBot": VantaBot,
     "Wearables": Wearables,
+    "LaundryOrder": LaundryOrder,
 }
 
 export const pagesConfig = {
