@@ -39,13 +39,19 @@ export default function RushMode() {
 
   const { data: cartItems = [] } = useQuery({
     queryKey: ['cartItems', user?.email],
-    queryFn: () => base44.entities.CartItem.filter({ user_email: user?.email }),
+    queryFn: async () => {
+      const data = await base44.entities.CartItem.filter({ user_email: user?.email });
+      return data || [];
+    },
     enabled: !!user?.email,
   });
 
   const { data: recentOrders = [] } = useQuery({
     queryKey: ['recentOrders', user?.email],
-    queryFn: () => base44.entities.Order.filter({ user_email: user?.email }, '-created_date', 5),
+    queryFn: async () => {
+      const data = await base44.entities.Order.filter({ user_email: user?.email }, '-created_date', 5);
+      return data || [];
+    },
     enabled: !!user?.email,
   });
 

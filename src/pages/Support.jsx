@@ -42,7 +42,7 @@ export default function Support() {
         '-created_date',
         100
       );
-      return allMessages;
+      return allMessages || [];
     },
     enabled: !!user?.email,
     refetchInterval: 3000,
