@@ -188,11 +188,21 @@ export default function Profile() {
   };
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data) => base44.auth.updateMe(data),
-    onSuccess: () => {
+    mutationFn: async (data) => {
+      await base44.auth.updateMe(data);
+      return data;
+    },
+    onSuccess: async () => {
       toast.success('Profile updated!');
+      // Refresh user data
+      const updatedUser = await base44.auth.me();
+      setUser(updatedUser);
       queryClient.invalidateQueries({ queryKey: ['userLocker'] });
     },
+    onError: (error) => {
+      console.error('Update error:', error);
+      toast.error('Failed to update profile');
+    }
   });
 
   const uploadPhotoMutation = useMutation({
@@ -214,11 +224,15 @@ export default function Profile() {
     },
     onSuccess: async (data) => {
       toast.success('Profile photo updated!');
+      // Refresh user data to get the new photo
       const updatedUser = await base44.auth.me();
       setUser(updatedUser);
       setUploadingPhoto(false);
+      // Force re-render
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
     onError: (error) => {
+      console.error('Upload error:', error);
       toast.error(error.response?.data?.error || 'Failed to upload photo');
       setUploadingPhoto(false);
     }

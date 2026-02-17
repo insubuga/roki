@@ -54,6 +54,7 @@ import Community from './pages/Community';
 import Dashboard from './pages/Dashboard';
 import Deliveries from './pages/Deliveries';
 import Feedback from './pages/Feedback';
+import OrderHistory from './pages/OrderHistory';
 import PaymentHistory from './pages/PaymentHistory';
 import Profile from './pages/Profile';
 import RushMode from './pages/RushMode';
@@ -63,7 +64,6 @@ import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
 import VantaBot from './pages/VantaBot';
 import Wearables from './pages/Wearables';
-import OrderHistory from './pages/OrderHistory';
 import __Layout from './Layout.jsx';
 
 
@@ -75,6 +75,7 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "Deliveries": Deliveries,
     "Feedback": Feedback,
+    "OrderHistory": OrderHistory,
     "PaymentHistory": PaymentHistory,
     "Profile": Profile,
     "RushMode": RushMode,
@@ -84,7 +85,6 @@ export const PAGES = {
     "SupportAdmin": SupportAdmin,
     "VantaBot": VantaBot,
     "Wearables": Wearables,
-    "OrderHistory": OrderHistory,
 }
 
 export const pagesConfig = {
