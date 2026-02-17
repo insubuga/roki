@@ -54,6 +54,7 @@ import Community from './pages/Community';
 import Dashboard from './pages/Dashboard';
 import Deliveries from './pages/Deliveries';
 import Feedback from './pages/Feedback';
+import LaundryOrder from './pages/LaundryOrder';
 import OrderHistory from './pages/OrderHistory';
 import PaymentHistory from './pages/PaymentHistory';
 import Profile from './pages/Profile';
@@ -64,7 +65,6 @@ import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
 import VantaBot from './pages/VantaBot';
 import Wearables from './pages/Wearables';
-import LaundryOrder from './pages/LaundryOrder';
 import __Layout from './Layout.jsx';
 
 
@@ -76,6 +76,7 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "Deliveries": Deliveries,
     "Feedback": Feedback,
+    "LaundryOrder": LaundryOrder,
     "OrderHistory": OrderHistory,
     "PaymentHistory": PaymentHistory,
     "Profile": Profile,
@@ -86,7 +87,6 @@ export const PAGES = {
     "SupportAdmin": SupportAdmin,
     "VantaBot": VantaBot,
     "Wearables": Wearables,
-    "LaundryOrder": LaundryOrder,
 }
 
 export const pagesConfig = {
