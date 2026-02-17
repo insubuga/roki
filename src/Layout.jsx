@@ -12,9 +12,9 @@ import {
   Menu,
   X,
   Home,
-  Store,
-  Bot,
-  Users
+  Lock,
+  Zap,
+  Shirt
 } from 'lucide-react';
 import NotificationDropdown from './components/notifications/NotificationDropdown';
 import { Button } from '@/components/ui/button';
@@ -77,10 +77,11 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const bottomNavItems = [
-    { name: 'Dashboard', page: 'Dashboard', icon: Home },
-    { name: 'Shop', page: 'Shop', icon: Store },
-    { name: 'VantaBot', page: 'VantaBot', icon: Bot },
-    { name: 'Community', page: 'Community', icon: Users },
+    { name: 'Home', page: 'Dashboard', icon: Home },
+    { name: 'Locker', page: 'Profile', icon: Lock },
+    { name: 'Rush', page: 'RushMode', icon: Zap },
+    { name: 'Laundry', page: 'LaundryOrder', icon: Shirt },
+    { name: 'Profile', page: 'Profile', icon: User },
   ];
 
   const handleTabClick = (page, e) => {
