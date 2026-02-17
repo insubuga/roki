@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '../utils';
 import PullToRefresh from '../components/mobile/PullToRefresh';
 import { 
   ShoppingCart, 
@@ -10,15 +12,15 @@ import {
   Watch,
   Settings,
   CreditCard,
-  Bot,
   Users,
-  MessageCircle,
-  MessageSquare,
-  LogOut
+  Package,
+  ChevronRight,
+  LogOut,
+  Sparkles
 } from 'lucide-react';
-import ActionCard from '../components/dashboard/ActionCard';
-import SectionHeader from '../components/dashboard/SectionHeader';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -48,119 +50,183 @@ export default function Dashboard() {
     );
   }
 
-  const primaryActions = [
-    { icon: ShoppingCart, title: 'Shop', subtitle: 'Browse supplements', page: 'Shop', iconBg: 'bg-green-500', badge: 'Hot', badgeColor: 'bg-green-500' },
-    { icon: ShoppingCart, title: 'Cart', subtitle: 'Review your items', page: 'Cart', iconBg: 'bg-amber-500', badge: 'New', badgeColor: 'bg-amber-500' },
-    { icon: Zap, title: 'Rush Mode', subtitle: 'Emergency delivery', page: 'RushMode', iconBg: 'bg-red-500', badge: 'Fast', badgeColor: 'bg-red-500' },
+  // Quick actions - most used features
+  const quickActions = [
+    { icon: ShoppingCart, title: 'Shop', page: 'Shop', color: 'from-green-500 to-emerald-600' },
+    { icon: Zap, title: 'Rush', page: 'RushMode', color: 'from-red-500 to-pink-600' },
+    { icon: Shirt, title: 'Laundry', page: 'LaundryOrder', color: 'from-cyan-500 to-blue-600' },
+    { icon: Truck, title: 'Track', page: 'Deliveries', color: 'from-orange-500 to-amber-600' },
   ];
 
-  const dailyOperations = [
-    { icon: Shirt, title: 'Activewear', subtitle: 'Laundry service', page: 'Activewear', iconBg: 'bg-cyan-500' },
-    { icon: Truck, title: 'Deliveries', subtitle: 'Track packages', page: 'Deliveries', iconBg: 'bg-orange-500' },
-    { icon: Watch, title: 'Wearables', subtitle: 'Connect devices', page: 'Wearables', iconBg: 'bg-purple-500' },
-  ];
-
-  const accountManagement = [
-    { icon: Settings, title: 'Profile', subtitle: 'Account settings', page: 'Profile', iconBg: 'bg-lime-500' },
-    { icon: CreditCard, title: 'Subscription', subtitle: 'Manage plan', page: 'Subscription', iconBg: 'bg-indigo-500' },
-    { icon: ShoppingCart, title: 'Order History', subtitle: 'Past supplement orders', page: 'OrderHistory', iconBg: 'bg-emerald-500' },
-    { icon: CreditCard, title: 'Payments', subtitle: 'Transaction history', page: 'PaymentHistory', iconBg: 'bg-green-500' },
-  ];
+  // Services menu - organized by category
+  const services = {
+    account: [
+      { icon: Settings, title: 'Profile & Locker', page: 'Profile' },
+      { icon: CreditCard, title: 'Subscription', page: 'Subscription' },
+      { icon: Package, title: 'Order History', page: 'OrderHistory' },
+      { icon: Watch, title: 'Wearables', page: 'Wearables' },
+    ],
+    community: [
+      { icon: Users, title: 'Community', page: 'Community' },
+      { icon: Sparkles, title: 'VantaBot', page: 'VantaBot' },
+    ],
+  };
 
   const adminActions = user?.role === 'admin' ? [
-    { icon: Settings, title: 'Admin Dashboard', subtitle: 'Manage application', page: 'AdminDashboard', iconBg: 'bg-red-500' },
-    { icon: MessageCircle, title: 'Support Admin', subtitle: 'Respond to customers', page: 'SupportAdmin', iconBg: 'bg-blue-500' },
+    { icon: Settings, title: 'Admin Dashboard', page: 'AdminDashboard' },
   ] : [];
-
-  const helpCommunity = [
-    { icon: Bot, title: 'VantaBot', subtitle: 'AI assistant', page: 'VantaBot', iconBg: 'bg-slate-600' },
-    { icon: Users, title: 'Community', subtitle: 'Connect & share', page: 'Community', iconBg: 'bg-pink-500' },
-    { icon: MessageCircle, title: 'Support Chat', subtitle: 'Get help instantly', page: 'Support', iconBg: 'bg-blue-500' },
-    { icon: MessageSquare, title: 'Beta Feedback', subtitle: 'Help us improve', page: 'Feedback', iconBg: 'bg-orange-500' },
-  ];
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
-    <div className="space-y-8">
-      {/* Welcome Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#1a2332] rounded-full flex items-center justify-center border border-gray-700 overflow-hidden">
-            {user.profile_photo ? (
-              <img src={user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-[#7cfc00] text-xl">👤</span>
-            )}
-          </div>
-          <div>
-            <h1 className="text-white text-xl font-bold">{user.full_name || 'User'}</h1>
-            <p className="text-gray-400 text-sm">You're covered today</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="bg-transparent border-gray-700 hover:bg-gray-800"
-            onClick={() => base44.auth.logout()}
-          >
-            <LogOut className="w-5 h-5 text-gray-400" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Primary Actions */}
-      <div>
-        <SectionHeader title="Essentials" subtitle="Everything handled" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {primaryActions.map((action) => (
-            <ActionCard key={action.title} {...action} />
-          ))}
-        </div>
-      </div>
-
-      {/* Daily Operations */}
-      <div>
-        <SectionHeader title="Operations" subtitle="Ready when you are" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {dailyOperations.map((action) => (
-            <ActionCard key={action.title} {...action} />
-          ))}
-        </div>
-      </div>
-
-      {/* Account & Management */}
-      <div>
-        <SectionHeader title="Your Account" subtitle="Preferences and settings" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {accountManagement.map((action) => (
-            <ActionCard key={action.title} {...action} />
-          ))}
-        </div>
-      </div>
-
-      {/* Help & Community */}
-      <div>
-        <SectionHeader title="Support" subtitle="We're here to help" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {helpCommunity.map((action) => (
-            <ActionCard key={action.title} {...action} />
-          ))}
-        </div>
-      </div>
-
-      {/* Admin Section */}
-      {adminActions.length > 0 && (
-        <div>
-          <SectionHeader title="Administration" subtitle="Manage the platform" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {adminActions.map((action) => (
-              <ActionCard key={action.title} {...action} />
-            ))}
+      <div className="space-y-6">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-[var(--color-primary)] to-teal-500 rounded-full flex items-center justify-center overflow-hidden">
+              {user.profile_photo ? (
+                <img src={user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-black font-bold text-sm">
+                  {user.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
+                </span>
+              )}
+            </div>
+            <div>
+              <h1 className="text-[var(--color-text-primary)] text-lg font-bold">
+                Hey, {user.full_name?.split(' ')[0] || 'there'}
+              </h1>
+              <p className="text-[var(--color-text-secondary)] text-xs">Ready to fuel your goals?</p>
+            </div>
           </div>
         </div>
-      )}
-    </div>
+
+        {/* Quick Actions - Compact Grid */}
+        <div className="grid grid-cols-4 gap-3">
+          {quickActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Link
+                key={action.title}
+                to={createPageUrl(action.page)}
+                className="flex flex-col items-center gap-2 select-none"
+              >
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-lg`}>
+                  <Icon className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-[var(--color-text-primary)] text-xs font-medium text-center">
+                  {action.title}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Your Cart - if has items */}
+        <Card className="bg-gradient-to-br from-[var(--color-primary)]/10 to-emerald-500/10 border-[var(--color-primary)]/30">
+          <CardContent className="p-4">
+            <Link to={createPageUrl('Cart')} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[var(--color-primary)]/20 rounded-xl flex items-center justify-center">
+                  <ShoppingCart className="w-5 h-5 text-[var(--color-primary)]" />
+                </div>
+                <div>
+                  <p className="text-[var(--color-text-primary)] font-semibold text-sm">Your Cart</p>
+                  <p className="text-[var(--color-text-secondary)] text-xs">Ready to checkout</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-[var(--color-text-muted)]" />
+            </Link>
+          </CardContent>
+        </Card>
+
+        {/* Services Menu - Compact List */}
+        <div className="space-y-4">
+          {/* Account Section */}
+          <Card className="bg-[var(--color-bg-card)] border-[var(--color-border)]">
+            <CardContent className="p-4">
+              <h3 className="text-[var(--color-text-primary)] font-semibold text-sm mb-3 flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                Account & Services
+              </h3>
+              <div className="space-y-1">
+                {services.account.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.title}
+                      to={createPageUrl(item.page)}
+                      className="flex items-center justify-between p-3 rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className="w-4 h-4 text-[var(--color-text-secondary)]" />
+                        <span className="text-[var(--color-text-primary)] text-sm">{item.title}</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-[var(--color-text-muted)]" />
+                    </Link>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Community Section */}
+          <Card className="bg-[var(--color-bg-card)] border-[var(--color-border)]">
+            <CardContent className="p-4">
+              <h3 className="text-[var(--color-text-primary)] font-semibold text-sm mb-3 flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Community & Support
+              </h3>
+              <div className="space-y-1">
+                {services.community.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.title}
+                      to={createPageUrl(item.page)}
+                      className="flex items-center justify-between p-3 rounded-lg hover:bg-[var(--color-bg-secondary)] transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className="w-4 h-4 text-[var(--color-text-secondary)]" />
+                        <span className="text-[var(--color-text-primary)] text-sm">{item.title}</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-[var(--color-text-muted)]" />
+                    </Link>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Admin Section - if admin */}
+          {adminActions.length > 0 && (
+            <Card className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border-red-500/30">
+              <CardContent className="p-4">
+                {adminActions.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.title}
+                      to={createPageUrl(item.page)}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
+                          <Icon className="w-4 h-4 text-red-400" />
+                        </div>
+                        <div>
+                          <p className="text-[var(--color-text-primary)] font-semibold text-sm">{item.title}</p>
+                          <p className="text-[var(--color-text-secondary)] text-xs">Platform management</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-[var(--color-text-muted)]" />
+                    </Link>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </PullToRefresh>
   );
 }
