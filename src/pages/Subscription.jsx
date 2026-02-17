@@ -123,7 +123,7 @@ export default function Subscription() {
     queryKey: ['subscription', user?.email],
     queryFn: async () => {
       const subs = await base44.entities.Subscription.filter({ user_email: user?.email });
-      return subs[0];
+      return subs[0] || null;
     },
     enabled: !!user?.email,
   });

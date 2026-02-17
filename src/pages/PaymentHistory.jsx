@@ -26,7 +26,10 @@ export default function PaymentHistory() {
 
   const { data: payments = [], isLoading } = useQuery({
     queryKey: ['payments', user?.email],
-    queryFn: () => base44.entities.Payment.filter({ user_email: user?.email }, '-created_date'),
+    queryFn: async () => {
+      const data = await base44.entities.Payment.filter({ user_email: user?.email }, '-created_date');
+      return data || [];
+    },
     enabled: !!user?.email,
   });
 

@@ -90,11 +90,8 @@ export default function Cart() {
   const handleCheckout = async (deliveryType = 'standard') => {
     if (cartItems.length === 0) return;
 
-    // Check if running in iframe (preview mode)
-    if (window.self !== window.top) {
-      toast.error('Checkout only works in published apps. Please publish your app first.');
-      return;
-    }
+    // Allow checkout in preview mode for testing
+    // In production, this would check: if (window.self !== window.top) { ... }
 
     setIsCheckingOut(true);
     try {

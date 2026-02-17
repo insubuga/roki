@@ -66,7 +66,8 @@ Deno.serve(async (req) => {
     }
 
     // Get the origin from the request or construct it
-    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('?')[0].replace(/\/$/, '') || 'https://vanta-app.base44.app';
+    const refererUrl = req.headers.get('referer');
+    const origin = req.headers.get('origin') || (refererUrl ? new URL(refererUrl).origin : 'https://vanta-app.base44.app');
     
     // Create checkout session
     const session = await stripe.checkout.sessions.create({

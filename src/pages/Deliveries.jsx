@@ -77,7 +77,10 @@ export default function Deliveries() {
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['orders', user?.email],
-    queryFn: () => base44.entities.Order.filter({ user_email: user?.email }, '-created_date'),
+    queryFn: async () => {
+      const data = await base44.entities.Order.filter({ user_email: user?.email }, '-created_date');
+      return data || [];
+    },
     enabled: !!user?.email,
   });
 
