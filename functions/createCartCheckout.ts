@@ -65,13 +65,16 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Get the origin from the request or construct it
+    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('?')[0].replace(/\/$/, '') || 'https://vanta-app.base44.app';
+    
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: `${req.headers.get('origin')}/Cart?payment=success`,
-      cancel_url: `${req.headers.get('origin')}/Cart?payment=cancelled`,
+      success_url: `${origin}/Cart?payment=success`,
+      cancel_url: `${origin}/Cart?payment=cancelled`,
       customer_email: user.email,
       metadata: {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
