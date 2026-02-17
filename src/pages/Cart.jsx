@@ -43,7 +43,10 @@ export default function Cart() {
 
   const { data: cartItems = [], isLoading } = useQuery({
     queryKey: ['cartItems', user?.email],
-    queryFn: () => base44.entities.CartItem.filter({ user_email: user?.email }),
+    queryFn: async () => {
+      const data = await base44.entities.CartItem.filter({ user_email: user?.email });
+      return data || [];
+    },
     enabled: !!user?.email,
   });
 
