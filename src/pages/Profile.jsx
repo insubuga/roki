@@ -83,7 +83,7 @@ export default function Profile() {
     queryKey: ['userLocker', user?.email],
     queryFn: async () => {
       const lockers = await base44.entities.Locker.filter({ user_email: user?.email });
-      return lockers[0];
+      return lockers[0] || null;
     },
     enabled: !!user?.email,
   });
