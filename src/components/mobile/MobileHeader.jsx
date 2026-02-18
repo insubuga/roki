@@ -2,9 +2,18 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { createPageUrl } from '@/utils';
 
 export default function MobileHeader({ title, subtitle, icon: Icon, iconColor = 'text-[var(--color-primary)]' }) {
   const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate(createPageUrl('Dashboard'));
+    }
+  };
 
   return (
     <div className="flex items-center gap-4">
@@ -12,7 +21,7 @@ export default function MobileHeader({ title, subtitle, icon: Icon, iconColor = 
         variant="ghost" 
         size="icon" 
         className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] select-none"
-        onClick={() => navigate(-1)}
+        onClick={handleBack}
       >
         <ArrowLeft className="w-5 h-5 select-none" />
       </Button>
