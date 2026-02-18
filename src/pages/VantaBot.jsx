@@ -244,17 +244,17 @@ export default function VantaBot() {
       {/* Header */}
       <div className="flex items-center gap-4 mb-4">
         <Link to={createPageUrl('Dashboard')}>
-          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900">
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-[#7cfc00] to-teal-500 rounded-xl flex items-center justify-center">
-            <Bot className="w-6 h-6 text-black" />
+          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md">
+            <Bot className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">VantaBot</h1>
-            <p className="text-gray-400 text-sm">AI Assistant</p>
+            <h1 className="text-xl font-bold text-gray-900">VantaBot</h1>
+            <p className="text-gray-600 text-sm">AI Assistant</p>
           </div>
         </div>
       </div>
@@ -269,15 +269,15 @@ export default function VantaBot() {
           {proactiveInsights.map((insight, idx) => {
             const Icon = insight.icon;
             return (
-              <Card key={idx} className="bg-gradient-to-r from-[#1a2332] to-[#0d1320] border-gray-700">
+              <Card key={idx} className="bg-white border-gray-200 shadow-md">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <div className={`${insight.color} mt-1`}>
                       <Icon className="w-5 h-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-white font-semibold text-sm">{insight.title}</p>
-                      <p className="text-gray-400 text-xs mt-1">{insight.message}</p>
+                      <p className="text-gray-900 font-semibold text-sm">{insight.title}</p>
+                      <p className="text-gray-600 text-xs mt-1">{insight.message}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -289,32 +289,32 @@ export default function VantaBot() {
 
       {/* Wearable Stats Summary */}
       {wearableData && (
-        <Card className="bg-[#1a2332] border-gray-800 mb-4">
+        <Card className="bg-white border-gray-200 shadow-lg mb-4">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-white font-semibold text-sm">Your Current Stats</h3>
-              <Badge className="bg-green-500/20 text-green-400 border-none text-xs">Live</Badge>
+              <h3 className="text-gray-900 font-semibold text-sm">Your Current Stats</h3>
+              <Badge className="bg-green-100 text-green-700 border-green-300 text-xs">Live</Badge>
             </div>
             <div className="grid grid-cols-4 gap-3">
               <div className="text-center">
                 <Heart className="w-4 h-4 text-red-500 mx-auto mb-1" />
-                <p className="text-white font-bold text-sm">{wearableData.heart_rate}</p>
-                <p className="text-gray-500 text-xs">BPM</p>
+                <p className="text-gray-900 font-bold text-sm">{wearableData.heart_rate}</p>
+                <p className="text-gray-600 text-xs">BPM</p>
               </div>
               <div className="text-center">
                 <Activity className="w-4 h-4 text-blue-500 mx-auto mb-1" />
-                <p className="text-white font-bold text-sm">{wearableData.steps}</p>
-                <p className="text-gray-500 text-xs">Steps</p>
+                <p className="text-gray-900 font-bold text-sm">{wearableData.steps}</p>
+                <p className="text-gray-600 text-xs">Steps</p>
               </div>
               <div className="text-center">
                 <Zap className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-                <p className="text-white font-bold text-sm">{wearableData.calories_burned}</p>
-                <p className="text-gray-500 text-xs">Cal</p>
+                <p className="text-gray-900 font-bold text-sm">{wearableData.calories_burned}</p>
+                <p className="text-gray-600 text-xs">Cal</p>
               </div>
               <div className="text-center">
-                <TrendingUp className="w-4 h-4 text-[#7cfc00] mx-auto mb-1" />
-                <p className="text-white font-bold text-sm">{wearableData.recovery_score}</p>
-                <p className="text-gray-500 text-xs">Recovery</p>
+                <TrendingUp className="w-4 h-4 text-green-500 mx-auto mb-1" />
+                <p className="text-gray-900 font-bold text-sm">{wearableData.recovery_score}</p>
+                <p className="text-gray-600 text-xs">Recovery</p>
               </div>
             </div>
           </CardContent>
@@ -322,7 +322,7 @@ export default function VantaBot() {
       )}
 
       {/* Chat Container */}
-      <div className="flex-1 bg-[#1a2332] rounded-xl border border-gray-800 flex flex-col overflow-hidden">
+      <div className="flex-1 bg-white rounded-xl border border-gray-200 shadow-lg flex flex-col overflow-hidden">
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <AnimatePresence>
@@ -337,7 +337,7 @@ export default function VantaBot() {
             ))}
           </AnimatePresence>
           {isLoading && (
-            <div className="flex items-center gap-2 text-gray-400">
+            <div className="flex items-center gap-2 text-gray-600">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span className="text-sm">VantaBot is thinking...</span>
             </div>
@@ -347,8 +347,8 @@ export default function VantaBot() {
 
         {/* Quick Actions */}
         {messages.length <= 2 && (
-          <div className="p-4 border-t border-gray-800">
-            <p className="text-gray-500 text-xs mb-2">
+          <div className="p-4 border-t border-gray-200">
+            <p className="text-gray-600 text-xs mb-2">
               {wearableData ? 'Based on your current state:' : 'Common tasks:'}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -359,7 +359,7 @@ export default function VantaBot() {
                     setInput(action);
                     setTimeout(() => handleSend(), 100);
                   }}
-                  className="px-3 py-1.5 bg-[#0d1320] border border-gray-700 rounded-full text-gray-300 text-sm hover:border-[#7cfc00] hover:text-[#7cfc00] transition-colors"
+                  className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-full text-gray-700 text-sm hover:border-green-500 hover:bg-green-50 hover:text-green-700 transition-colors shadow-sm"
                 >
                   {action}
                 </button>
@@ -369,20 +369,20 @@ export default function VantaBot() {
         )}
 
         {/* Input */}
-        <div className="p-4 border-t border-gray-800">
+        <div className="p-4 border-t border-gray-200">
           <div className="flex gap-3">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Ask VantaBot anything..."
-              className="bg-[#0d1320] border-gray-700 text-white placeholder:text-gray-500"
+              className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-green-500"
               disabled={isLoading}
             />
             <Button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
-              className="bg-[#7cfc00] text-black hover:bg-[#6be600]"
+              className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
             >
               <Send className="w-4 h-4" />
             </Button>

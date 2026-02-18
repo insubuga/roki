@@ -275,15 +275,15 @@ export default function Wearables() {
 
       {/* Tabs for different views */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="bg-[#1a2332] border border-gray-700">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-[#7cfc00] data-[state=active]:text-black">
+        <TabsList className="bg-white border border-gray-200 shadow-sm">
+          <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-gray-700">
             Overview
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="data-[state=active]:bg-[#7cfc00] data-[state=active]:text-black">
+          <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-gray-700">
             <BarChart3 className="w-4 h-4 mr-2" />
             Analytics
           </TabsTrigger>
-          <TabsTrigger value="goals" className="data-[state=active]:bg-[#7cfc00] data-[state=active]:text-black">
+          <TabsTrigger value="goals" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-gray-700">
             <Target className="w-4 h-4 mr-2" />
             Goals
           </TabsTrigger>
@@ -295,11 +295,10 @@ export default function Wearables() {
       {isConnected && wearableData && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-white font-semibold">Live Metrics</h2>
+            <h2 className="text-gray-900 font-semibold">Live Metrics</h2>
             <Button
               size="sm"
-              variant="outline"
-              className="border-gray-700 text-gray-300"
+              className="bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 shadow-md"
               onClick={() => syncDataMutation.mutate()}
               disabled={syncDataMutation.isPending}
             >
@@ -307,35 +306,35 @@ export default function Wearables() {
             </Button>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-[#1a2332] border-gray-800">
+            <Card className="bg-white border-gray-200 shadow-lg">
               <CardContent className="p-4 text-center">
                 <Heart className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-white">{wearableData.heart_rate}</p>
-                <p className="text-gray-400 text-sm">Heart Rate (BPM)</p>
+                <p className="text-2xl font-bold text-gray-900">{wearableData.heart_rate}</p>
+                <p className="text-gray-600 text-sm">Heart Rate (BPM)</p>
                 {wearableData.heart_rate > 85 && (
-                  <Badge className="mt-2 bg-orange-500/20 text-orange-400 border-none text-xs">Elevated</Badge>
+                  <Badge className="mt-2 bg-orange-100 text-orange-700 border-orange-300 text-xs">Elevated</Badge>
                 )}
               </CardContent>
             </Card>
-            <Card className="bg-[#1a2332] border-gray-800">
+            <Card className="bg-white border-gray-200 shadow-lg">
               <CardContent className="p-4 text-center">
                 <Footprints className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-white">{wearableData.steps?.toLocaleString()}</p>
-                <p className="text-gray-400 text-sm">Steps Today</p>
+                <p className="text-2xl font-bold text-gray-900">{wearableData.steps?.toLocaleString()}</p>
+                <p className="text-gray-600 text-sm">Steps Today</p>
               </CardContent>
             </Card>
-            <Card className="bg-[#1a2332] border-gray-800">
+            <Card className="bg-white border-gray-200 shadow-lg">
               <CardContent className="p-4 text-center">
                 <Zap className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-white">{wearableData.calories_burned}</p>
-                <p className="text-gray-400 text-sm">Calories Burned</p>
+                <p className="text-2xl font-bold text-gray-900">{wearableData.calories_burned}</p>
+                <p className="text-gray-600 text-sm">Calories Burned</p>
               </CardContent>
             </Card>
-            <Card className="bg-[#1a2332] border-gray-800">
+            <Card className="bg-white border-gray-200 shadow-lg">
               <CardContent className="p-4 text-center">
-                <TrendingUp className="w-8 h-8 text-[#7cfc00] mx-auto mb-2" />
-                <p className="text-2xl font-bold text-white">{wearableData.recovery_score}</p>
-                <p className="text-gray-400 text-sm">Recovery Score</p>
+                <TrendingUp className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-gray-900">{wearableData.recovery_score}</p>
+                <p className="text-gray-600 text-sm">Recovery Score</p>
               </CardContent>
             </Card>
           </div>
@@ -386,10 +385,10 @@ export default function Wearables() {
       )}
 
       {/* Devices */}
-      <Card className="bg-[#1a2332] border-gray-800">
+      <Card className="bg-white border-gray-200 shadow-lg">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Bluetooth className="w-5 h-5 text-blue-500" />
+          <CardTitle className="text-gray-900 flex items-center gap-2">
+            <Bluetooth className="w-5 h-5 text-blue-600" />
             Available Devices
           </CardTitle>
         </CardHeader>
@@ -397,21 +396,21 @@ export default function Wearables() {
           {isConnected ? (
             <motion.div
               whileHover={{ scale: 1.01 }}
-              className="bg-[#0d1320] rounded-lg p-4 border border-[#7cfc00] flex items-center justify-between"
+              className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-300 flex items-center justify-between shadow-sm"
             >
               <div className="flex items-center gap-4">
                 <span className="text-3xl">{connectedDevice.icon}</span>
                 <div>
-                  <p className="text-white font-semibold">{connectedDevice.name}</p>
-                  <p className="text-gray-400 text-sm flex items-center gap-1">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                  <p className="text-gray-900 font-semibold">{connectedDevice.name}</p>
+                  <p className="text-gray-600 text-sm flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
                     Connected & Syncing
                   </p>
                 </div>
               </div>
               <Button
                 variant="outline"
-                className="border-gray-600 text-gray-300"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 onClick={() => disconnectDeviceMutation.mutate()}
                 disabled={disconnectDeviceMutation.isPending}
               >
@@ -423,20 +422,20 @@ export default function Wearables() {
               <motion.div
                 key={device.id}
                 whileHover={{ scale: 1.01 }}
-                className="bg-[#0d1320] rounded-lg p-4 border border-gray-700 flex items-center justify-between"
+                className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex items-center justify-between shadow-sm"
               >
                 <div className="flex items-center gap-4">
                   <span className="text-3xl">{device.icon}</span>
                   <div>
-                    <p className="text-white font-semibold">{device.name}</p>
-                    <p className="text-gray-400 text-sm flex items-center gap-1">
-                      <XCircle className="w-4 h-4 text-gray-500" />
+                    <p className="text-gray-900 font-semibold">{device.name}</p>
+                    <p className="text-gray-600 text-sm flex items-center gap-1">
+                      <XCircle className="w-4 h-4 text-gray-400" />
                       Not connected
                     </p>
                   </div>
                 </div>
                 <Button
-                  className="bg-[#7cfc00] text-black hover:bg-[#6be600]"
+                  className="bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 shadow-md"
                   onClick={() => connectDeviceMutation.mutate(device.id)}
                   disabled={connectDeviceMutation.isPending}
                 >

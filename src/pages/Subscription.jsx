@@ -29,8 +29,8 @@ const plans = [
       '$15 rush fee',
       'Basic locker access',
     ],
-    color: 'border-gray-600',
-    buttonClass: 'bg-gray-600 hover:bg-gray-700',
+    color: 'border-gray-300',
+    buttonClass: 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white',
   },
   {
     id: 'basic',
@@ -51,8 +51,8 @@ const plans = [
       '$12 rush fee after',
       'Priority locker selection',
     ],
-    color: 'border-blue-500',
-    buttonClass: 'bg-blue-500 hover:bg-blue-600',
+    color: 'border-blue-300',
+    buttonClass: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md',
   },
   {
     id: 'pro',
@@ -75,8 +75,8 @@ const plans = [
       'Priority dispatch',
       'VIP locker zones',
     ],
-    color: 'border-[#7cfc00]',
-    buttonClass: 'bg-[#7cfc00] hover:bg-[#6be600] text-black',
+    color: 'border-green-300',
+    buttonClass: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-md',
   },
   {
     id: 'elite',
@@ -98,8 +98,8 @@ const plans = [
       'Premium locker locations',
       'Personal VantaBot assistant',
     ],
-    color: 'border-purple-500',
-    buttonClass: 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600',
+    color: 'border-purple-300',
+    buttonClass: 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md',
   },
 ];
 
@@ -230,33 +230,33 @@ export default function Subscription() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link to={createPageUrl('Dashboard')}>
-          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900">
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <CreditCard className="w-8 h-8 text-indigo-500" />
             Subscription
           </h1>
-          <p className="text-gray-400 mt-1">Manage your plan</p>
+          <p className="text-gray-600 mt-1">Manage your plan</p>
         </div>
       </div>
 
       {/* Current Plan */}
       {subscription && (
-        <div className="bg-gradient-to-r from-[#7cfc00]/20 to-teal-500/20 rounded-xl p-6 border border-[#7cfc00]/30">
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-400 text-sm">Current Plan</p>
-              <p className="text-white text-2xl font-bold capitalize">{currentPlan}</p>
+              <p className="text-gray-600 text-sm font-medium">Current Plan</p>
+              <p className="text-gray-900 text-2xl font-bold capitalize">{currentPlan}</p>
               {subscription.status === 'canceling' && (
-                <Badge className="mt-2 bg-yellow-500 text-black">
+                <Badge className="mt-2 bg-yellow-100 text-yellow-700 border-yellow-300">
                   Cancels on {subscription.renewal_date}
                 </Badge>
               )}
               {subscription.renewal_date && subscription.status === 'active' && currentPlan !== 'free' && (
-                <p className="text-gray-400 text-sm mt-1">
+                <p className="text-gray-600 text-sm mt-1">
                   Renews on {new Date(subscription.renewal_date).toLocaleDateString()}
                 </p>
               )}
@@ -268,25 +268,25 @@ export default function Subscription() {
                   size="sm"
                   onClick={() => cancelSubscriptionMutation.mutate()}
                   disabled={cancelSubscriptionMutation.isPending}
-                  className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                  className="border-red-300 text-red-600 hover:bg-red-50"
                 >
                   Cancel
                 </Button>
               )}
-              <Crown className="w-10 h-10 text-[#7cfc00]" />
+              <Crown className="w-10 h-10 text-green-600" />
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-            <div className="bg-[#0d1320] rounded-lg p-3">
-              <Shirt className="w-5 h-5 text-cyan-400 mb-1" />
-              <p className="text-white font-bold text-lg">
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+              <Shirt className="w-5 h-5 text-cyan-500 mb-1" />
+              <p className="text-gray-900 font-bold text-lg">
                 {subscription.laundry_credits - subscription.laundry_credits_used}
                 <span className="text-gray-500 text-sm">/{subscription.laundry_credits === 999 ? '∞' : subscription.laundry_credits}</span>
               </p>
-              <p className="text-gray-400 text-xs">Laundry Credits</p>
-              <div className="mt-2 bg-gray-700 rounded-full h-1.5 overflow-hidden">
+              <p className="text-gray-600 text-xs">Laundry Credits</p>
+              <div className="mt-2 bg-gray-200 rounded-full h-1.5 overflow-hidden">
                 <div 
-                  className="bg-cyan-400 h-full transition-all"
+                  className="bg-cyan-500 h-full transition-all"
                   style={{ 
                     width: subscription.laundry_credits === 999 ? '100%' : 
                     `${((subscription.laundry_credits - subscription.laundry_credits_used) / subscription.laundry_credits * 100)}%` 
@@ -294,16 +294,16 @@ export default function Subscription() {
                 />
               </div>
             </div>
-            <div className="bg-[#0d1320] rounded-lg p-3">
-              <Zap className="w-5 h-5 text-orange-400 mb-1" />
-              <p className="text-white font-bold text-lg">
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+              <Zap className="w-5 h-5 text-orange-500 mb-1" />
+              <p className="text-gray-900 font-bold text-lg">
                 {subscription.rush_deliveries_included - subscription.rush_deliveries_used}
                 <span className="text-gray-500 text-sm">/{subscription.rush_deliveries_included === 999 ? '∞' : subscription.rush_deliveries_included}</span>
               </p>
-              <p className="text-gray-400 text-xs">Rush Deliveries</p>
-              <div className="mt-2 bg-gray-700 rounded-full h-1.5 overflow-hidden">
+              <p className="text-gray-600 text-xs">Rush Deliveries</p>
+              <div className="mt-2 bg-gray-200 rounded-full h-1.5 overflow-hidden">
                 <div 
-                  className="bg-orange-400 h-full transition-all"
+                  className="bg-orange-500 h-full transition-all"
                   style={{ 
                     width: subscription.rush_deliveries_included === 999 ? '100%' : 
                     subscription.rush_deliveries_included === 0 ? '0%' :
@@ -312,15 +312,15 @@ export default function Subscription() {
                 />
               </div>
             </div>
-            <div className="bg-[#0d1320] rounded-lg p-3">
-              <Clock className="w-5 h-5 text-green-400 mb-1" />
-              <p className="text-white font-bold text-lg">{subscription.laundry_turnaround_hours || 48}h</p>
-              <p className="text-gray-400 text-xs">Laundry Turnaround</p>
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+              <Clock className="w-5 h-5 text-green-500 mb-1" />
+              <p className="text-gray-900 font-bold text-lg">{subscription.laundry_turnaround_hours || 48}h</p>
+              <p className="text-gray-600 text-xs">Laundry Turnaround</p>
             </div>
-            <div className="bg-[#0d1320] rounded-lg p-3">
-              <Lock className="w-5 h-5 text-purple-400 mb-1" />
-              <p className="text-white font-bold text-lg">{subscription.priority_dispatch ? 'Yes' : 'No'}</p>
-              <p className="text-gray-400 text-xs">Priority Dispatch</p>
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+              <Lock className="w-5 h-5 text-purple-500 mb-1" />
+              <p className="text-gray-900 font-bold text-lg">{subscription.priority_dispatch ? 'Yes' : 'No'}</p>
+              <p className="text-gray-600 text-xs">Priority Dispatch</p>
             </div>
           </div>
         </div>
@@ -334,28 +334,28 @@ export default function Subscription() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ y: -5 }}
-            className={`bg-[#1a2332] rounded-xl p-6 border-2 ${plan.color} relative ${currentPlan === plan.id ? 'ring-2 ring-[#7cfc00]' : ''}`}
+            className={`bg-white rounded-xl p-6 border-2 ${plan.color} relative shadow-lg hover:shadow-xl transition-shadow ${currentPlan === plan.id ? 'ring-2 ring-green-500' : ''}`}
           >
             {plan.popular && (
-              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#7cfc00] text-black">
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold shadow-md">
                 Most Popular
               </Badge>
             )}
             {currentPlan === plan.id && (
-              <Badge className="absolute -top-3 right-4 bg-green-500 text-white">
+              <Badge className="absolute -top-3 right-4 bg-green-500 text-white font-semibold shadow-md">
                 Current
               </Badge>
             )}
-            <h3 className="text-white text-xl font-bold mb-2">{plan.name}</h3>
+            <h3 className="text-gray-900 text-xl font-bold mb-2">{plan.name}</h3>
             <div className="mb-4">
-              <span className="text-3xl font-bold text-white">${plan.price}</span>
-              <span className="text-gray-400">/mo</span>
+              <span className="text-3xl font-bold text-gray-900">${plan.price}</span>
+              <span className="text-gray-600">/mo</span>
             </div>
             <ul className="space-y-3 mb-6">
               {plan.features.map((feature, idx) => (
                 <li key={idx} className="flex items-start gap-2 text-sm">
-                  <Check className="w-4 h-4 text-[#7cfc00] flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">{feature}</span>
+                  <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700">{feature}</span>
                 </li>
               ))}
             </ul>
