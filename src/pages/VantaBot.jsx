@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import MessageBubble from '../components/chat/MessageBubble';
 
-export default function VantaBot() {
+export default function RokiBot() {
   const [user, setUser] = useState(null);
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -64,7 +64,7 @@ export default function VantaBot() {
   const initConversation = async () => {
     try {
       // Try to get existing conversation
-      const conversations = await base44.agents.listConversations({ agent_name: 'vantabot' });
+      const conversations = await base44.agents.listConversations({ agent_name: 'rokibot' });
       
       if (conversations && conversations.length > 0) {
         const existingConv = await base44.agents.getConversation(conversations[0].id);
@@ -73,20 +73,20 @@ export default function VantaBot() {
       } else {
         // Create new conversation
         const newConv = await base44.agents.createConversation({
-          agent_name: 'vantabot',
-          metadata: { name: 'VantaBot Chat' }
+          agent_name: 'rokibot',
+          metadata: { name: 'RokiBot Chat' }
         });
         setConversation(newConv);
         setMessages([{
           role: 'assistant',
-          content: "Hey! 👋 I'm VantaBot, your VANTA assistant. I can help you:\n\n• Check your locker status & access code\n• Reorder supplements\n• Schedule laundry pickup\n• Track your deliveries\n• Answer nutrition questions\n\nWhat can I help you with today?"
+          content: "Hey! 👋 I'm RokiBot, your ROKI assistant. I can help you:\n\n• Check your locker status & access code\n• Reorder supplements\n• Schedule laundry pickup\n• Track your deliveries\n• Answer nutrition questions\n\nWhat can I help you with today?"
         }]);
       }
     } catch (e) {
       console.error('Failed to init conversation:', e);
       setMessages([{
         role: 'assistant',
-        content: "Hey! 👋 I'm VantaBot, your VANTA assistant. How can I help you today?"
+        content: "Hey! 👋 I'm RokiBot, your ROKI assistant. How can I help you today?"
       }]);
     }
   };
@@ -253,7 +253,7 @@ export default function VantaBot() {
             <Bot className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">VantaBot</h1>
+            <h1 className="text-xl font-bold text-gray-900">RokiBot</h1>
             <p className="text-gray-600 text-sm">AI Assistant</p>
           </div>
         </div>
@@ -339,7 +339,7 @@ export default function VantaBot() {
           {isLoading && (
             <div className="flex items-center gap-2 text-gray-600">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm">VantaBot is thinking...</span>
+              <span className="text-sm">RokiBot is thinking...</span>
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -375,7 +375,7 @@ export default function VantaBot() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask VantaBot anything..."
+              placeholder="Ask RokiBot anything..."
               className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-green-500"
               disabled={isLoading}
             />

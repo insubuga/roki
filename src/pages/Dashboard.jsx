@@ -71,7 +71,7 @@ export default function Dashboard() {
     ],
     community: [
       { icon: Users, title: 'Community', page: 'Community' },
-      { icon: Sparkles, title: 'VantaBot', page: 'VantaBot' },
+      { icon: Sparkles, title: 'RokiBot', page: 'RokiBot' },
       { icon: MessageCircle, title: 'Support Chat', page: 'Support' },
     ],
   };

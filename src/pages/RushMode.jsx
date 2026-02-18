@@ -167,16 +167,16 @@ export default function RushMode() {
           </div>
         </div>
         
-        {/* VantaBot Assistant */}
+        {/* RokiBot Assistant */}
         <div className="mt-4 bg-white rounded-lg p-3 flex items-start gap-3 border border-orange-200 shadow-sm">
           <div className="w-8 h-8 bg-gradient-to-br from-[#7cfc00] to-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
             <Bot className="w-4 h-4 text-black" />
           </div>
           <div className="flex-1">
             <p className="text-gray-900 text-sm font-semibold">Need help?</p>
-            <p className="text-gray-600 text-xs">VantaBot can handle Rush Mode for you via chat.</p>
+            <p className="text-gray-600 text-xs">RokiBot can handle Rush Mode for you via chat.</p>
           </div>
-          <Link to={createPageUrl('VantaBot')}>
+          <Link to={createPageUrl('RokiBot')}>
             <Button size="sm" className="bg-[#FFD814] hover:bg-[#F7CA00] text-black font-semibold">
               Chat
             </Button>
