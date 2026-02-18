@@ -156,28 +156,28 @@ export default function RushMode() {
       />
 
       {/* Premium Rush Banner */}
-      <div className="bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-xl p-6 border border-orange-500/30">
+      <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-200 shadow-lg">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
             <Zap className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
-            <h2 className="text-white font-bold text-lg">Emergency Fulfillment</h2>
-            <p className="text-gray-300 text-sm">Select what you need. A courier will deliver to your gym within minutes.</p>
+            <h2 className="text-gray-900 font-bold text-lg">Emergency Fulfillment</h2>
+            <p className="text-gray-600 text-sm">Select what you need. A courier will deliver to your gym within minutes.</p>
           </div>
         </div>
         
         {/* VantaBot Assistant */}
-        <div className="mt-4 bg-black/20 rounded-lg p-3 flex items-start gap-3 border border-orange-500/20">
-          <div className="w-8 h-8 bg-gradient-to-br from-[#7cfc00] to-teal-500 rounded-lg flex items-center justify-center flex-shrink-0">
+        <div className="mt-4 bg-white rounded-lg p-3 flex items-start gap-3 border border-orange-200 shadow-sm">
+          <div className="w-8 h-8 bg-gradient-to-br from-[#7cfc00] to-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
             <Bot className="w-4 h-4 text-black" />
           </div>
           <div className="flex-1">
-            <p className="text-white text-sm font-semibold">Need help?</p>
-            <p className="text-gray-300 text-xs">VantaBot can handle Rush Mode for you via chat.</p>
+            <p className="text-gray-900 text-sm font-semibold">Need help?</p>
+            <p className="text-gray-600 text-xs">VantaBot can handle Rush Mode for you via chat.</p>
           </div>
           <Link to={createPageUrl('VantaBot')}>
-            <Button size="sm" variant="outline" className="border-[#7cfc00] text-[#7cfc00] hover:bg-[#7cfc00] hover:text-black">
+            <Button size="sm" className="bg-[#FFD814] hover:bg-[#F7CA00] text-black font-semibold">
               Chat
             </Button>
           </Link>
@@ -188,22 +188,22 @@ export default function RushMode() {
         {/* Main Form */}
         <div className="lg:col-span-2 space-y-6">
           {/* Select Item */}
-          <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-md">
             <div className="flex items-center gap-2 mb-4">
-              <Package className="w-5 h-5 text-[#7cfc00]" />
-              <h3 className="text-white font-semibold">Select Item</h3>
+              <Package className="w-5 h-5 text-orange-500" />
+              <h3 className="text-gray-900 font-semibold">Select Item</h3>
             </div>
-            <p className="text-gray-400 text-sm mb-4 text-center">Choose from recent items or cart</p>
+            <p className="text-gray-600 text-sm mb-4 text-center">Choose from recent items or cart</p>
             <Select value={selectedItem} onValueChange={setSelectedItem}>
-              <SelectTrigger className="bg-[#0d1320] border-gray-700 text-white">
+              <SelectTrigger className="bg-gray-50 border-gray-300 text-gray-900 hover:bg-gray-100 focus:ring-2 focus:ring-orange-500">
                 <SelectValue placeholder="Select an item for rush delivery" />
               </SelectTrigger>
-              <SelectContent className="bg-[#1a2332] border-gray-700">
+              <SelectContent className="bg-white border-gray-200">
                 {uniqueItems.length === 0 ? (
                   <SelectItem value="none" disabled className="text-gray-500">No items available</SelectItem>
                 ) : (
                   uniqueItems.map((item) => (
-                    <SelectItem key={item.id} value={item.id} className="text-white">
+                    <SelectItem key={item.id} value={item.id} className="text-gray-900">
                       {item.name} ({item.source})
                     </SelectItem>
                   ))
@@ -213,29 +213,29 @@ export default function RushMode() {
           </div>
 
           {/* Delivery Details */}
-          <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-md">
             <div className="flex items-center gap-2 mb-4">
-              <MapPin className="w-5 h-5 text-[#7cfc00]" />
-              <h3 className="text-white font-semibold">Delivery Details</h3>
+              <MapPin className="w-5 h-5 text-orange-500" />
+              <h3 className="text-gray-900 font-semibold">Delivery Details</h3>
             </div>
             <div className="space-y-4">
               <div>
-                <Label className="text-white mb-2 block">Delivery Location *</Label>
+                <Label className="text-gray-900 mb-2 block font-medium">Delivery Location *</Label>
                 <Input
                   placeholder="e.g., Gym locker #45, Office building reception..."
                   value={deliveryLocation}
                   onChange={(e) => setDeliveryLocation(e.target.value)}
-                  className="bg-[#0d1320] border-gray-700 text-white placeholder:text-gray-500"
+                  className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-orange-500"
                 />
                 <p className="text-gray-500 text-xs mt-1">Provide specific location details for faster delivery</p>
               </div>
               <div>
-                <Label className="text-white mb-2 block">Special Instructions (Optional)</Label>
+                <Label className="text-gray-900 mb-2 block font-medium">Special Instructions (Optional)</Label>
                 <Textarea
                   placeholder="Any special delivery instructions or access codes..."
                   value={specialInstructions}
                   onChange={(e) => setSpecialInstructions(e.target.value)}
-                  className="bg-[#0d1320] border-gray-700 text-white placeholder:text-gray-500 h-24"
+                  className="bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500 h-24 focus:ring-2 focus:ring-orange-500"
                   maxLength={200}
                 />
                 <p className="text-gray-500 text-xs mt-1 text-right">{specialInstructions.length}/200</p>
@@ -244,28 +244,28 @@ export default function RushMode() {
           </div>
 
           {/* Delivery Time */}
-          <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-md">
             <div className="flex items-center gap-2 mb-4">
-              <Clock className="w-5 h-5 text-[#7cfc00]" />
-              <h3 className="text-white font-semibold">Delivery Time</h3>
+              <Clock className="w-5 h-5 text-orange-500" />
+              <h3 className="text-gray-900 font-semibold">Delivery Time</h3>
             </div>
-            <div className="flex items-center justify-between bg-[#0d1320] rounded-lg p-4">
+            <div className="flex items-center justify-between bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-4 border border-orange-200">
               <div>
-                <p className="text-white font-semibold">Rush Delivery</p>
-                <p className="text-gray-400 text-sm">Within 30 minutes</p>
+                <p className="text-gray-900 font-semibold">Rush Delivery</p>
+                <p className="text-gray-600 text-sm">Within 30 minutes</p>
               </div>
-              <span className="text-[#7cfc00] font-bold">Now</span>
+              <span className="text-orange-600 font-bold text-lg">Now</span>
             </div>
           </div>
 
           {/* Submit Button */}
           <Button 
-            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-6 text-lg hover:from-orange-600 hover:to-amber-600"
+            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-7 text-lg hover:from-orange-600 hover:to-orange-700 shadow-lg"
             onClick={() => createRushOrderMutation.mutate()}
             disabled={!selectedItem || !deliveryLocation || createRushOrderMutation.isPending}
           >
             <Zap className="w-5 h-5 mr-2" />
-            {createRushOrderMutation.isPending ? 'Handling...' : 
+            {createRushOrderMutation.isPending ? 'Processing...' : 
               (() => {
                 const rushFee = subscription?.rush_delivery_fee || 15;
                 const freeRushesRemaining = (subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0);
@@ -279,61 +279,61 @@ export default function RushMode() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* How it Works */}
-          <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800">
-            <h3 className="text-white font-bold text-center mb-6">How It Works</h3>
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-md">
+            <h3 className="text-gray-900 font-bold text-center mb-6">How It Works</h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">1</div>
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm">1</div>
                 <div>
-                  <p className="text-white font-semibold">Select</p>
-                  <p className="text-gray-400 text-sm">Pick your item</p>
+                  <p className="text-gray-900 font-semibold">Select</p>
+                  <p className="text-gray-600 text-sm">Pick your item</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-[#7cfc00] rounded-full flex items-center justify-center text-black font-bold flex-shrink-0">2</div>
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm">2</div>
                 <div>
-                  <p className="text-white font-semibold">Confirm</p>
-                  <p className="text-gray-400 text-sm">We've got it</p>
+                  <p className="text-gray-900 font-semibold">Confirm</p>
+                  <p className="text-gray-600 text-sm">We've got it</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">3</div>
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm">3</div>
                 <div>
-                  <p className="text-white font-semibold">Delivered</p>
-                  <p className="text-gray-400 text-sm">~30 minutes</p>
+                  <p className="text-gray-900 font-semibold">Delivered</p>
+                  <p className="text-gray-600 text-sm">~30 minutes</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Rush Pricing & Benefits */}
-          <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800">
-            <h3 className="text-white font-bold text-center mb-4">Your Rush Benefits</h3>
+          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-md">
+            <h3 className="text-gray-900 font-bold text-center mb-4">Your Rush Benefits</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-400">Plan</span>
-                <span className="text-white capitalize">{subscription?.plan || 'free'}</span>
+                <span className="text-gray-600">Plan</span>
+                <span className="text-gray-900 capitalize font-medium">{subscription?.plan || 'free'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Free Rushes</span>
-                <span className="text-[#7cfc00] font-bold">
+                <span className="text-gray-600">Free Rushes</span>
+                <span className="text-green-600 font-bold">
                   {((subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0)) === 999 ? '∞' : 
                    ((subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0))} remaining
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Rush Fee After</span>
-                <span className="text-white">${subscription?.rush_delivery_fee?.toFixed(2) || '15.00'}</span>
+                <span className="text-gray-600">Rush Fee After</span>
+                <span className="text-gray-900 font-medium">${subscription?.rush_delivery_fee?.toFixed(2) || '15.00'}</span>
               </div>
               {subscription?.priority_dispatch && (
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Priority Dispatch</span>
-                  <span className="text-[#7cfc00]">✓ Enabled</span>
+                  <span className="text-gray-600">Priority Dispatch</span>
+                  <span className="text-green-600 font-semibold">✓ Enabled</span>
                 </div>
               )}
-              <div className="flex justify-between border-t border-gray-700 pt-3">
-                <span className="text-white font-semibold">Delivery Time</span>
-                <span className="text-[#7cfc00] font-bold">
+              <div className="flex justify-between border-t border-gray-200 pt-3 mt-3">
+                <span className="text-gray-900 font-semibold">Delivery Time</span>
+                <span className="text-orange-600 font-bold">
                   {subscription?.priority_dispatch ? '≤ 20 min' : '≤ 30 min'}
                 </span>
               </div>
@@ -341,12 +341,12 @@ export default function RushMode() {
           </div>
 
           {/* Important Notes */}
-          <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800">
+          <div className="bg-amber-50 rounded-xl p-6 border border-amber-200 shadow-md">
             <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className="w-5 h-5 text-amber-500" />
-              <h3 className="text-white font-bold">Notes</h3>
+              <AlertTriangle className="w-5 h-5 text-amber-600" />
+              <h3 className="text-gray-900 font-bold">Important Notes</h3>
             </div>
-            <ul className="text-gray-400 text-sm space-y-2">
+            <ul className="text-gray-700 text-sm space-y-2">
               <li>• Available 6 AM - 10 PM</li>
               <li>• Local stock only</li>
               <li>• High demand may extend window</li>
