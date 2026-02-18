@@ -14,10 +14,10 @@ import TrackingTimeline from '../components/delivery/TrackingTimeline';
 import { toast } from 'sonner';
 
 const statusColors = {
-  pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  confirmed: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  in_transit: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  delivered: 'bg-green-500/20 text-green-400 border-green-500/30',
+  pending: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+  confirmed: 'bg-blue-100 text-blue-700 border-blue-300',
+  in_transit: 'bg-purple-100 text-purple-700 border-purple-300',
+  delivered: 'bg-green-100 text-green-700 border-green-300',
 };
 
 const statusLabels = {
@@ -109,19 +109,21 @@ export default function Deliveries() {
       {isLoading ? (
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-[#1a2332] rounded-xl p-6 animate-pulse border border-gray-800">
-              <div className="h-4 bg-gray-700 rounded w-1/3 mb-4" />
-              <div className="h-3 bg-gray-700 rounded w-1/2" />
+            <div key={i} className="bg-white rounded-xl p-6 animate-pulse border border-gray-200 shadow-md">
+              <div className="h-4 bg-gray-200 rounded w-1/3 mb-4" />
+              <div className="h-3 bg-gray-200 rounded w-1/2" />
             </div>
           ))}
         </div>
       ) : orders.length === 0 ? (
-        <div className="bg-[#1a2332] rounded-xl p-12 text-center border border-gray-800">
-          <Package className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-          <h2 className="text-xl text-white font-semibold mb-2">No deliveries yet</h2>
-          <p className="text-gray-400 mb-6">Place an order to see your deliveries here</p>
+        <div className="bg-white rounded-xl p-12 text-center border border-gray-200 shadow-lg">
+          <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Package className="w-10 h-10 text-orange-600" />
+          </div>
+          <h2 className="text-xl text-gray-900 font-semibold mb-2">No deliveries yet</h2>
+          <p className="text-gray-600 mb-6">Place an order to see your deliveries here</p>
           <Link to={createPageUrl('Shop')}>
-            <Button className="bg-[#7cfc00] text-black hover:bg-[#6be600]">
+            <Button className="bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-md">
               Start Shopping
             </Button>
           </Link>
@@ -131,59 +133,62 @@ export default function Deliveries() {
           {/* Active Orders */}
           {activeOrders.length > 0 && (
             <div>
-              <h2 className="text-xl font-bold text-white mb-4">Active Deliveries</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="w-2 h-8 bg-gradient-to-b from-orange-500 to-orange-600 rounded-full"></div>
+                Active Deliveries
+              </h2>
               <div className="space-y-4">
                 {activeOrders.map((order) => (
                   <motion.div
                     key={order.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-[#1a2332] rounded-xl p-6 border border-gray-800"
+                    className="bg-white rounded-xl p-6 border border-gray-200 shadow-lg hover:shadow-xl transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <p className="text-white font-semibold">Order #{order.id.slice(-8)}</p>
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-gray-900 font-semibold text-lg">Order #{order.id.slice(-8)}</p>
+                        <p className="text-gray-600 text-sm">
                           {format(new Date(order.created_date), 'MMM d, yyyy h:mm a')}
                         </p>
                       </div>
-                      <Badge className={`${statusColors[order.status]} border`}>
+                      <Badge className={`${statusColors[order.status]} border font-medium`}>
                         {order.delivery_type === 'rush' && '⚡ '}
                         {statusLabels[order.status]}
                       </Badge>
                     </div>
 
                     {/* Items */}
-                    <div className="space-y-2 mb-4">
+                    <div className="space-y-2 mb-4 bg-gray-50 rounded-lg p-4">
                       {(order.items || []).map((item, idx) => (
                         <div key={idx} className="flex justify-between text-sm">
-                          <span className="text-gray-300">{item.product_name} x{item.quantity}</span>
-                          <span className="text-white">${(item.price * item.quantity).toFixed(2)}</span>
+                          <span className="text-gray-700 font-medium">{item.product_name} x{item.quantity}</span>
+                          <span className="text-gray-900 font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                       ))}
                     </div>
 
-                    <div className="border-t border-gray-700 pt-4">
-                      <div className="flex items-center gap-2 text-gray-400 text-sm">
-                        <MapPin className="w-4 h-4" />
+                    <div className="border-t border-gray-200 pt-4 space-y-2">
+                      <div className="flex items-center gap-2 text-gray-600 text-sm">
+                        <MapPin className="w-4 h-4 text-orange-500" />
                         <span>{order.delivery_location || 'Locker delivery'}</span>
                       </div>
                       {order.estimated_delivery && (
-                        <div className="flex items-center gap-2 text-gray-400 text-sm mt-2">
-                          <Clock className="w-4 h-4" />
+                        <div className="flex items-center gap-2 text-gray-600 text-sm">
+                          <Clock className="w-4 h-4 text-blue-500" />
                           <span>ETA: {format(new Date(order.estimated_delivery), 'h:mm a')}</span>
                         </div>
                       )}
                       {order.tracking_number && (
-                        <div className="flex items-center gap-2 text-gray-400 text-sm mt-2">
-                          <Package className="w-4 h-4" />
-                          <span className="font-mono text-xs">{order.tracking_number}</span>
+                        <div className="flex items-center gap-2 text-gray-600 text-sm">
+                          <Package className="w-4 h-4 text-purple-500" />
+                          <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{order.tracking_number}</span>
                           {order.tracking_url && (
                             <a 
                               href={order.tracking_url} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="text-blue-400 hover:text-blue-300"
+                              className="text-blue-600 hover:text-blue-700"
                             >
                               <ExternalLink className="w-3 h-3" />
                             </a>
@@ -192,17 +197,16 @@ export default function Deliveries() {
                       )}
                     </div>
 
-                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-700">
-                      <span className="text-gray-400">Total</span>
-                      <span className="text-[#7cfc00] font-bold text-lg">${order.total?.toFixed(2)}</span>
+                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+                      <span className="text-gray-600 font-medium">Total</span>
+                      <span className="text-green-600 font-bold text-xl">${order.total?.toFixed(2)}</span>
                     </div>
 
                     {/* Track Shipment Button */}
                     {order.tracking_number && order.status === 'in_transit' && (
                       <>
                         <Button
-                          variant="outline"
-                          className="w-full mt-4 border-gray-700 text-gray-300 hover:bg-gray-800 select-none"
+                          className="w-full mt-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 select-none shadow-md"
                           onClick={() => fetchTracking(order)}
                         >
                           <Truck className="w-4 h-4 mr-2 select-none" />
@@ -233,30 +237,33 @@ export default function Deliveries() {
           {/* Past Orders */}
           {pastOrders.length > 0 && (
             <div>
-              <h2 className="text-xl font-bold text-white mb-4">Past Deliveries</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="w-2 h-8 bg-gradient-to-b from-green-500 to-green-600 rounded-full"></div>
+                Past Deliveries
+              </h2>
               <div className="space-y-4">
                 {pastOrders.map((order) => (
                   <motion.div
                     key={order.id}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="bg-[#1a2332] rounded-xl p-6 border border-gray-800 opacity-75"
+                    className="bg-white rounded-xl p-6 border border-gray-200 shadow-md hover:shadow-lg transition-shadow"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-white font-semibold">Order #{order.id.slice(-8)}</p>
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-gray-900 font-semibold">Order #{order.id.slice(-8)}</p>
+                        <p className="text-gray-600 text-sm">
                           {format(new Date(order.created_date), 'MMM d, yyyy')}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-5 h-5 text-green-500" />
-                        <span className="text-green-400 font-medium">Delivered</span>
+                      <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <span className="text-green-700 font-medium">Delivered</span>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <span className="text-gray-400">{(order.items || []).length} items</span>
-                      <span className="text-white font-bold">${order.total?.toFixed(2)}</span>
+                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+                      <span className="text-gray-600">{(order.items || []).length} items</span>
+                      <span className="text-gray-900 font-bold">${order.total?.toFixed(2)}</span>
                     </div>
                   </motion.div>
                 ))}
