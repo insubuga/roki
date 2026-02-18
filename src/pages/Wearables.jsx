@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from '../components/mobile/PullToRefresh';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Watch, Bluetooth, CheckCircle, XCircle, Activity, Heart, Footprints, Zap, TrendingUp, Brain, Droplet, Moon, BarChart3, Target, Plus } from 'lucide-react';
+import { Watch, Bluetooth, CheckCircle, XCircle, Activity, Heart, Footprints, Zap, TrendingUp, Brain, Droplet, Moon, BarChart3, Target, Plus, Smartphone, Shield, Clock, RefreshCw, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MobileHeader from '../components/mobile/MobileHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,27 +21,85 @@ const wearableDevices = [
     id: 'apple-watch',
     name: 'Apple Watch',
     icon: '⌚',
+    category: 'wearable',
   },
   {
     id: 'fitbit',
     name: 'Fitbit',
     icon: '📟',
+    category: 'wearable',
   },
   {
     id: 'garmin',
     name: 'Garmin',
     icon: '🏃',
+    category: 'wearable',
   },
   {
     id: 'whoop',
     name: 'WHOOP',
     icon: '💪',
+    category: 'wearable',
+  },
+];
+
+const healthApps = [
+  {
+    id: 'apple-health',
+    name: 'Apple Health',
+    icon: '❤️',
+    description: 'Sync directly from iPhone Health app',
+    category: 'health',
+    platform: 'iOS',
+  },
+  {
+    id: 'google-fit',
+    name: 'Google Fit',
+    icon: '🏃‍♂️',
+    description: 'Connect your Android health data',
+    category: 'health',
+    platform: 'Android',
+  },
+  {
+    id: 'samsung-health',
+    name: 'Samsung Health',
+    icon: '💚',
+    description: 'Import Samsung Health metrics',
+    category: 'health',
+    platform: 'Android',
+  },
+];
+
+const fitnessApps = [
+  {
+    id: 'strava',
+    name: 'Strava',
+    icon: '🏔️',
+    description: 'Track runs, rides, and activities',
+    category: 'fitness',
+  },
+  {
+    id: 'myfitnesspal',
+    name: 'MyFitnessPal',
+    icon: '🍎',
+    description: 'Nutrition and calorie tracking',
+    category: 'fitness',
+  },
+  {
+    id: 'peloton',
+    name: 'Peloton',
+    icon: '🚴',
+    description: 'Sync Peloton workouts',
+    category: 'fitness',
   },
 ];
 
 export default function Wearables() {
   const [user, setUser] = useState(null);
   const [showManualLog, setShowManualLog] = useState(false);
+  const [showPrivacySettings, setShowPrivacySettings] = useState(false);
+  const [connectedApps, setConnectedApps] = useState([]);
+  const [lastSyncTime, setLastSyncTime] = useState(null);
   const [manualData, setManualData] = useState({
     workout_type: '',
     workout_intensity: 'moderate',
@@ -102,21 +160,27 @@ export default function Wearables() {
         recovery_score: Math.floor(Math.random() * 30) + 70, // 70-100
       };
       
+      // Track connected apps
+      setConnectedApps(prev => [...new Set([...prev, deviceId])]);
+      setLastSyncTime(new Date());
+      
       if (wearableData) {
         return base44.entities.WearableData.update(wearableData.id, sampleData);
       } else {
         return base44.entities.WearableData.create(sampleData);
       }
     },
-    onSuccess: () => {
-      toast.success('Device connected and synced!');
+    onSuccess: (data, deviceId) => {
+      const deviceName = [...wearableDevices, ...healthApps, ...fitnessApps].find(d => d.id === deviceId)?.name;
+      toast.success(`${deviceName} connected successfully!`);
       queryClient.invalidateQueries({ queryKey: ['wearableData'] });
     },
   });
 
   const disconnectDeviceMutation = useMutation({
-    mutationFn: async () => {
-      if (wearableData) {
+    mutationFn: async (deviceId) => {
+      setConnectedApps(prev => prev.filter(id => id !== deviceId));
+      if (wearableData && wearableData.device_type === deviceId) {
         return base44.entities.WearableData.delete(wearableData.id);
       }
     },
@@ -139,10 +203,11 @@ export default function Wearables() {
         recovery_score: Math.floor(Math.random() * 30) + 70,
       };
       
+      setLastSyncTime(new Date());
       return base44.entities.WearableData.update(wearableData.id, newData);
     },
     onSuccess: async (data) => {
-      toast.success('Data synced!');
+      toast.success('Data synced successfully!');
       queryClient.invalidateQueries({ queryKey: ['wearableData'] });
       queryClient.invalidateQueries({ queryKey: ['historicalWearableData'] });
       
@@ -291,6 +356,38 @@ export default function Wearables() {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6 mt-6">
+      
+      {/* Sync Status Banner */}
+      {isConnected && lastSyncTime && (
+        <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-gray-900 font-semibold">Data Synced</p>
+                  <p className="text-gray-600 text-sm flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    Last sync: {format(lastSyncTime, 'p')}
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-green-300 text-green-700 hover:bg-green-50"
+                onClick={() => syncDataMutation.mutate()}
+                disabled={syncDataMutation.isPending}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${syncDataMutation.isPending ? 'animate-spin' : ''}`} />
+                Sync Now
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       {/* Real-time Stats */}
       {isConnected && wearableData && (
         <div>
@@ -384,16 +481,16 @@ export default function Wearables() {
         </div>
       )}
 
-      {/* Devices */}
+      {/* Wearable Devices */}
       <Card className="bg-white border-gray-200 shadow-lg">
         <CardHeader>
           <CardTitle className="text-gray-900 flex items-center gap-2">
             <Bluetooth className="w-5 h-5 text-blue-600" />
-            Available Devices
+            Wearable Devices
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {isConnected ? (
+          {isConnected && connectedDevice ? (
             <motion.div
               whileHover={{ scale: 1.01 }}
               className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-300 flex items-center justify-between shadow-sm"
@@ -411,7 +508,7 @@ export default function Wearables() {
               <Button
                 variant="outline"
                 className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                onClick={() => disconnectDeviceMutation.mutate()}
+                onClick={() => disconnectDeviceMutation.mutate(wearableData.device_type)}
                 disabled={disconnectDeviceMutation.isPending}
               >
                 Disconnect
@@ -445,6 +542,189 @@ export default function Wearables() {
             ))
           )}
         </CardContent>
+      </Card>
+
+      {/* Health Apps Integration */}
+      <Card className="bg-white border-gray-200 shadow-lg">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-gray-900 flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-blue-600" />
+              Health Apps
+            </CardTitle>
+            <Badge className="bg-blue-100 text-blue-700 border-blue-300">No Device Needed</Badge>
+          </div>
+          <p className="text-gray-600 text-sm mt-2">Connect directly to your phone's health data</p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {healthApps.map((app) => {
+            const isAppConnected = connectedApps.includes(app.id);
+            return (
+              <motion.div
+                key={app.id}
+                whileHover={{ scale: 1.01 }}
+                className={`rounded-lg p-4 border flex items-center justify-between shadow-sm ${
+                  isAppConnected 
+                    ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300' 
+                    : 'bg-gray-50 border-gray-200'
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-3xl">{app.icon}</span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-gray-900 font-semibold">{app.name}</p>
+                      <Badge variant="outline" className="text-xs border-gray-300 text-gray-600">
+                        {app.platform}
+                      </Badge>
+                    </div>
+                    <p className="text-gray-600 text-sm">{app.description}</p>
+                    {isAppConnected && (
+                      <p className="text-green-600 text-sm flex items-center gap-1 mt-1">
+                        <CheckCircle className="w-3 h-3" />
+                        Auto-syncing enabled
+                      </p>
+                    )}
+                  </div>
+                </div>
+                {isAppConnected ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    onClick={() => disconnectDeviceMutation.mutate(app.id)}
+                  >
+                    Disconnect
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-md"
+                    onClick={() => connectDeviceMutation.mutate(app.id)}
+                    disabled={connectDeviceMutation.isPending}
+                  >
+                    Connect
+                  </Button>
+                )}
+              </motion.div>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      {/* Fitness Apps Integration */}
+      <Card className="bg-white border-gray-200 shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-gray-900 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-orange-600" />
+            Fitness Platforms
+          </CardTitle>
+          <p className="text-gray-600 text-sm mt-2">Connect your favorite fitness and nutrition apps</p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {fitnessApps.map((app) => {
+            const isAppConnected = connectedApps.includes(app.id);
+            return (
+              <motion.div
+                key={app.id}
+                whileHover={{ scale: 1.01 }}
+                className={`rounded-lg p-4 border flex items-center justify-between shadow-sm ${
+                  isAppConnected 
+                    ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300' 
+                    : 'bg-gray-50 border-gray-200'
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-3xl">{app.icon}</span>
+                  <div>
+                    <p className="text-gray-900 font-semibold">{app.name}</p>
+                    <p className="text-gray-600 text-sm">{app.description}</p>
+                    {isAppConnected && (
+                      <p className="text-green-600 text-sm flex items-center gap-1 mt-1">
+                        <CheckCircle className="w-3 h-3" />
+                        Connected
+                      </p>
+                    )}
+                  </div>
+                </div>
+                {isAppConnected ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    onClick={() => disconnectDeviceMutation.mutate(app.id)}
+                  >
+                    Disconnect
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-md"
+                    onClick={() => connectDeviceMutation.mutate(app.id)}
+                    disabled={connectDeviceMutation.isPending}
+                  >
+                    Connect
+                  </Button>
+                )}
+              </motion.div>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      {/* Privacy & Data Control */}
+      <Card className="bg-white border-gray-200 shadow-lg">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-gray-900 flex items-center gap-2">
+              <Shield className="w-5 h-5 text-green-600" />
+              Privacy & Data Control
+            </CardTitle>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowPrivacySettings(!showPrivacySettings)}
+            >
+              {showPrivacySettings ? 'Hide' : 'View'} Settings
+            </Button>
+          </div>
+        </CardHeader>
+        {showPrivacySettings && (
+          <CardContent className="space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex gap-3">
+                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-gray-900 font-semibold mb-2">Your Data, Your Control</p>
+                  <ul className="text-gray-700 text-sm space-y-2">
+                    <li>• All health data is encrypted and stored securely</li>
+                    <li>• You can disconnect any app or device at any time</li>
+                    <li>• Data is only used to personalize your VANTA experience</li>
+                    <li>• We never share your health data with third parties</li>
+                    <li>• Export or delete your data anytime from your Profile</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1 border-gray-300 text-gray-700"
+                onClick={() => toast.info('Feature coming soon')}
+              >
+                Export My Data
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
+                onClick={() => toast.info('Feature coming soon')}
+              >
+                Delete All Data
+              </Button>
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Manual Log Button */}
