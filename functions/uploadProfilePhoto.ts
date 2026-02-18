@@ -9,8 +9,26 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get the payload from Base44 SDK
-    const { file_data, file_name, file_type } = await req.json();
+    // Get the payload - handle both JSON and form data
+    const contentType = req.headers.get('content-type') || '';
+    let file_data, file_name, file_type;
+    
+    if (contentType.includes('application/json')) {
+      const body = await req.json();
+      file_data = body.file_data;
+      file_name = body.file_name;
+      file_type = body.file_type;
+    } else {
+      const body = await req.text();
+      try {
+        const parsed = JSON.parse(body);
+        file_data = parsed.file_data;
+        file_name = parsed.file_name;
+        file_type = parsed.file_type;
+      } catch (e) {
+        return Response.json({ error: 'Invalid request format' }, { status: 400 });
+      }
+    }
 
     if (!file_data) {
       return Response.json({ error: 'No file provided' }, { status: 400 });
