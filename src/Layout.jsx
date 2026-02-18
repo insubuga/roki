@@ -91,15 +91,15 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] overscroll-none">
       {/* Header */}
-      <header className="bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)] sticky top-0 z-50" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <header className="bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#7cfc00] rounded-lg flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5 text-black" />
+            <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md">
+                <ShoppingCart className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-white">VANTA</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">VANTA</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -107,18 +107,18 @@ export default function Layout({ children, currentPageName }) {
               {navItems.map((item) => (
                 item.hasDropdown ? (
                   <DropdownMenu key={item.name}>
-                    <DropdownMenuTrigger className="flex items-center gap-1 text-[var(--color-text-primary)] hover:text-[var(--color-primary)] transition-colors font-medium">
+                    <DropdownMenuTrigger className="flex items-center gap-1 text-gray-700 hover:text-green-600 transition-colors font-medium">
                       {item.name}
                       <ChevronDown className="w-4 h-4" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-[#1a2332] border-gray-700">
+                    <DropdownMenuContent className="bg-white border-gray-200 shadow-lg">
                       <DropdownMenuItem asChild>
-                        <Link to={createPageUrl('Shop')} className="text-white hover:text-[var(--color-primary)]">
+                        <Link to={createPageUrl('Shop')} className="text-gray-700 hover:text-green-600 hover:bg-green-50">
                           Browse Supplements
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to={createPageUrl('Cart')} className="text-white hover:text-[var(--color-primary)]">
+                        <Link to={createPageUrl('Cart')} className="text-gray-700 hover:text-green-600 hover:bg-green-50">
                           View Cart
                         </Link>
                       </DropdownMenuItem>
@@ -128,11 +128,14 @@ export default function Layout({ children, currentPageName }) {
                   <Link
                     key={item.name}
                     to={createPageUrl(item.page)}
-                    className={`text-[var(--color-text-primary)] hover:text-[var(--color-primary)] transition-colors font-medium ${
-                      currentPageName === item.page ? 'text-[var(--color-primary)] font-semibold' : ''
+                    className={`text-gray-700 hover:text-green-600 transition-colors font-medium relative ${
+                      currentPageName === item.page ? 'text-green-600 font-semibold' : ''
                     }`}
                   >
                     {item.name}
+                    {currentPageName === item.page && (
+                      <span className="absolute -bottom-4 left-0 right-0 h-0.5 bg-green-600 rounded-full" />
+                    )}
                   </Link>
                 )
               ))}
@@ -145,11 +148,11 @@ export default function Layout({ children, currentPageName }) {
 
               {/* Cart */}
               <Link to={createPageUrl('Cart')} className="relative">
-                <Button variant="outline" size="icon" className="bg-transparent border-gray-700 hover:bg-gray-800">
-                  <ShoppingCart className="w-5 h-5 text-gray-300" />
+                <Button variant="outline" size="icon" className="bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300">
+                  <ShoppingCart className="w-5 h-5 text-gray-700" />
                 </Button>
                 {cartCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 bg-[#7cfc00] text-black text-xs h-5 w-5 flex items-center justify-center p-0">
+                  <Badge className="absolute -top-2 -right-2 bg-gradient-to-br from-green-500 to-green-600 text-white text-xs h-5 w-5 flex items-center justify-center p-0 shadow-md border-2 border-white">
                     {cartCount}
                   </Badge>
                 )}
@@ -159,7 +162,7 @@ export default function Layout({ children, currentPageName }) {
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white font-bold hover:from-green-600 hover:to-green-700 overflow-hidden p-0 shadow-md border-2 border-white">
+                    <Button className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white font-bold hover:from-green-600 hover:to-green-700 overflow-hidden p-0 shadow-md border-2 border-white hover:shadow-lg transition-all">
                       {user.profile_photo ? (
                         <img src={user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
                       ) : (
@@ -167,14 +170,14 @@ export default function Layout({ children, currentPageName }) {
                       )}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-[#1a2332] border-gray-700" align="end">
+                  <DropdownMenuContent className="bg-white border-gray-200 shadow-lg" align="end">
                     <DropdownMenuItem asChild>
-                      <Link to={createPageUrl('Profile')} className="text-gray-300 hover:text-white flex items-center gap-2">
+                      <Link to={createPageUrl('Profile')} className="text-gray-700 hover:text-green-600 hover:bg-green-50 flex items-center gap-2">
                         <User className="w-4 h-4" />
                         Profile
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleLogout} className="text-gray-300 hover:text-white flex items-center gap-2">
+                    <DropdownMenuItem onClick={handleLogout} className="text-gray-700 hover:text-red-600 hover:bg-red-50 flex items-center gap-2">
                       <LogOut className="w-4 h-4" />
                       Logout
                     </DropdownMenuItem>
@@ -183,7 +186,7 @@ export default function Layout({ children, currentPageName }) {
               ) : (
                 <Button 
                   onClick={() => base44.auth.redirectToLogin()}
-                  className="bg-[#7cfc00] text-black hover:bg-[#6be600]"
+                  className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
                 >
                   Sign In
                 </Button>
@@ -193,7 +196,7 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden text-gray-300 select-none"
+                className="md:hidden text-gray-700 hover:bg-gray-100 select-none"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="w-6 h-6 select-none" /> : <Menu className="w-6 h-6 select-none" />}
@@ -204,13 +207,13 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-        <div className="md:hidden bg-[#0d1320] border-t border-gray-800 py-4">
+        <div className="md:hidden bg-white border-t border-gray-200 py-4 shadow-lg">
           <nav className="flex flex-col gap-2 px-4">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 to={createPageUrl(item.page)}
-                className="text-[var(--color-text-primary)] hover:text-[var(--color-primary)] py-2 font-medium"
+                className="text-gray-700 hover:text-green-600 hover:bg-green-50 py-2 px-3 font-medium rounded-lg transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {item.name}
@@ -229,7 +232,7 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
       {/* Bottom Navigation - Mobile Only */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-bg-secondary)] border-t border-[var(--color-border)] z-50 select-none" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 select-none shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="grid grid-cols-5 h-16">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
@@ -239,12 +242,14 @@ export default function Layout({ children, currentPageName }) {
                 key={item.key || item.page}
                 to={createPageUrl(item.page)}
                 onClick={(e) => handleTabClick(item.page, e)}
-                className={`flex flex-col items-center justify-center gap-0.5 select-none ${
-                  isActive ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'
+                className={`flex flex-col items-center justify-center gap-0.5 select-none transition-all ${
+                  isActive ? 'text-green-600' : 'text-gray-500'
                 }`}
               >
-                <Icon className={`w-5 h-5 select-none ${isActive ? 'text-[var(--color-primary)]' : ''}`} />
-                <span className="text-[10px] font-medium select-none leading-tight">{item.name}</span>
+                <div className={`p-2 rounded-xl transition-all ${isActive ? 'bg-green-50' : ''}`}>
+                  <Icon className={`w-5 h-5 select-none ${isActive ? 'text-green-600' : 'text-gray-500'}`} />
+                </div>
+                <span className={`text-[10px] font-medium select-none leading-tight ${isActive ? 'text-green-600' : 'text-gray-600'}`}>{item.name}</span>
               </Link>
             );
           })}
