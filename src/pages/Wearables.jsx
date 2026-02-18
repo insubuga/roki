@@ -706,7 +706,7 @@ export default function Wearables() {
                       <ul className="text-gray-700 text-sm space-y-1.5">
                         <li>• All health data is encrypted and stored securely</li>
                         <li>• You can disconnect any app or device at any time</li>
-                        <li>• Data is only used to personalize your VANTA experience</li>
+                        <li>• Data is only used to personalize your ROKI experience</li>
                         <li>• We never share your health data with third parties</li>
                       </ul>
                     </div>
@@ -830,11 +830,11 @@ export default function Wearables() {
             <div>
               <h3 className="text-white font-bold mb-2">AI-Powered Insights</h3>
               <p className="text-gray-300 text-sm mb-3">
-                VantaBot monitors your wearable data 24/7 to provide real-time suggestions on hydration, supplements, recovery, and optimal workout timing.
+                RokiBot monitors your wearable data 24/7 to provide real-time suggestions on hydration, supplements, recovery, and optimal workout timing.
               </p>
-              <Link to={createPageUrl('VantaBot')}>
+              <Link to={createPageUrl('RokiBot')}>
                 <Button className="bg-[#7cfc00] text-black hover:bg-[#6be600]">
-                  Chat with VantaBot
+                  Chat with RokiBot
                 </Button>
               </Link>
             </div>
@@ -992,7 +992,7 @@ export default function Wearables() {
                   <h3 className="text-white font-bold mb-2">Smart Goal Setting</h3>
                   <p className="text-gray-300 text-sm">
                     Based on your last {historicalData.length} tracked days, we suggest these goals to optimize your performance and recovery. 
-                    VantaBot will monitor your progress and adjust recommendations automatically.
+                    RokiBot will monitor your progress and adjust recommendations automatically.
                   </p>
                 </div>
               </div>
