@@ -239,12 +239,12 @@ export default function Layout({ children, currentPageName }) {
                 key={item.key || item.page}
                 to={createPageUrl(item.page)}
                 onClick={(e) => handleTabClick(item.page, e)}
-                className={`flex flex-col items-center justify-center gap-1 select-none ${
+                className={`flex flex-col items-center justify-center gap-0.5 select-none ${
                   isActive ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'
                 }`}
               >
                 <Icon className={`w-5 h-5 select-none ${isActive ? 'text-[var(--color-primary)]' : ''}`} />
-                <span className="text-xs font-medium select-none">{item.name}</span>
+                <span className="text-[10px] font-medium select-none leading-tight">{item.name}</span>
               </Link>
             );
           })}
