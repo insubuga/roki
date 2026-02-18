@@ -24,7 +24,7 @@ export default function RokiBot() {
     queryKey: ['wearableData', user?.email],
     queryFn: async () => {
       const data = await base44.entities.WearableData.filter({ user_email: user?.email }, '-created_date', 1);
-      return data[0];
+      return data[0] || null;
     },
     enabled: !!user?.email,
     refetchInterval: 30000,
