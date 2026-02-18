@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from '../components/mobile/PullToRefresh';
+import MobileHeader from '../components/mobile/MobileHeader';
 import { Search, Filter, ShoppingCart, Plus, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -179,10 +180,12 @@ export default function Shop() {
     <PullToRefresh onRefresh={handleRefresh}>
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white">Shop Supplements</h1>
-        <p className="text-gray-400 mt-1">Premium supplements delivered to your locker</p>
-      </div>
+      <MobileHeader 
+        title="Shop Supplements" 
+        subtitle="Premium supplements delivered to your locker"
+        icon={ShoppingCart}
+        iconColor="text-amber-500"
+      />
 
       {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-4">
