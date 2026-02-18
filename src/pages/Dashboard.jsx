@@ -16,7 +16,8 @@ import {
   Package,
   ChevronRight,
   LogOut,
-  Sparkles
+  Sparkles,
+  MessageCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -71,6 +72,7 @@ export default function Dashboard() {
     community: [
       { icon: Users, title: 'Community', page: 'Community' },
       { icon: Sparkles, title: 'VantaBot', page: 'VantaBot' },
+      { icon: MessageCircle, title: 'Support Chat', page: 'Support' },
     ],
   };
 
