@@ -324,8 +324,8 @@ export default function Shop() {
                 <Badge className="bg-[#7cfc00]/20 text-[#7cfc00] border-none mb-2">
                   {product.category?.replace('-', ' ')}
                 </Badge>
-                <h3 className="text-white font-semibold text-lg line-clamp-1">{product.name}</h3>
-                <p className="text-gray-400 text-sm line-clamp-2 mt-1 h-10">{product.description}</p>
+                <h3 className="text-[var(--color-text-primary)] font-semibold text-lg line-clamp-1">{product.name}</h3>
+                <p className="text-[var(--color-text-secondary)] text-sm line-clamp-2 mt-1 h-10">{product.description}</p>
                 <div className="flex items-center justify-between mt-4">
                   <span className="text-[#7cfc00] font-bold text-xl">${product.price?.toFixed(2)}</span>
                   <Button 
