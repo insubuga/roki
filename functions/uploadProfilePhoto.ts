@@ -9,26 +9,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get the payload - handle both JSON and form data
-    const contentType = req.headers.get('content-type') || '';
-    let file_data, file_name, file_type;
-    
-    if (contentType.includes('application/json')) {
-      const body = await req.json();
-      file_data = body.file_data;
-      file_name = body.file_name;
-      file_type = body.file_type;
-    } else {
-      const body = await req.text();
-      try {
-        const parsed = JSON.parse(body);
-        file_data = parsed.file_data;
-        file_name = parsed.file_name;
-        file_type = parsed.file_type;
-      } catch (e) {
-        return Response.json({ error: 'Invalid request format' }, { status: 400 });
-      }
-    }
+    const body = await req.json();
+    const { file_data, file_name, file_type } = body;
 
     if (!file_data) {
       return Response.json({ error: 'No file provided' }, { status: 400 });
@@ -42,23 +24,26 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Convert base64 to file
+    // Convert base64 to Blob
     const base64Data = file_data.split(',')[1] || file_data;
     const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-    const file = new File([binaryData], file_name, { type: file_type });
+    const blob = new Blob([binaryData], { type: file_type });
 
     // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    if (blob.size > 5 * 1024 * 1024) {
       return Response.json({ 
         error: 'File too large. Maximum size is 5MB.' 
       }, { status: 400 });
     }
 
-    // Upload file
+    // Create File from Blob
+    const file = new File([blob], file_name, { type: file_type });
+
+    // Upload file using Core integration
     const uploadResult = await base44.asServiceRole.integrations.Core.UploadFile({ file });
 
     if (!uploadResult.file_url) {
-      throw new Error('Upload failed');
+      throw new Error('Upload failed - no file URL returned');
     }
 
     // Update user profile with new photo URL
