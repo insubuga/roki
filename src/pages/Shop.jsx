@@ -190,12 +190,12 @@ export default function Shop() {
       {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <Input
             placeholder="Search supplements..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-[#1a2332] border-gray-700 text-white placeholder:text-gray-500"
+            className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-[#7cfc00] focus:border-transparent"
           />
         </div>
       </div>
@@ -203,12 +203,12 @@ export default function Shop() {
       {/* Categories */}
       <div className="overflow-x-auto pb-2">
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="bg-[#1a2332] border border-gray-700">
+          <TabsList className="bg-white border border-gray-200 shadow-sm">
             {CATEGORIES.map((cat) => (
               <TabsTrigger 
                 key={cat.value} 
                 value={cat.value}
-                className="data-[state=active]:bg-[#7cfc00] data-[state=active]:text-black"
+                className="data-[state=active]:bg-[#7cfc00] data-[state=active]:text-black text-gray-700"
               >
                 {cat.label}
               </TabsTrigger>
@@ -222,10 +222,10 @@ export default function Shop() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-white font-bold text-xl">For You</h2>
-              <p className="text-gray-400 text-sm">Based on your activity and orders</p>
+              <h2 className="text-gray-900 font-bold text-xl">Recommended for You</h2>
+              <p className="text-gray-600 text-sm">Based on your activity and orders</p>
             </div>
-            <Badge className="bg-[#7cfc00]/20 text-[#7cfc00] border-none">Personalized</Badge>
+            <Badge className="bg-[#FF9900] text-white border-none font-medium">Personalized</Badge>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {recommendedProducts.map((product) => (
@@ -233,9 +233,9 @@ export default function Shop() {
                 key={product.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-br from-[#1a2332] to-[#0d1320] rounded-xl p-4 border border-[#7cfc00]/30 hover:border-[#7cfc00]/50 transition-all group"
+                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all group border border-gray-200"
               >
-                <div className="aspect-square bg-[#0d1320] rounded-lg mb-4 overflow-hidden">
+                <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
                   {product.image_url ? (
                     <img 
                       src={product.image_url} 
@@ -244,29 +244,34 @@ export default function Shop() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <ShoppingCart className="w-12 h-12 text-gray-700" />
+                      <ShoppingCart className="w-12 h-12 text-gray-300" />
                     </div>
                   )}
                 </div>
-                <Badge className="bg-[#7cfc00]/20 text-[#7cfc00] border-none mb-2">
-                  {product.category?.replace('-', ' ')}
-                </Badge>
-                <h3 className="text-[var(--color-text-primary)] font-semibold text-lg line-clamp-1">{product.name}</h3>
-                <p className="text-[var(--color-text-secondary)] text-sm line-clamp-2 mt-1 h-10">{product.description}</p>
-                <div className="flex items-center justify-between mt-4">
-                  <span className="text-[#7cfc00] font-bold text-xl">${product.price?.toFixed(2)}</span>
-                  <Button 
-                    size="sm"
-                    className={`${addedItems[product.id] ? 'bg-green-600' : 'bg-[#7cfc00]'} text-black hover:bg-[#6be600]`}
-                    onClick={() => addToCartMutation.mutate(product)}
-                    disabled={addToCartMutation.isPending}
-                  >
-                    {addedItems[product.id] ? (
-                      <Check className="w-4 h-4" />
-                    ) : (
-                      <Plus className="w-4 h-4" />
-                    )}
-                  </Button>
+                <div className="p-4">
+                  <Badge className="bg-[#7cfc00]/20 text-[#059669] border-none mb-2 font-medium">
+                    {product.category?.replace('-', ' ')}
+                  </Badge>
+                  <h3 className="text-gray-900 font-semibold text-base line-clamp-2 mb-2 min-h-[48px]">{product.name}</h3>
+                  <p className="text-gray-600 text-sm line-clamp-2 mb-3 min-h-[40px]">{product.description}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-gray-500 text-xs">Price</span>
+                      <div className="text-[#059669] font-bold text-xl">${product.price?.toFixed(2)}</div>
+                    </div>
+                    <Button 
+                      size="sm"
+                      className={`${addedItems[product.id] ? 'bg-green-600' : 'bg-[#FFD814] hover:bg-[#F7CA00]'} text-black font-semibold shadow-sm px-4`}
+                      onClick={() => addToCartMutation.mutate(product)}
+                      disabled={addToCartMutation.isPending}
+                    >
+                      {addedItems[product.id] ? (
+                        <><Check className="w-4 h-4 mr-1" /> Added</>
+                      ) : (
+                        <>Add to Cart</>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -276,8 +281,8 @@ export default function Shop() {
 
       {/* All Products */}
       {selectedCategory === 'all' && !searchQuery && recommendedProducts.length > 0 && (
-        <div className="pt-4">
-          <h2 className="text-white font-bold text-xl mb-4">All Products</h2>
+        <div className="pt-4 border-t border-gray-200">
+          <h2 className="text-gray-900 font-bold text-xl mb-4">All Products</h2>
         </div>
       )}
 
@@ -293,9 +298,9 @@ export default function Shop() {
           ))}
         </div>
       ) : filteredProducts.length === 0 ? (
-        <div className="text-center py-12">
-          <ShoppingCart className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-          <p className="text-gray-400">No products found</p>
+        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+          <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600">No products found</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -306,9 +311,9 @@ export default function Shop() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-[#1a2332] rounded-xl p-4 border border-gray-800 hover:border-gray-700 transition-all group"
+                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all group border border-gray-200"
               >
-                <div className="aspect-square bg-[#0d1320] rounded-lg mb-4 overflow-hidden">
+                <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
                   {product.image_url ? (
                     <img 
                       src={product.image_url} 
@@ -317,29 +322,34 @@ export default function Shop() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <ShoppingCart className="w-12 h-12 text-gray-700" />
+                      <ShoppingCart className="w-12 h-12 text-gray-300" />
                     </div>
                   )}
                 </div>
-                <Badge className="bg-[#7cfc00]/20 text-[#7cfc00] border-none mb-2">
-                  {product.category?.replace('-', ' ')}
-                </Badge>
-                <h3 className="text-[var(--color-text-primary)] font-semibold text-lg line-clamp-1">{product.name}</h3>
-                <p className="text-[var(--color-text-secondary)] text-sm line-clamp-2 mt-1 h-10">{product.description}</p>
-                <div className="flex items-center justify-between mt-4">
-                  <span className="text-[#7cfc00] font-bold text-xl">${product.price?.toFixed(2)}</span>
-                  <Button 
-                    size="sm"
-                    className={`${addedItems[product.id] ? 'bg-green-600' : 'bg-[#7cfc00]'} text-black hover:bg-[#6be600]`}
-                    onClick={() => addToCartMutation.mutate(product)}
-                    disabled={addToCartMutation.isPending}
-                  >
-                    {addedItems[product.id] ? (
-                      <Check className="w-4 h-4" />
-                    ) : (
-                      <Plus className="w-4 h-4" />
-                    )}
-                  </Button>
+                <div className="p-4">
+                  <Badge className="bg-[#7cfc00]/20 text-[#059669] border-none mb-2 font-medium">
+                    {product.category?.replace('-', ' ')}
+                  </Badge>
+                  <h3 className="text-gray-900 font-semibold text-base line-clamp-2 mb-2 min-h-[48px]">{product.name}</h3>
+                  <p className="text-gray-600 text-sm line-clamp-2 mb-3 min-h-[40px]">{product.description}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-gray-500 text-xs">Price</span>
+                      <div className="text-[#059669] font-bold text-xl">${product.price?.toFixed(2)}</div>
+                    </div>
+                    <Button 
+                      size="sm"
+                      className={`${addedItems[product.id] ? 'bg-green-600' : 'bg-[#FFD814] hover:bg-[#F7CA00]'} text-black font-semibold shadow-sm px-4`}
+                      onClick={() => addToCartMutation.mutate(product)}
+                      disabled={addToCartMutation.isPending}
+                    >
+                      {addedItems[product.id] ? (
+                        <><Check className="w-4 h-4 mr-1" /> Added</>
+                      ) : (
+                        <>Add to Cart</>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             ))}
