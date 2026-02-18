@@ -381,27 +381,27 @@ export default function Profile() {
         title="Profile"
         subtitle="Account settings"
         icon={Settings}
-        iconColor="text-lime-500"
+        iconColor="text-green-600"
       />
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Account Info */}
-        <Card className="bg-[#1a2332] border-gray-800">
+        <Card className="bg-white border-gray-200 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <User className="w-5 h-5 text-[#7cfc00]" />
+            <CardTitle className="text-gray-900 flex items-center gap-2">
+              <User className="w-5 h-5 text-green-600" />
               Account Information
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Profile Photo */}
-            <div className="flex items-center gap-4 pb-4 border-b border-gray-700">
+            <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
               <div className="relative">
-                <div className="w-20 h-20 rounded-full bg-[#7cfc00]/20 flex items-center justify-center overflow-hidden border-2 border-[#7cfc00]">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center overflow-hidden border-2 border-green-300 shadow-md">
                   {user.profile_photo ? (
                     <img src={user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <User className="w-10 h-10 text-[#7cfc00]" />
+                    <User className="w-10 h-10 text-green-600" />
                   )}
                 </div>
                 {uploadingPhoto && (
@@ -411,7 +411,7 @@ export default function Profile() {
                 )}
               </div>
               <div>
-                <p className="text-white font-semibold mb-1">Profile Photo</p>
+                <p className="text-gray-900 font-semibold mb-1">Profile Photo</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -423,7 +423,7 @@ export default function Profile() {
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingPhoto}
-                  className="bg-[#7cfc00] text-black hover:bg-[#6be600]"
+                  className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
                 >
                   <Upload className="w-3 h-3 mr-2" />
                   {uploadingPhoto ? 'Uploading...' : 'Upload Photo'}
@@ -433,52 +433,51 @@ export default function Profile() {
             </div>
 
             <div>
-              <Label className="text-gray-400">Full Name</Label>
+              <Label className="text-gray-700 font-medium">Full Name</Label>
               <Input
                 value={user.full_name || ''}
                 disabled
-                className="bg-[#0d1320] border-gray-700 text-white mt-1"
+                className="bg-gray-100 border-gray-300 text-gray-600 mt-1"
               />
             </div>
             <div>
-              <Label className="text-gray-400">Email</Label>
+              <Label className="text-gray-700 font-medium">Email</Label>
               <div className="flex items-center gap-2 mt-1">
                 <Mail className="w-5 h-5 text-gray-500" />
                 <Input
                   value={user.email || ''}
                   disabled
-                  className="bg-[#0d1320] border-gray-700 text-white"
+                  className="bg-gray-100 border-gray-300 text-gray-600"
                 />
               </div>
             </div>
             <div>
-              <Label className="text-gray-400">Phone</Label>
+              <Label className="text-gray-700 font-medium">Phone</Label>
               <Input
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="Enter your phone number"
-                className="bg-[#0d1320] border-gray-700 text-white mt-1"
+                className="bg-gray-50 border-gray-300 text-gray-900 mt-1 focus:ring-2 focus:ring-green-500"
               />
             </div>
           </CardContent>
         </Card>
 
         {/* Gym & Locker */}
-        <Card className="bg-[#1a2332] border-gray-800">
+        <Card className="bg-white border-gray-200 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Lock className="w-5 h-5 text-[#7cfc00]" />
+            <CardTitle className="text-gray-900 flex items-center gap-2">
+              <Lock className="w-5 h-5 text-green-600" />
               Gym & Locker
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label className="text-gray-400">Preferred Gym</Label>
+                <Label className="text-gray-700 font-medium">Preferred Gym</Label>
                 <Button
                   size="sm"
-                  variant="ghost"
-                  className="text-[#7cfc00] hover:text-[#6be600] h-7 text-xs"
+                  className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 h-7 text-xs shadow-md"
                   onClick={requestLocation}
                   disabled={loadingLocation || loadingGyms}
                 >
@@ -487,16 +486,16 @@ export default function Profile() {
                   ) : (
                     <Navigation className="w-3 h-3 mr-1" />
                   )}
-                  {userLocation ? 'Update Location' : 'Use My Location'}
+                  {userLocation ? 'Update' : 'Use Location'}
                 </Button>
               </div>
               {!userLocation ? (
-                <div className="bg-[#0d1320] rounded-lg p-6 border border-gray-700 text-center">
-                  <Navigation className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-                  <p className="text-gray-400 text-sm">Enable location to find gyms near you</p>
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200 text-center shadow-sm">
+                  <Navigation className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-600 text-sm">Enable location to find gyms near you</p>
                   <Button
                     size="sm"
-                    className="mt-3 bg-[#7cfc00] text-black hover:bg-[#6be600]"
+                    className="mt-3 bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
                     onClick={requestLocation}
                     disabled={loadingLocation}
                   >
@@ -505,17 +504,16 @@ export default function Profile() {
                   </Button>
                 </div>
               ) : loadingGyms ? (
-                <div className="bg-[#0d1320] rounded-lg p-6 border border-gray-700 text-center">
-                  <Loader2 className="w-8 h-8 text-[#7cfc00] mx-auto mb-2 animate-spin" />
-                  <p className="text-gray-400 text-sm">Finding gyms near you...</p>
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border border-green-200 text-center shadow-sm">
+                  <Loader2 className="w-8 h-8 text-green-600 mx-auto mb-2 animate-spin" />
+                  <p className="text-gray-600 text-sm">Finding gyms near you...</p>
                 </div>
               ) : gymsWithDistance.length === 0 ? (
-                <div className="bg-[#0d1320] rounded-lg p-6 border border-gray-700 text-center">
-                  <p className="text-gray-400 text-sm">No gyms found nearby</p>
+                <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 text-center shadow-sm">
+                  <p className="text-gray-600 text-sm">No gyms found nearby</p>
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="mt-3"
+                    className="mt-3 bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
                     onClick={() => refetchGyms()}
                   >
                     Retry
@@ -527,23 +525,23 @@ export default function Profile() {
                     value={formData.preferred_gym}
                     onValueChange={handleGymSelection}
                   >
-                    <SelectTrigger className="bg-[#0d1320] border-gray-700 text-white">
+                    <SelectTrigger className="bg-gray-50 border-gray-300 text-gray-900 focus:ring-2 focus:ring-green-500">
                       <SelectValue placeholder="Select a gym" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#1a2332] border-gray-700 max-h-72">
+                    <SelectContent className="bg-white border-gray-200 max-h-72">
                       {gymsWithDistance.map((gym, index) => (
-                        <SelectItem key={index} value={gym.gymKey} className="text-white h-auto py-3">
+                        <SelectItem key={index} value={gym.gymKey} className="text-gray-900 h-auto py-3">
                           <div className="flex items-start justify-between gap-3 w-full">
                             <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-white truncate">{gym.name}</div>
-                              <div className="text-gray-400 text-xs mt-1">{gym.address}</div>
+                              <div className="font-semibold text-gray-900 truncate">{gym.name}</div>
+                              <div className="text-gray-600 text-xs mt-1">{gym.address}</div>
                               {lockerAvailability[gym.gymKey] !== undefined && (
-                                <div className={`text-xs mt-1 ${lockerAvailability[gym.gymKey] > 0 ? 'text-green-400' : 'text-gray-500'}`}>
+                                <div className={`text-xs mt-1 ${lockerAvailability[gym.gymKey] > 0 ? 'text-green-600' : 'text-gray-500'}`}>
                                   {lockerAvailability[gym.gymKey] > 0 ? `${lockerAvailability[gym.gymKey]} lockers available` : 'Setup required'}
                                 </div>
                               )}
                             </div>
-                            <span className="text-[#7cfc00] text-xs flex items-center gap-1 flex-shrink-0">
+                            <span className="text-green-600 text-xs flex items-center gap-1 flex-shrink-0 font-medium">
                               <MapPin className="w-3 h-3" />
                               {gym.distance} mi
                             </span>
@@ -587,19 +585,19 @@ export default function Profile() {
 
             {locker ? (
               <div className="space-y-4">
-                <div className="bg-gradient-to-br from-[#7cfc00]/10 to-teal-500/10 rounded-lg p-4 border border-[#7cfc00]/30">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-300 shadow-md">
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-gray-400 text-sm">Your Locker</p>
+                    <p className="text-gray-600 text-sm font-medium">Your Locker</p>
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white font-bold text-xl">#{locker.locker_number}</p>
-                      <p className="text-[#7cfc00] text-sm">Active</p>
+                      <p className="text-gray-900 font-bold text-xl">#{locker.locker_number}</p>
+                      <p className="text-green-600 text-sm font-medium">Active</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-gray-400 text-sm">Access Code</p>
-                      <p className="text-[#7cfc00] font-mono font-bold text-2xl">{locker.access_code}</p>
+                      <p className="text-gray-600 text-sm">Access Code</p>
+                      <p className="text-green-600 font-mono font-bold text-2xl">{locker.access_code}</p>
                     </div>
                   </div>
                 </div>
@@ -627,20 +625,20 @@ export default function Profile() {
                   />
                 )}
                 
-                <div className="bg-[#0d1320] rounded-lg p-4 border border-gray-700">
-                  <p className="text-gray-400 mb-3">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 shadow-sm">
+                  <p className="text-gray-700 mb-3">
                     {formData.preferred_gym && lockerAvailability[formData.preferred_gym] === 0 
                       ? 'No lockers available at this gym' 
                       : "You don't have a locker yet"}
                   </p>
                   {formData.preferred_gym && lockerAvailability[formData.preferred_gym] !== undefined && (
-                    <p className="text-green-400 text-sm mb-3 flex items-center gap-2">
+                    <p className="text-green-600 text-sm mb-3 flex items-center gap-2 font-medium">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                       {lockerAvailability[formData.preferred_gym] === 0 ? 'Locker setup available' : `${lockerAvailability[formData.preferred_gym]} lockers available`}
                     </p>
                   )}
                   <Button
-                    className="w-full bg-[#7cfc00] text-black hover:bg-[#6be600]"
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
                     onClick={() => setShowCheckout(true)}
                     disabled={!formData.preferred_gym}
                   >
@@ -667,7 +665,7 @@ export default function Profile() {
       {/* Actions */}
       <div className="flex items-center justify-between gap-4">
         <Button
-          className="bg-[#7cfc00] text-black hover:bg-[#6be600] select-none"
+          className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 select-none shadow-md"
           onClick={() => updateProfileMutation.mutate(formData)}
           disabled={updateProfileMutation.isPending}
         >
@@ -678,20 +676,20 @@ export default function Profile() {
         {/* Delete Account */}
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" className="border-red-500 text-red-500 hover:bg-red-500/10 select-none">
+            <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50 select-none">
               <Trash2 className="w-4 h-4 mr-2 select-none" />
               Delete Account
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="bg-[#1a2332] border-red-500/50">
+          <AlertDialogContent className="bg-white border-red-300">
             <AlertDialogHeader>
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6 text-red-500 select-none" />
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-red-600 select-none" />
                 </div>
-                <AlertDialogTitle className="text-white text-xl">Delete Account</AlertDialogTitle>
+                <AlertDialogTitle className="text-gray-900 text-xl">Delete Account</AlertDialogTitle>
               </div>
-              <AlertDialogDescription className="text-gray-400">
+              <AlertDialogDescription className="text-gray-600">
                 This action cannot be undone. This will permanently delete your account and remove all your data including:
                 <ul className="list-disc list-inside mt-2 space-y-1">
                   <li>Profile information and photos</li>
@@ -703,11 +701,11 @@ export default function Profile() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="bg-gray-700 text-white border-gray-600 select-none">
+              <AlertDialogCancel className="bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 select-none">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
-                className="bg-red-500 hover:bg-red-600 text-white select-none"
+                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white select-none shadow-md"
                 onClick={() => deleteAccountMutation.mutate()}
                 disabled={deleteAccountMutation.isPending}
               >
