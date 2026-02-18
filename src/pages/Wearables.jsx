@@ -10,6 +10,7 @@ import MobileHeader from '../components/mobile/MobileHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
@@ -481,20 +482,11 @@ export default function Wearables() {
         </div>
       )}
 
-      {/* Wearable Devices */}
-      <Card className="bg-white border-gray-200 shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-gray-900 flex items-center gap-2">
-            <Bluetooth className="w-5 h-5 text-blue-600" />
-            Wearable Devices
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {isConnected && connectedDevice ? (
-            <motion.div
-              whileHover={{ scale: 1.01 }}
-              className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-300 flex items-center justify-between shadow-sm"
-            >
+      {/* Connected Devices Summary */}
+      {isConnected && connectedDevice && (
+        <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-300 shadow-lg">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <span className="text-3xl">{connectedDevice.icon}</span>
                 <div>
@@ -507,224 +499,241 @@ export default function Wearables() {
               </div>
               <Button
                 variant="outline"
+                size="sm"
                 className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 onClick={() => disconnectDeviceMutation.mutate(wearableData.device_type)}
                 disabled={disconnectDeviceMutation.isPending}
               >
                 Disconnect
               </Button>
-            </motion.div>
-          ) : (
-            wearableDevices.map((device) => (
-              <motion.div
-                key={device.id}
-                whileHover={{ scale: 1.01 }}
-                className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex items-center justify-between shadow-sm"
-              >
-                <div className="flex items-center gap-4">
-                  <span className="text-3xl">{device.icon}</span>
-                  <div>
-                    <p className="text-gray-900 font-semibold">{device.name}</p>
-                    <p className="text-gray-600 text-sm flex items-center gap-1">
-                      <XCircle className="w-4 h-4 text-gray-400" />
-                      Not connected
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  className="bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 shadow-md"
-                  onClick={() => connectDeviceMutation.mutate(device.id)}
-                  disabled={connectDeviceMutation.isPending}
-                >
-                  Connect
-                </Button>
-              </motion.div>
-            ))
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Health Apps Integration */}
-      <Card className="bg-white border-gray-200 shadow-lg">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-gray-900 flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-blue-600" />
-              Health Apps
-            </CardTitle>
-            <Badge className="bg-blue-100 text-blue-700 border-blue-300">No Device Needed</Badge>
-          </div>
-          <p className="text-gray-600 text-sm mt-2">Connect directly to your phone's health data</p>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {healthApps.map((app) => {
-            const isAppConnected = connectedApps.includes(app.id);
-            return (
-              <motion.div
-                key={app.id}
-                whileHover={{ scale: 1.01 }}
-                className={`rounded-lg p-4 border flex items-center justify-between shadow-sm ${
-                  isAppConnected 
-                    ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300' 
-                    : 'bg-gray-50 border-gray-200'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <span className="text-3xl">{app.icon}</span>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-gray-900 font-semibold">{app.name}</p>
-                      <Badge variant="outline" className="text-xs border-gray-300 text-gray-600">
-                        {app.platform}
-                      </Badge>
-                    </div>
-                    <p className="text-gray-600 text-sm">{app.description}</p>
-                    {isAppConnected && (
-                      <p className="text-green-600 text-sm flex items-center gap-1 mt-1">
-                        <CheckCircle className="w-3 h-3" />
-                        Auto-syncing enabled
-                      </p>
-                    )}
-                  </div>
-                </div>
-                {isAppConnected ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                    onClick={() => disconnectDeviceMutation.mutate(app.id)}
-                  >
-                    Disconnect
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-md"
-                    onClick={() => connectDeviceMutation.mutate(app.id)}
-                    disabled={connectDeviceMutation.isPending}
-                  >
-                    Connect
-                  </Button>
-                )}
-              </motion.div>
-            );
-          })}
-        </CardContent>
-      </Card>
-
-      {/* Fitness Apps Integration */}
-      <Card className="bg-white border-gray-200 shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-gray-900 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-orange-600" />
-            Fitness Platforms
-          </CardTitle>
-          <p className="text-gray-600 text-sm mt-2">Connect your favorite fitness and nutrition apps</p>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {fitnessApps.map((app) => {
-            const isAppConnected = connectedApps.includes(app.id);
-            return (
-              <motion.div
-                key={app.id}
-                whileHover={{ scale: 1.01 }}
-                className={`rounded-lg p-4 border flex items-center justify-between shadow-sm ${
-                  isAppConnected 
-                    ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300' 
-                    : 'bg-gray-50 border-gray-200'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <span className="text-3xl">{app.icon}</span>
-                  <div>
-                    <p className="text-gray-900 font-semibold">{app.name}</p>
-                    <p className="text-gray-600 text-sm">{app.description}</p>
-                    {isAppConnected && (
-                      <p className="text-green-600 text-sm flex items-center gap-1 mt-1">
-                        <CheckCircle className="w-3 h-3" />
-                        Connected
-                      </p>
-                    )}
-                  </div>
-                </div>
-                {isAppConnected ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                    onClick={() => disconnectDeviceMutation.mutate(app.id)}
-                  >
-                    Disconnect
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    className="bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-md"
-                    onClick={() => connectDeviceMutation.mutate(app.id)}
-                    disabled={connectDeviceMutation.isPending}
-                  >
-                    Connect
-                  </Button>
-                )}
-              </motion.div>
-            );
-          })}
-        </CardContent>
-      </Card>
-
-      {/* Privacy & Data Control */}
-      <Card className="bg-white border-gray-200 shadow-lg">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-gray-900 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-green-600" />
-              Privacy & Data Control
-            </CardTitle>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setShowPrivacySettings(!showPrivacySettings)}
-            >
-              {showPrivacySettings ? 'Hide' : 'View'} Settings
-            </Button>
-          </div>
-        </CardHeader>
-        {showPrivacySettings && (
-          <CardContent className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex gap-3">
-                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-gray-900 font-semibold mb-2">Your Data, Your Control</p>
-                  <ul className="text-gray-700 text-sm space-y-2">
-                    <li>• All health data is encrypted and stored securely</li>
-                    <li>• You can disconnect any app or device at any time</li>
-                    <li>• Data is only used to personalize your VANTA experience</li>
-                    <li>• We never share your health data with third parties</li>
-                    <li>• Export or delete your data anytime from your Profile</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                className="flex-1 border-gray-300 text-gray-700"
-                onClick={() => toast.info('Feature coming soon')}
-              >
-                Export My Data
-              </Button>
-              <Button 
-                variant="outline" 
-                className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
-                onClick={() => toast.info('Feature coming soon')}
-              >
-                Delete All Data
-              </Button>
             </div>
           </CardContent>
-        )}
+        </Card>
+      )}
+
+      {/* All Integrations - Collapsible */}
+      <Card className="bg-white border-gray-200 shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-gray-900">Connect Your Devices & Apps</CardTitle>
+          <p className="text-gray-600 text-sm">Sync health data from wearables, phones, and fitness platforms</p>
+        </CardHeader>
+        <CardContent>
+          <Accordion type="single" collapsible className="w-full">
+            {/* Wearable Devices */}
+            <AccordionItem value="wearables" className="border-gray-200">
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <Bluetooth className="w-5 h-5 text-blue-600" />
+                  <div className="text-left">
+                    <p className="text-gray-900 font-semibold">Wearable Devices</p>
+                    <p className="text-gray-600 text-sm">Apple Watch, Fitbit, Garmin, WHOOP</p>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-3 pt-3">
+                {isConnected && connectedDevice ? (
+                  <div className="text-gray-600 text-sm mb-3">
+                    ✓ {connectedDevice.name} is already connected above
+                  </div>
+                ) : (
+                  wearableDevices.map((device) => (
+                    <motion.div
+                      key={device.id}
+                      whileHover={{ scale: 1.01 }}
+                      className="bg-gray-50 rounded-lg p-3 border border-gray-200 flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{device.icon}</span>
+                        <p className="text-gray-900 font-medium">{device.name}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        className="bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700"
+                        onClick={() => connectDeviceMutation.mutate(device.id)}
+                        disabled={connectDeviceMutation.isPending}
+                      >
+                        Connect
+                      </Button>
+                    </motion.div>
+                  ))
+                )}
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Health Apps */}
+            <AccordionItem value="health-apps" className="border-gray-200">
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <Smartphone className="w-5 h-5 text-blue-600" />
+                  <div className="text-left">
+                    <p className="text-gray-900 font-semibold">Health Apps</p>
+                    <p className="text-gray-600 text-sm">Apple Health, Google Fit, Samsung Health</p>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-700 border-blue-300 text-xs ml-2">No Device Needed</Badge>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-3 pt-3">
+                {healthApps.map((app) => {
+                  const isAppConnected = connectedApps.includes(app.id);
+                  return (
+                    <motion.div
+                      key={app.id}
+                      whileHover={{ scale: 1.01 }}
+                      className={`rounded-lg p-3 border flex items-center justify-between ${
+                        isAppConnected 
+                          ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300' 
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{app.icon}</span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="text-gray-900 font-medium">{app.name}</p>
+                            <Badge variant="outline" className="text-xs border-gray-300 text-gray-600">
+                              {app.platform}
+                            </Badge>
+                          </div>
+                          {isAppConnected && (
+                            <p className="text-green-600 text-xs flex items-center gap-1 mt-0.5">
+                              <CheckCircle className="w-3 h-3" /> Auto-syncing
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {isAppConnected ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-300 text-gray-700"
+                          onClick={() => disconnectDeviceMutation.mutate(app.id)}
+                        >
+                          Disconnect
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700"
+                          onClick={() => connectDeviceMutation.mutate(app.id)}
+                          disabled={connectDeviceMutation.isPending}
+                        >
+                          Connect
+                        </Button>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Fitness Platforms */}
+            <AccordionItem value="fitness-apps" className="border-gray-200">
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <Activity className="w-5 h-5 text-orange-600" />
+                  <div className="text-left">
+                    <p className="text-gray-900 font-semibold">Fitness Platforms</p>
+                    <p className="text-gray-600 text-sm">Strava, MyFitnessPal, Peloton</p>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-3 pt-3">
+                {fitnessApps.map((app) => {
+                  const isAppConnected = connectedApps.includes(app.id);
+                  return (
+                    <motion.div
+                      key={app.id}
+                      whileHover={{ scale: 1.01 }}
+                      className={`rounded-lg p-3 border flex items-center justify-between ${
+                        isAppConnected 
+                          ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300' 
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{app.icon}</span>
+                        <div>
+                          <p className="text-gray-900 font-medium">{app.name}</p>
+                          {isAppConnected && (
+                            <p className="text-green-600 text-xs flex items-center gap-1 mt-0.5">
+                              <CheckCircle className="w-3 h-3" /> Connected
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {isAppConnected ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-300 text-gray-700"
+                          onClick={() => disconnectDeviceMutation.mutate(app.id)}
+                        >
+                          Disconnect
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className="bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700"
+                          onClick={() => connectDeviceMutation.mutate(app.id)}
+                          disabled={connectDeviceMutation.isPending}
+                        >
+                          Connect
+                        </Button>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Privacy Settings */}
+            <AccordionItem value="privacy" className="border-gray-200">
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <Shield className="w-5 h-5 text-green-600" />
+                  <div className="text-left">
+                    <p className="text-gray-900 font-semibold">Privacy & Data Control</p>
+                    <p className="text-gray-600 text-sm">Manage your data and privacy settings</p>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pt-3">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex gap-3">
+                    <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-gray-900 font-semibold mb-2">Your Data, Your Control</p>
+                      <ul className="text-gray-700 text-sm space-y-1.5">
+                        <li>• All health data is encrypted and stored securely</li>
+                        <li>• You can disconnect any app or device at any time</li>
+                        <li>• Data is only used to personalize your VANTA experience</li>
+                        <li>• We never share your health data with third parties</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="flex-1 border-gray-300 text-gray-700"
+                    onClick={() => toast.info('Feature coming soon')}
+                  >
+                    Export Data
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
+                    onClick={() => toast.info('Feature coming soon')}
+                  >
+                    Delete Data
+                  </Button>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </CardContent>
       </Card>
 
       {/* Manual Log Button */}
