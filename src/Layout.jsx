@@ -33,21 +33,13 @@ export default function Layout({ children, currentPageName }) {
   const mainContentRef = React.useRef(null);
   const navigate = useNavigate();
   
-  // Track navigation history per tab
-  const tabHistory = React.useRef({
-    Dashboard: ['/Dashboard'],
-    Shop: ['/Shop'],
-    VantaBot: ['/VantaBot'],
-    Community: ['/Community'],
-  });
-
   useEffect(() => {
     const loadUser = async () => {
       try {
         const userData = await base44.auth.me();
         setUser(userData);
       } catch (e) {
-        // Not logged in
+        console.error('Layout auth check:', e);
       }
     };
     loadUser();
@@ -85,27 +77,13 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const handleTabClick = (page, e) => {
-    const targetPath = createPageUrl(page);
-    
     if (currentPageName === page) {
-      // Already on this tab - reset to root and scroll to top
+      // Already on this tab - scroll to top
       e.preventDefault();
-      
-      // If not at root, navigate to root
-      if (location.pathname !== targetPath) {
-        navigate(targetPath);
-      }
-      
-      // Scroll to top
       if (mainContentRef.current) {
         mainContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    } else {
-      // Track history for the new tab
-      if (tabHistory.current[page]) {
-        tabHistory.current[page].push(targetPath);
       }
     }
   };
