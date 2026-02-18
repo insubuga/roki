@@ -57,6 +57,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Dashboard', page: 'Dashboard' },
     { name: 'Shop', page: 'Shop', hasDropdown: true },
     { name: 'Community', page: 'Community' },
+    ...(user?.role === 'driver' || user?.role === 'admin' ? [{ name: 'Driver', page: 'DriverDashboard' }] : []),
   ];
 
   const handleLogout = () => {

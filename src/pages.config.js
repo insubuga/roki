@@ -58,13 +58,14 @@ import LaundryOrder from './pages/LaundryOrder';
 import OrderHistory from './pages/OrderHistory';
 import PaymentHistory from './pages/PaymentHistory';
 import Profile from './pages/Profile';
+import RokiBot from './pages/RokiBot';
 import RushMode from './pages/RushMode';
 import Shop from './pages/Shop';
 import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
 import Wearables from './pages/Wearables';
-import RokiBot from './pages/RokiBot';
+import DriverDashboard from './pages/DriverDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -80,13 +81,14 @@ export const PAGES = {
     "OrderHistory": OrderHistory,
     "PaymentHistory": PaymentHistory,
     "Profile": Profile,
+    "RokiBot": RokiBot,
     "RushMode": RushMode,
     "Shop": Shop,
     "Subscription": Subscription,
     "Support": Support,
     "SupportAdmin": SupportAdmin,
     "Wearables": Wearables,
-    "RokiBot": RokiBot,
+    "DriverDashboard": DriverDashboard,
 }
 
 export const pagesConfig = {
