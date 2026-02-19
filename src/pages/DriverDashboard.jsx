@@ -27,11 +27,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import RouteOptimizer from '@/components/driver/RouteOptimizer';
 import PerformanceStats from '@/components/driver/PerformanceStats';
 import RatingDialog from '@/components/driver/RatingDialog';
+import NavigationMap from '@/components/driver/NavigationMap';
 
 export default function DriverDashboard() {
   const [user, setUser] = useState(null);
   const [selectedDelivery, setSelectedDelivery] = useState(null);
   const [ratingDelivery, setRatingDelivery] = useState(null);
+  const [navigatingDelivery, setNavigatingDelivery] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -294,6 +296,7 @@ export default function DriverDashboard() {
                       }
                     }}
                     onSelect={() => setSelectedDelivery(delivery)}
+                    onNavigate={() => setNavigatingDelivery(delivery)}
                   />
                 ))}
               </div>
@@ -336,12 +339,39 @@ export default function DriverDashboard() {
             />
           )}
         </AnimatePresence>
+
+        {/* Navigation Modal */}
+        <AnimatePresence>
+          {navigatingDelivery && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+              onClick={() => setNavigatingDelivery(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="w-full max-w-4xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <NavigationMap 
+                  delivery={navigatingDelivery}
+                  onClose={() => setNavigatingDelivery(null)}
+                />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </PullToRefresh>
   );
 }
 
 function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
+  const [setNavigatingDelivery] = useState(null);
   const isRush = delivery.delivery_type === 'rush';
   const isOrder = delivery.type === 'order';
 
@@ -434,15 +464,15 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
             </div>
           </div>
 
-          {nextAction && (
+          {nextAction && delivery.delivery_latitude && delivery.delivery_longitude && (
             <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-200">
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1 text-xs"
+                className="gap-1 text-xs bg-blue-50 hover:bg-blue-100 border-blue-200"
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.open(`https://maps.google.com/?q=${encodeURIComponent(location)}`, '_blank');
+                  setNavigatingDelivery(delivery);
                 }}
               >
                 <Navigation className="w-3 h-3" />
