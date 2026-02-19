@@ -1,13 +1,14 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, CheckCircle, Clock, Wrench } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, Wrench, TrendingDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 
 export default function IssueManagement() {
   const queryClient = useQueryClient();
@@ -48,108 +49,140 @@ export default function IssueManagement() {
     <div className="space-y-6">
       {/* Stats */}
       <div className="grid md:grid-cols-3 gap-4">
-        <Card className="bg-[#1a2332] border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Open Issues</p>
-                <p className="text-white text-2xl font-bold mt-1">{openIssues}</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
+          <Card className="border-gray-200 overflow-hidden">
+            <div className="h-1 bg-gradient-to-r from-red-500 to-red-600"></div>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium mb-2">Open Issues</p>
+                  <p className="text-gray-900 text-3xl font-bold">{openIssues}</p>
+                </div>
+                <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <AlertTriangle className="w-7 h-7 text-white" />
+                </div>
               </div>
-              <AlertTriangle className="w-8 h-8 text-red-500" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <Card className="bg-[#1a2332] border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">In Progress</p>
-                <p className="text-white text-2xl font-bold mt-1">{inProgressIssues}</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <Card className="border-gray-200 overflow-hidden">
+            <div className="h-1 bg-gradient-to-r from-yellow-500 to-orange-600"></div>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium mb-2">In Progress</p>
+                  <p className="text-gray-900 text-3xl font-bold">{inProgressIssues}</p>
+                </div>
+                <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Wrench className="w-7 h-7 text-white" />
+                </div>
               </div>
-              <Wrench className="w-8 h-8 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <Card className="bg-[#1a2332] border-gray-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Resolved</p>
-                <p className="text-white text-2xl font-bold mt-1">{resolvedIssues}</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <Card className="border-gray-200 overflow-hidden">
+            <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm font-medium mb-2">Resolved</p>
+                  <p className="text-gray-900 text-3xl font-bold">{resolvedIssues}</p>
+                </div>
+                <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <CheckCircle className="w-7 h-7 text-white" />
+                </div>
               </div>
-              <CheckCircle className="w-8 h-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
       {/* Issues List */}
-      <Card className="bg-[#1a2332] border-gray-800">
-        <CardHeader>
-          <CardTitle className="text-white">All Issues</CardTitle>
+      <Card className="bg-white border-gray-200 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-gray-50 to-transparent border-b border-gray-200">
+          <CardTitle className="text-gray-900">All Issues</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           {issues.length === 0 ? (
-            <div className="text-center py-8">
-              <CheckCircle className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-400">No issues reported</p>
+            <div className="text-center py-16">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+              </div>
+              <p className="text-gray-500 text-lg">No issues reported</p>
+              <p className="text-gray-400 text-sm mt-1">All systems are running smoothly</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {issues.map((issue) => {
+            <div className="space-y-4">
+              {issues.map((issue, index) => {
                 const StatusIcon = statusConfig[issue.status]?.icon || AlertTriangle;
                 return (
-                  <div key={issue.id} className="bg-[#0d1320] rounded-lg p-4 border border-gray-700">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-start gap-3">
-                        <div className={`w-10 h-10 ${statusConfig[issue.status]?.color} rounded-lg flex items-center justify-center`}>
-                          <StatusIcon className="w-5 h-5" />
+                  <motion.div
+                    key={issue.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:shadow-md transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-4 flex-1">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md ${
+                          issue.status === 'open' ? 'bg-gradient-to-br from-red-500 to-red-600' :
+                          issue.status === 'in_progress' ? 'bg-gradient-to-br from-yellow-500 to-orange-600' :
+                          'bg-gradient-to-br from-green-500 to-emerald-600'
+                        }`}>
+                          <StatusIcon className="w-6 h-6 text-white" />
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge className={statusConfig[issue.status]?.color}>
+                        <div className="flex-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <Badge className={`${
+                              issue.status === 'open' ? 'bg-red-100 text-red-800 border-red-200' :
+                              issue.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                              'bg-green-100 text-green-800 border-green-200'
+                            } border px-3 py-1`}>
                               {statusConfig[issue.status]?.label}
                             </Badge>
-                            <Badge variant="outline" className="text-gray-400">
+                            <Badge className="bg-gray-100 text-gray-800 border-gray-200 border">
                               {issueTypeLabels[issue.issue_type]}
                             </Badge>
-                            <Badge variant="outline" className={`
-                              ${issue.priority === 'high' ? 'text-red-500 border-red-500' :
-                                issue.priority === 'medium' ? 'text-yellow-500 border-yellow-500' :
-                                'text-gray-500 border-gray-500'}
-                            `}>
+                            <Badge className={`border ${
+                              issue.priority === 'high' ? 'bg-red-50 text-red-700 border-red-300' :
+                              issue.priority === 'medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-300' :
+                              'bg-gray-100 text-gray-700 border-gray-300'
+                            }`}>
                               {issue.priority} priority
                             </Badge>
                           </div>
-                          <p className="text-white text-sm font-semibold">Locker ID: {issue.locker_id}</p>
-                          <p className="text-gray-400 text-xs">Reported by: {issue.user_email}</p>
+                          <p className="text-gray-900 font-semibold mb-1">Locker: {issue.locker_id}</p>
+                          <p className="text-gray-600 text-sm mb-1">Reported by: {issue.user_email}</p>
                           {issue.description && (
-                            <p className="text-gray-300 text-sm mt-2">{issue.description}</p>
+                            <p className="text-gray-700 text-sm mt-2 bg-white p-3 rounded-lg border border-gray-200">{issue.description}</p>
                           )}
                           <p className="text-gray-500 text-xs mt-2">
                             {format(new Date(issue.created_date), 'MMM d, yyyy h:mm a')}
                           </p>
                         </div>
                       </div>
-                      <div className="w-40">
+                      <div className="w-44">
                         <Select
                           value={issue.status}
                           onValueChange={(status) => updateIssueMutation.mutate({ issueId: issue.id, status })}
                         >
-                          <SelectTrigger className="bg-[#1a2332] border-gray-700 text-white">
+                          <SelectTrigger className="border-gray-300 bg-white">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-[#1a2332] border-gray-700">
-                            <SelectItem value="open" className="text-white">Open</SelectItem>
-                            <SelectItem value="in_progress" className="text-white">In Progress</SelectItem>
-                            <SelectItem value="resolved" className="text-white">Resolved</SelectItem>
+                          <SelectContent className="bg-white border-gray-200">
+                            <SelectItem value="open">Open</SelectItem>
+                            <SelectItem value="in_progress">In Progress</SelectItem>
+                            <SelectItem value="resolved">Resolved</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
