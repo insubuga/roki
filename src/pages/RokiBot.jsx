@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Bot, ArrowLeft, Send, Loader2, Activity, Heart, TrendingUp, Zap, AlertCircle } from 'lucide-react';
+import { Bot, ArrowLeft, Send, Loader2, Activity, Heart, TrendingUp, Zap, AlertCircle, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -200,6 +200,23 @@ export default function RokiBot() {
 
   const quickActions = getSmartQuickActions();
 
+  const handleClearConversation = async () => {
+    if (!window.confirm('Clear conversation history? This cannot be undone.')) return;
+    
+    try {
+      // Create new conversation
+      const newConv = await base44.agents.createConversation({
+        agent_name: 'rokibot',
+        metadata: { name: 'RokiBot Chat' }
+      });
+      setConversation(newConv);
+      setMessages([]);
+      setInput('');
+    } catch (e) {
+      console.error('Failed to clear conversation:', e);
+    }
+  };
+
   // Generate proactive insights
   const getProactiveInsights = () => {
     if (!wearableData) return [];
@@ -272,21 +289,32 @@ export default function RokiBot() {
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-4">
-        <Link to={createPageUrl('Dashboard')}>
-          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md">
-            <Bot className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">RokiBot</h1>
-            <p className="text-gray-600 text-sm">AI Assistant</p>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-4">
+          <Link to={createPageUrl('Dashboard')}>
+            <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md">
+              <Bot className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">RokiBot</h1>
+              <p className="text-gray-600 text-sm">AI Assistant</p>
+            </div>
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleClearConversation}
+          className="text-gray-600 hover:text-red-600 hover:bg-red-50"
+          title="Clear conversation"
+        >
+          <Trash2 className="w-5 h-5" />
+        </Button>
       </div>
 
       {/* Proactive Insights */}
