@@ -55,7 +55,6 @@ export default function Layout({ children, currentPageName }) {
   const navItems = [
     { name: 'Dashboard', page: 'Dashboard' },
     { name: 'Shop', page: 'Shop', hasDropdown: true },
-    { name: 'Community', page: 'Community' },
     ...(user?.role === 'driver' || user?.role === 'admin' ? [{ name: 'Driver', page: 'DriverDashboard' }] : []),
     ...(user?.role === 'user' && !user?.role.includes('driver') ? [{ name: 'Become a Driver', page: 'DriverOnboarding' }] : []),
   ];

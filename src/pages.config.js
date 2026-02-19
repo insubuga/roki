@@ -49,7 +49,6 @@
  */
 import AdminDashboard from './pages/AdminDashboard';
 import Cart from './pages/Cart';
-import Community from './pages/Community';
 import Dashboard from './pages/Dashboard';
 import Deliveries from './pages/Deliveries';
 import DriverApplicationReview from './pages/DriverApplicationReview';
@@ -73,7 +72,6 @@ import __Layout from './Layout.jsx';
 export const PAGES = {
     "AdminDashboard": AdminDashboard,
     "Cart": Cart,
-    "Community": Community,
     "Dashboard": Dashboard,
     "Deliveries": Deliveries,
     "DriverApplicationReview": DriverApplicationReview,
