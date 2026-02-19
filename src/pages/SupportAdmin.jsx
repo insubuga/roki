@@ -258,7 +258,14 @@ export default function SupportAdmin() {
                   return (
                     <div key={msg.id} className={`flex ${isSupport ? 'justify-end' : 'justify-start'}`}>
                       <div className={`max-w-[80%] ${isSupport ? 'bg-blue-500 text-white' : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)]'} rounded-2xl px-4 py-2`}>
-                        {!isSupport && (
+                        {isSupport ? (
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                              <MessageCircle className="w-3 h-3 text-white" />
+                            </div>
+                            <span className="text-xs font-semibold">Support Team</span>
+                          </div>
+                        ) : (
                           <div className="flex items-center gap-2 mb-1">
                             <div className="w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center">
                               <User className="w-3 h-3 text-white" />
