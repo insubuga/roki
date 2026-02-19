@@ -3,25 +3,30 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { 
   Package, 
   Shirt, 
   MapPin, 
-  Phone, 
-  User,
+  Navigation,
   Clock,
+  DollarSign,
+  TrendingUp,
   CheckCircle2,
-  Truck,
-  AlertCircle
+  Circle,
+  Zap,
+  Phone,
+  MessageSquare,
+  ChevronRight,
+  Star
 } from 'lucide-react';
 import { toast } from 'sonner';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DriverDashboard() {
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('all');
+  const [selectedDelivery, setSelectedDelivery] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -44,13 +49,13 @@ export default function DriverDashboard() {
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ['driver-orders'],
-    queryFn: () => base44.entities.Order.list(),
+    queryFn: () => base44.entities.Order.list('-created_date'),
     enabled: !!user,
   });
 
   const { data: laundryOrders = [], isLoading: laundryLoading } = useQuery({
     queryKey: ['driver-laundry-orders'],
-    queryFn: () => base44.entities.LaundryOrder.list(),
+    queryFn: () => base44.entities.LaundryOrder.list('-created_date'),
     enabled: !!user,
   });
 
@@ -60,15 +65,17 @@ export default function DriverDashboard() {
 
     const unsubOrders = base44.entities.Order.subscribe((event) => {
       queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
-      if (event.type === 'update') {
-        toast.info('Order status updated');
+      if (event.type === 'create') {
+        toast.success('🚨 New delivery available!', {
+          description: 'Check your dashboard for details',
+        });
       }
     });
 
     const unsubLaundry = base44.entities.LaundryOrder.subscribe((event) => {
       queryClient.invalidateQueries({ queryKey: ['driver-laundry-orders'] });
-      if (event.type === 'update') {
-        toast.info('Laundry order status updated');
+      if (event.type === 'create') {
+        toast.success('🚨 New laundry pickup available!');
       }
     });
 
@@ -82,18 +89,18 @@ export default function DriverDashboard() {
     mutationFn: ({ id, status }) => base44.entities.Order.update(id, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
-      toast.success('Order status updated');
+      toast.success('✓ Status updated');
     },
-    onError: () => toast.error('Failed to update order'),
+    onError: () => toast.error('Failed to update'),
   });
 
   const updateLaundryMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.LaundryOrder.update(id, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['driver-laundry-orders'] });
-      toast.success('Laundry order status updated');
+      toast.success('✓ Status updated');
     },
-    onError: () => toast.error('Failed to update order'),
+    onError: () => toast.error('Failed to update'),
   });
 
   const handleRefresh = async () => {
@@ -103,42 +110,31 @@ export default function DriverDashboard() {
     ]);
   };
 
-  const getStatusColor = (status) => {
-    const colors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      confirmed: 'bg-blue-100 text-blue-800',
-      in_transit: 'bg-purple-100 text-purple-800',
-      delivered: 'bg-green-100 text-green-800',
-      awaiting_pickup: 'bg-orange-100 text-orange-800',
-      washing: 'bg-blue-100 text-blue-800',
-      drying: 'bg-cyan-100 text-cyan-800',
-      ready: 'bg-green-100 text-green-800',
-      picked_up: 'bg-gray-100 text-gray-800',
-    };
-    return colors[status] || 'bg-gray-100 text-gray-800';
-  };
-
-  const getNextStatus = (currentStatus, type) => {
-    if (type === 'order') {
-      const flow = { pending: 'confirmed', confirmed: 'in_transit', in_transit: 'delivered' };
-      return flow[currentStatus];
-    } else {
-      const flow = { 
-        awaiting_pickup: 'washing', 
-        washing: 'drying', 
-        drying: 'ready', 
-        ready: 'picked_up' 
-      };
-      return flow[currentStatus];
-    }
-  };
-
   const activeOrders = orders.filter(o => o.status !== 'delivered');
   const activeLaundry = laundryOrders.filter(o => o.status !== 'picked_up');
+  const completedToday = orders.filter(o => o.status === 'delivered').length + 
+                         laundryOrders.filter(o => o.status === 'picked_up').length;
+
+  // Calculate earnings (mock calculation)
+  const todayEarnings = orders
+    .filter(o => o.status === 'delivered')
+    .reduce((sum, o) => sum + (o.total * 0.15), 0) + 
+    laundryOrders
+    .filter(o => o.status === 'picked_up')
+    .reduce((sum, o) => sum + (o.total_cost * 0.20 || 15), 0);
+
+  const allActiveDeliveries = [
+    ...activeOrders.map(o => ({ ...o, type: 'order' })),
+    ...activeLaundry.map(o => ({ ...o, type: 'laundry' }))
+  ].sort((a, b) => {
+    const rushA = a.delivery_type === 'rush' ? 0 : 1;
+    const rushB = b.delivery_type === 'rush' ? 0 : 1;
+    return rushA - rushB;
+  });
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600" />
       </div>
     );
@@ -146,285 +142,418 @@ export default function DriverDashboard() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Truck className="w-8 h-8 text-green-600" />
-            Driver Dashboard
-          </h1>
-          <p className="text-gray-600 mt-1">Manage your active deliveries</p>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-6">
+        {/* Header Stats */}
+        <div className="bg-gradient-to-br from-green-600 to-green-700 px-4 py-6 rounded-b-3xl shadow-lg mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-white">Hey, {user.full_name?.split(' ')[0]}!</h1>
+              <p className="text-green-100 text-sm">Ready to deliver?</p>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <Star className="w-6 h-6 text-yellow-300 fill-yellow-300" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20"
+            >
+              <DollarSign className="w-5 h-5 text-green-200 mb-1" />
+              <p className="text-2xl font-bold text-white">${todayEarnings.toFixed(0)}</p>
+              <p className="text-xs text-green-100">Today</p>
+            </motion.div>
+
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20"
+            >
+              <CheckCircle2 className="w-5 h-5 text-green-200 mb-1" />
+              <p className="text-2xl font-bold text-white">{completedToday}</p>
+              <p className="text-xs text-green-100">Completed</p>
+            </motion.div>
+
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20"
+            >
+              <TrendingUp className="w-5 h-5 text-green-200 mb-1" />
+              <p className="text-2xl font-bold text-white">{allActiveDeliveries.length}</p>
+              <p className="text-xs text-green-100">Active</p>
+            </motion.div>
+          </div>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <Package className="w-8 h-8 mx-auto text-green-600 mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{activeOrders.length}</p>
-                <p className="text-sm text-gray-600">Active Orders</p>
+        {/* Active Deliveries */}
+        <div className="px-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Active Deliveries</h2>
+            {allActiveDeliveries.length > 0 && (
+              <Badge className="bg-red-500 text-white animate-pulse">
+                {allActiveDeliveries.length} active
+              </Badge>
+            )}
+          </div>
+
+          {ordersLoading || laundryLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto" />
+              <p className="text-gray-500 mt-4">Loading deliveries...</p>
+            </div>
+          ) : allActiveDeliveries.length === 0 ? (
+            <Card className="border-dashed border-2 border-gray-200">
+              <CardContent className="py-16 text-center">
+                <div className="w-20 h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Package className="w-10 h-10 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No active deliveries</h3>
+                <p className="text-gray-500 text-sm">Pull down to refresh and check for new orders</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <AnimatePresence>
+              <div className="space-y-3">
+                {allActiveDeliveries.map((delivery, index) => (
+                  <DeliveryCardModern
+                    key={delivery.id}
+                    delivery={delivery}
+                    index={index}
+                    onUpdate={(status) => {
+                      if (delivery.type === 'order') {
+                        updateOrderMutation.mutate({ id: delivery.id, status });
+                      } else {
+                        updateLaundryMutation.mutate({ id: delivery.id, status });
+                      }
+                    }}
+                    onSelect={() => setSelectedDelivery(delivery)}
+                  />
+                ))}
               </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <Shirt className="w-8 h-8 mx-auto text-blue-600 mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{activeLaundry.length}</p>
-                <p className="text-sm text-gray-600">Active Laundry</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-600 mb-2" />
-                <p className="text-2xl font-bold text-gray-900">
-                  {orders.filter(o => o.status === 'delivered').length}
-                </p>
-                <p className="text-sm text-gray-600">Completed Today</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <Truck className="w-8 h-8 mx-auto text-purple-600 mb-2" />
-                <p className="text-2xl font-bold text-gray-900">
-                  {orders.filter(o => o.status === 'in_transit').length}
-                </p>
-                <p className="text-sm text-gray-600">In Transit</p>
-              </div>
-            </CardContent>
-          </Card>
+            </AnimatePresence>
+          )}
         </div>
 
-        {/* Deliveries Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="all">All Active</TabsTrigger>
-            <TabsTrigger value="orders">Shop Orders</TabsTrigger>
-            <TabsTrigger value="laundry">Laundry</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="all" className="space-y-4">
-            {ordersLoading || laundryLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto" />
-              </div>
-            ) : activeOrders.length === 0 && activeLaundry.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <Package className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-600">No active deliveries</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-                {activeOrders.map(order => (
-                  <DeliveryCard
-                    key={order.id}
-                    delivery={order}
-                    type="order"
-                    onUpdate={(status) => updateOrderMutation.mutate({ id: order.id, status })}
-                    getStatusColor={getStatusColor}
-                    getNextStatus={getNextStatus}
-                  />
-                ))}
-                {activeLaundry.map(order => (
-                  <DeliveryCard
-                    key={order.id}
-                    delivery={order}
-                    type="laundry"
-                    onUpdate={(status) => updateLaundryMutation.mutate({ id: order.id, status })}
-                    getStatusColor={getStatusColor}
-                    getNextStatus={getNextStatus}
-                  />
-                ))}
-              </>
-            )}
-          </TabsContent>
-
-          <TabsContent value="orders" className="space-y-4">
-            {activeOrders.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <Package className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-600">No active shop orders</p>
-                </CardContent>
-              </Card>
-            ) : (
-              activeOrders.map(order => (
-                <DeliveryCard
-                  key={order.id}
-                  delivery={order}
-                  type="order"
-                  onUpdate={(status) => updateOrderMutation.mutate({ id: order.id, status })}
-                  getStatusColor={getStatusColor}
-                  getNextStatus={getNextStatus}
-                />
-              ))
-            )}
-          </TabsContent>
-
-          <TabsContent value="laundry" className="space-y-4">
-            {activeLaundry.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <Shirt className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-600">No active laundry orders</p>
-                </CardContent>
-              </Card>
-            ) : (
-              activeLaundry.map(order => (
-                <DeliveryCard
-                  key={order.id}
-                  delivery={order}
-                  type="laundry"
-                  onUpdate={(status) => updateLaundryMutation.mutate({ id: order.id, status })}
-                  getStatusColor={getStatusColor}
-                  getNextStatus={getNextStatus}
-                />
-              ))
-            )}
-          </TabsContent>
-        </Tabs>
+        {/* Delivery Detail Modal */}
+        <AnimatePresence>
+          {selectedDelivery && (
+            <DeliveryDetailModal 
+              delivery={selectedDelivery}
+              onClose={() => setSelectedDelivery(null)}
+              onUpdate={(status) => {
+                if (selectedDelivery.type === 'order') {
+                  updateOrderMutation.mutate({ id: selectedDelivery.id, status });
+                } else {
+                  updateLaundryMutation.mutate({ id: selectedDelivery.id, status });
+                }
+                setSelectedDelivery(null);
+              }}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </PullToRefresh>
   );
 }
 
-function DeliveryCard({ delivery, type, onUpdate, getStatusColor, getNextStatus }) {
-  const [expanded, setExpanded] = useState(false);
-  const nextStatus = getNextStatus(delivery.status, type);
+function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
+  const isRush = delivery.delivery_type === 'rush';
+  const isOrder = delivery.type === 'order';
+
+  const getNextAction = () => {
+    if (isOrder) {
+      if (delivery.status === 'pending' || delivery.status === 'confirmed') return 'Pick Up';
+      if (delivery.status === 'in_transit') return 'Complete Delivery';
+    } else {
+      if (delivery.status === 'awaiting_pickup' || delivery.status === 'washing') return 'Pick Up';
+      if (delivery.status === 'ready') return 'Deliver';
+    }
+    return null;
+  };
+
+  const nextAction = getNextAction();
+  const location = delivery.delivery_location || delivery.gym_location || 'No location specified';
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            {type === 'order' ? (
-              <Package className="w-6 h-6 text-green-600" />
-            ) : (
-              <Shirt className="w-6 h-6 text-blue-600" />
-            )}
-            <div>
-              <CardTitle className="text-lg">
-                {type === 'order' ? 'Shop Order' : 'Laundry Order'} #{delivery.order_number || delivery.id.slice(0, 8)}
-              </CardTitle>
-              <Badge className={`${getStatusColor(delivery.status)} mt-1`}>
-                {delivery.status.replace(/_/g, ' ').toUpperCase()}
-              </Badge>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -100 }}
+      transition={{ delay: index * 0.05 }}
+    >
+      <Card className={`overflow-hidden border-l-4 ${
+        isRush ? 'border-l-red-500 bg-red-50/50' : 'border-l-green-500'
+      } hover:shadow-lg transition-all cursor-pointer`}
+      onClick={onSelect}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-start gap-3 flex-1">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                isOrder ? 'bg-green-100' : 'bg-blue-100'
+              }`}>
+                {isOrder ? (
+                  <Package className="w-6 h-6 text-green-700" />
+                ) : (
+                  <Shirt className="w-6 h-6 text-blue-700" />
+                )}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-bold text-gray-900 truncate">
+                    {isOrder ? 'Shop Delivery' : 'Laundry Service'}
+                  </h3>
+                  {isRush && (
+                    <Badge className="bg-red-500 text-white text-xs px-2 py-0.5 flex items-center gap-1">
+                      <Zap className="w-3 h-3" />
+                      RUSH
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                  <Circle className="w-3 h-3" />
+                  <span>Order #{delivery.order_number || delivery.id.slice(0, 8)}</span>
+                </div>
+
+                <div className="flex items-start gap-2 text-sm text-gray-700">
+                  <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" />
+                  <span className="line-clamp-1">{location}</span>
+                </div>
+
+                {delivery.estimated_delivery && (
+                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
+                    <Clock className="w-3 h-3" />
+                    <span>ETA: {new Date(delivery.estimated_delivery).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-end gap-2">
+              {delivery.total && (
+                <span className="font-bold text-green-700 text-lg">
+                  ${delivery.total.toFixed(2)}
+                </span>
+              )}
+              <ChevronRight className="w-5 h-5 text-gray-400" />
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? 'Hide' : 'Details'}
-          </Button>
-        </div>
-      </CardHeader>
 
-      <CardContent>
-        <div className="space-y-4">
-          {/* Customer Info */}
-          <div className="flex items-center gap-2 text-gray-700">
-            <User className="w-4 h-4" />
-            <span className="font-medium">{delivery.user_email}</span>
+          {nextAction && (
+            <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-200">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1 text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(`https://maps.google.com/?q=${encodeURIComponent(location)}`, '_blank');
+                }}
+              >
+                <Navigation className="w-3 h-3" />
+                Navigate
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1 text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.location.href = `tel:${delivery.user_email}`;
+                }}
+              >
+                <Phone className="w-3 h-3" />
+                Call
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1 text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.location.href = `sms:${delivery.user_email}`;
+                }}
+              >
+                <MessageSquare className="w-3 h-3" />
+                Text
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+function DeliveryDetailModal({ delivery, onClose, onUpdate }) {
+  const isOrder = delivery.type === 'order';
+
+  const getNextStatus = () => {
+    if (isOrder) {
+      if (delivery.status === 'pending') return 'confirmed';
+      if (delivery.status === 'confirmed') return 'in_transit';
+      if (delivery.status === 'in_transit') return 'delivered';
+    } else {
+      if (delivery.status === 'awaiting_pickup') return 'washing';
+      if (delivery.status === 'washing') return 'drying';
+      if (delivery.status === 'drying') return 'ready';
+      if (delivery.status === 'ready') return 'picked_up';
+    }
+    return null;
+  };
+
+  const nextStatus = getNextStatus();
+  const location = delivery.delivery_location || delivery.gym_location;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center md:justify-center"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        className="bg-white rounded-t-3xl md:rounded-3xl w-full md:max-w-2xl max-h-[85vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                isOrder ? 'bg-green-100' : 'bg-blue-100'
+              }`}>
+                {isOrder ? (
+                  <Package className="w-6 h-6 text-green-700" />
+                ) : (
+                  <Shirt className="w-6 h-6 text-blue-700" />
+                )}
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  {isOrder ? 'Shop Order' : 'Laundry Service'}
+                </h2>
+                <p className="text-sm text-gray-500">#{delivery.order_number || delivery.id.slice(0, 8)}</p>
+              </div>
+            </div>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <ChevronRight className="w-6 h-6 rotate-90" />
+            </Button>
           </div>
 
-          {/* Delivery Location */}
-          {delivery.delivery_location && (
-            <div className="flex items-start gap-2 text-gray-700">
-              <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              <span>{delivery.delivery_location}</span>
+          {/* Customer Info */}
+          <div className="bg-gray-50 rounded-2xl p-4 mb-4">
+            <h3 className="font-semibold text-gray-900 mb-3">Customer</h3>
+            <p className="text-gray-700 mb-2">{delivery.user_email}</p>
+            <div className="flex gap-2">
+              <Button 
+                size="sm"
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                onClick={() => window.location.href = `tel:${delivery.user_email}`}
+              >
+                <Phone className="w-4 h-4 mr-2" />
+                Call Customer
+              </Button>
+              <Button 
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                onClick={() => window.location.href = `sms:${delivery.user_email}`}
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Message
+              </Button>
+            </div>
+          </div>
+
+          {/* Location */}
+          {location && (
+            <div className="bg-gray-50 rounded-2xl p-4 mb-4">
+              <h3 className="font-semibold text-gray-900 mb-3">Delivery Location</h3>
+              <div className="flex items-start gap-3 mb-3">
+                <MapPin className="w-5 h-5 text-green-600 mt-0.5" />
+                <p className="text-gray-700 flex-1">{location}</p>
+              </div>
+              <Button 
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(location)}`, '_blank')}
+              >
+                <Navigation className="w-4 h-4 mr-2" />
+                Open in Maps
+              </Button>
             </div>
           )}
 
-          {delivery.gym_location && (
-            <div className="flex items-start gap-2 text-gray-700">
-              <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              <span>{delivery.gym_location}</span>
+          {/* Order Items */}
+          {isOrder && delivery.items && (
+            <div className="bg-gray-50 rounded-2xl p-4 mb-4">
+              <h3 className="font-semibold text-gray-900 mb-3">Items</h3>
+              <div className="space-y-2">
+                {delivery.items.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-0">
+                    <span className="text-gray-700">{item.product_name} ×{item.quantity}</span>
+                    <span className="font-medium">${item.price.toFixed(2)}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between items-center pt-2 font-bold text-lg">
+                  <span>Total</span>
+                  <span className="text-green-700">${delivery.total.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Laundry Items */}
+          {!isOrder && delivery.items && (
+            <div className="bg-gray-50 rounded-2xl p-4 mb-4">
+              <h3 className="font-semibold text-gray-900 mb-3">Items</h3>
+              <div className="flex flex-wrap gap-2">
+                {delivery.items.map((item, idx) => (
+                  <Badge key={idx} variant="outline" className="bg-white">{item}</Badge>
+                ))}
+              </div>
+              {delivery.includes_sneakers && (
+                <Badge className="bg-purple-100 text-purple-800 mt-3">
+                  + Premium Sneaker Cleaning
+                </Badge>
+              )}
             </div>
           )}
 
           {/* Special Instructions */}
           {delivery.special_instructions && (
-            <div className="flex items-start gap-2 text-gray-700 bg-yellow-50 p-3 rounded-lg">
-              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-yellow-600" />
-              <div>
-                <p className="font-medium text-sm text-yellow-800">Special Instructions:</p>
-                <p className="text-sm">{delivery.special_instructions}</p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-4">
+              <div className="flex gap-2">
+                <Zap className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-yellow-900 mb-1">Special Instructions</h3>
+                  <p className="text-yellow-800 text-sm">{delivery.special_instructions}</p>
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Expanded Details */}
-          {expanded && (
-            <div className="border-t pt-4 space-y-3">
-              {type === 'order' && delivery.items && (
-                <div>
-                  <p className="font-medium text-sm text-gray-700 mb-2">Items:</p>
-                  <ul className="space-y-1">
-                    {delivery.items.map((item, idx) => (
-                      <li key={idx} className="text-sm text-gray-600 flex justify-between">
-                        <span>{item.product_name} x{item.quantity}</span>
-                        <span>${item.price.toFixed(2)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="border-t mt-2 pt-2 flex justify-between font-medium">
-                    <span>Total:</span>
-                    <span>${delivery.total.toFixed(2)}</span>
-                  </div>
-                </div>
-              )}
-
-              {type === 'laundry' && delivery.items && (
-                <div>
-                  <p className="font-medium text-sm text-gray-700 mb-2">Items:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {delivery.items.map((item, idx) => (
-                      <Badge key={idx} variant="outline">{item}</Badge>
-                    ))}
-                  </div>
-                  {delivery.includes_sneakers && (
-                    <Badge className="bg-purple-100 text-purple-800 mt-2">
-                      Includes Sneaker Cleaning
-                    </Badge>
-                  )}
-                </div>
-              )}
-
-              {delivery.delivery_type === 'rush' && (
-                <Badge className="bg-red-100 text-red-800 flex items-center gap-1 w-fit">
-                  <Clock className="w-3 h-3" />
-                  RUSH DELIVERY
-                </Badge>
-              )}
-
-              {delivery.estimated_delivery && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Clock className="w-4 h-4" />
-                  <span>Est. Delivery: {new Date(delivery.estimated_delivery).toLocaleString()}</span>
-                </div>
-              )}
             </div>
           )}
 
           {/* Action Button */}
           {nextStatus && (
-            <Button
+            <Button 
+              className="w-full h-14 text-lg bg-green-600 hover:bg-green-700"
               onClick={() => onUpdate(nextStatus)}
-              className="w-full bg-green-600 hover:bg-green-700"
             >
+              <CheckCircle2 className="w-5 h-5 mr-2" />
               Mark as {nextStatus.replace(/_/g, ' ').toUpperCase()}
             </Button>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -53,6 +53,7 @@ import Cart from './pages/Cart';
 import Community from './pages/Community';
 import Dashboard from './pages/Dashboard';
 import Deliveries from './pages/Deliveries';
+import DriverDashboard from './pages/DriverDashboard';
 import Feedback from './pages/Feedback';
 import LaundryOrder from './pages/LaundryOrder';
 import OrderHistory from './pages/OrderHistory';
@@ -65,7 +66,6 @@ import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
 import Wearables from './pages/Wearables';
-import DriverDashboard from './pages/DriverDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -76,6 +76,7 @@ export const PAGES = {
     "Community": Community,
     "Dashboard": Dashboard,
     "Deliveries": Deliveries,
+    "DriverDashboard": DriverDashboard,
     "Feedback": Feedback,
     "LaundryOrder": LaundryOrder,
     "OrderHistory": OrderHistory,
@@ -88,7 +89,6 @@ export const PAGES = {
     "Support": Support,
     "SupportAdmin": SupportAdmin,
     "Wearables": Wearables,
-    "DriverDashboard": DriverDashboard,
 }
 
 export const pagesConfig = {
