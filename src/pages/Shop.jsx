@@ -3,13 +3,20 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from '../components/mobile/PullToRefresh';
 import MobileHeader from '../components/mobile/MobileHeader';
-import { Search, Filter, ShoppingCart, Plus, Check } from 'lucide-react';
+import { Search, Filter, ShoppingCart, Plus, Check, ArrowUpDown, Tag, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const CATEGORIES = [
   { value: 'all', label: 'All' },
@@ -23,10 +30,14 @@ const CATEGORIES = [
   { value: 'recovery', label: 'Recovery' },
 ];
 
+const ITEMS_PER_PAGE = 12;
+
 export default function Shop() {
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('featured');
+  const [currentPage, setCurrentPage] = useState(1);
   const [addedItems, setAddedItems] = useState({});
   const queryClient = useQueryClient();
 
@@ -161,11 +172,52 @@ export default function Shop() {
     },
   });
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredAndSortedProducts = (() => {
+    // Filter
+    let filtered = products.filter(product => {
+      const matchesSearch = product.name?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+
+    // Sort
+    filtered = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'featured':
+          if (a.featured && !b.featured) return -1;
+          if (!a.featured && b.featured) return 1;
+          if (a.on_sale && !b.on_sale) return -1;
+          if (!a.on_sale && b.on_sale) return 1;
+          return 0;
+        case 'price-low':
+          const priceA = a.on_sale && a.sale_price ? a.sale_price : a.price;
+          const priceB = b.on_sale && b.sale_price ? b.sale_price : b.price;
+          return priceA - priceB;
+        case 'price-high':
+          const priceA2 = a.on_sale && a.sale_price ? a.sale_price : a.price;
+          const priceB2 = b.on_sale && b.sale_price ? b.sale_price : b.price;
+          return priceB2 - priceA2;
+        case 'name':
+          return a.name.localeCompare(b.name);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  })();
+
+  // Pagination
+  const totalPages = Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE);
+  const paginatedProducts = filteredAndSortedProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, sortBy]);
 
   if (!user) {
     return (
@@ -187,7 +239,7 @@ export default function Shop() {
         iconColor="text-amber-500"
       />
 
-      {/* Search and Filter */}
+      {/* Search and Sort */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -198,6 +250,18 @@ export default function Shop() {
             className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-[#7cfc00] focus:border-transparent"
           />
         </div>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-full sm:w-48 bg-white border-gray-300 text-gray-900">
+            <ArrowUpDown className="w-4 h-4 mr-2" />
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="featured">Featured First</SelectItem>
+            <SelectItem value="price-low">Price: Low to High</SelectItem>
+            <SelectItem value="price-high">Price: High to Low</SelectItem>
+            <SelectItem value="name">Name: A-Z</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Categories */}
@@ -217,6 +281,56 @@ export default function Shop() {
         </Tabs>
       </div>
 
+      {/* Featured & On Sale Products */}
+      {(() => {
+        const featuredProducts = products.filter(p => p.featured);
+        const onSaleProducts = products.filter(p => p.on_sale);
+        const showFeatured = featuredProducts.length > 0 && selectedCategory === 'all' && !searchQuery;
+        const showOnSale = onSaleProducts.length > 0 && selectedCategory === 'all' && !searchQuery;
+        
+        return (
+          <>
+            {showFeatured && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                  <h2 className="text-gray-900 font-bold text-xl">Featured Products</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {featuredProducts.slice(0, 4).map((product) => (
+                    <ProductCard 
+                      key={product.id} 
+                      product={product} 
+                      addedItems={addedItems}
+                      addToCartMutation={addToCartMutation}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {showOnSale && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Tag className="w-5 h-5 text-red-500" />
+                  <h2 className="text-gray-900 font-bold text-xl">On Sale</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {onSaleProducts.slice(0, 4).map((product) => (
+                    <ProductCard 
+                      key={product.id} 
+                      product={product} 
+                      addedItems={addedItems}
+                      addToCartMutation={addToCartMutation}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        );
+      })()}
+
       {/* Personalized Recommendations */}
       {recommendedProducts.length > 0 && selectedCategory === 'all' && !searchQuery && (
         <div className="space-y-4">
@@ -229,51 +343,12 @@ export default function Shop() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {recommendedProducts.map((product) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all group border border-gray-200"
-              >
-                <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
-                  {product.image_url ? (
-                    <img 
-                      src={product.image_url} 
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <ShoppingCart className="w-12 h-12 text-gray-300" />
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <Badge className="bg-[#7cfc00]/20 text-[#059669] border-none mb-2 font-medium">
-                    {product.category?.replace('-', ' ')}
-                  </Badge>
-                  <h3 className="text-gray-900 font-semibold text-base line-clamp-2 mb-2 min-h-[48px]">{product.name}</h3>
-                  <p className="text-gray-600 text-sm line-clamp-2 mb-3 min-h-[40px]">{product.description}</p>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-gray-500 text-xs">Price</span>
-                      <div className="text-[#059669] font-bold text-xl">${product.price?.toFixed(2)}</div>
-                    </div>
-                    <Button 
-                      size="sm"
-                      className={`${addedItems[product.id] ? 'bg-green-600' : 'bg-[#FFD814] hover:bg-[#F7CA00]'} text-black font-semibold shadow-sm px-4`}
-                      onClick={() => addToCartMutation.mutate(product)}
-                      disabled={addToCartMutation.isPending}
-                    >
-                      {addedItems[product.id] ? (
-                        <><Check className="w-4 h-4 mr-1" /> Added</>
-                      ) : (
-                        <>Add to Cart</>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                addedItems={addedItems}
+                addToCartMutation={addToCartMutation}
+              />
             ))}
           </div>
         </div>
@@ -297,66 +372,139 @@ export default function Shop() {
             </div>
           ))}
         </div>
-      ) : filteredProducts.length === 0 ? (
+      ) : filteredAndSortedProducts.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm">
           <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600">No products found</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          <AnimatePresence>
-            {filteredProducts.map((product) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all group border border-gray-200"
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <AnimatePresence>
+              {paginatedProducts.map((product) => (
+                <ProductCard 
+                  key={product.id}
+                  product={product}
+                  addedItems={addedItems}
+                  addToCartMutation={addToCartMutation}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="bg-white border-gray-300"
               >
-                <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
-                  {product.image_url ? (
-                    <img 
-                      src={product.image_url} 
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <ShoppingCart className="w-12 h-12 text-gray-300" />
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <Badge className="bg-[#7cfc00]/20 text-[#059669] border-none mb-2 font-medium">
-                    {product.category?.replace('-', ' ')}
-                  </Badge>
-                  <h3 className="text-gray-900 font-semibold text-base line-clamp-2 mb-2 min-h-[48px]">{product.name}</h3>
-                  <p className="text-gray-600 text-sm line-clamp-2 mb-3 min-h-[40px]">{product.description}</p>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-gray-500 text-xs">Price</span>
-                      <div className="text-[#059669] font-bold text-xl">${product.price?.toFixed(2)}</div>
-                    </div>
-                    <Button 
-                      size="sm"
-                      className={`${addedItems[product.id] ? 'bg-green-600' : 'bg-[#FFD814] hover:bg-[#F7CA00]'} text-black font-semibold shadow-sm px-4`}
-                      onClick={() => addToCartMutation.mutate(product)}
-                      disabled={addToCartMutation.isPending}
-                    >
-                      {addedItems[product.id] ? (
-                        <><Check className="w-4 h-4 mr-1" /> Added</>
-                      ) : (
-                        <>Add to Cart</>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+                Previous
+              </Button>
+              <div className="flex gap-2">
+                {[...Array(totalPages)].map((_, i) => (
+                  <Button
+                    key={i}
+                    variant={currentPage === i + 1 ? 'default' : 'outline'}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={currentPage === i + 1 ? 'bg-[#7cfc00] text-black hover:bg-[#6ee000]' : 'bg-white border-gray-300'}
+                  >
+                    {i + 1}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="bg-white border-gray-300"
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
     </PullToRefresh>
+  );
+}
+
+// Product Card Component
+function ProductCard({ product, addedItems, addToCartMutation }) {
+  const displayPrice = product.on_sale && product.sale_price ? product.sale_price : product.price;
+  const hasDiscount = product.on_sale && product.sale_price && product.sale_price < product.price;
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all group border border-gray-200 relative"
+    >
+      {/* Badges */}
+      <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+        {product.featured && (
+          <Badge className="bg-yellow-500 text-white border-none font-medium shadow-md">
+            <Star className="w-3 h-3 mr-1 fill-white" />
+            Featured
+          </Badge>
+        )}
+        {product.on_sale && (
+          <Badge className="bg-red-500 text-white border-none font-medium shadow-md">
+            <Tag className="w-3 h-3 mr-1" />
+            Sale
+          </Badge>
+        )}
+      </div>
+
+      <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+        {product.image_url ? (
+          <img 
+            src={product.image_url} 
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <ShoppingCart className="w-12 h-12 text-gray-300" />
+          </div>
+        )}
+      </div>
+      <div className="p-4">
+        <Badge className="bg-[#7cfc00]/20 text-[#059669] border-none mb-2 font-medium">
+          {product.category?.replace('-', ' ')}
+        </Badge>
+        <h3 className="text-gray-900 font-semibold text-base line-clamp-2 mb-2 min-h-[48px]">{product.name}</h3>
+        <p className="text-gray-600 text-sm line-clamp-2 mb-3 min-h-[40px]">{product.description}</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-gray-500 text-xs">Price</span>
+            <div className="flex items-center gap-2">
+              {hasDiscount && (
+                <span className="text-gray-400 line-through text-sm">${product.price?.toFixed(2)}</span>
+              )}
+              <div className={`${hasDiscount ? 'text-red-600' : 'text-[#059669]'} font-bold text-xl`}>
+                ${displayPrice?.toFixed(2)}
+              </div>
+            </div>
+          </div>
+          <Button 
+            size="sm"
+            className={`${addedItems[product.id] ? 'bg-green-600' : 'bg-[#FFD814] hover:bg-[#F7CA00]'} text-black font-semibold shadow-sm px-4`}
+            onClick={() => addToCartMutation.mutate(product)}
+            disabled={addToCartMutation.isPending}
+          >
+            {addedItems[product.id] ? (
+              <><Check className="w-4 h-4 mr-1" /> Added</>
+            ) : (
+              <>Add to Cart</>
+            )}
+          </Button>
+        </div>
+      </div>
+    </motion.div>
   );
 }
