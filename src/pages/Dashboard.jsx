@@ -98,9 +98,8 @@ export default function Dashboard() {
             </div>
             <div>
               <h1 className="text-[var(--color-text-primary)] text-lg font-bold">
-                Hey, {user.full_name?.split(' ')[0] || 'there'}
+                {user.full_name?.split(' ')[0] || 'Hey'}
               </h1>
-              <p className="text-[var(--color-text-secondary)] text-xs">Ready to fuel your goals?</p>
             </div>
           </div>
         </div>

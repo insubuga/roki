@@ -349,24 +349,8 @@ export default function Wearables() {
         iconColor="text-purple-500"
       />
 
-      {/* Tabs for different views */}
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="bg-white border border-gray-200 shadow-sm">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-gray-700">
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-gray-700">
-            <BarChart3 className="w-4 h-4 mr-2" />
-            Analytics
-          </TabsTrigger>
-          <TabsTrigger value="goals" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-gray-700">
-            <Target className="w-4 h-4 mr-2" />
-            Goals
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6 mt-6">
+      {/* Single simplified view - no tabs */}
+      <div className="space-y-6">
       
       {/* Sync Status Banner */}
       {isConnected && lastSyncTime && (
@@ -399,97 +383,22 @@ export default function Wearables() {
           </CardContent>
         </Card>
       )}
-      {/* Real-time Stats */}
+      {/* Simple current status - only what's actionable */}
       {isConnected && wearableData && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-gray-900 font-semibold">Live Metrics</h2>
-            <Button
-              size="sm"
-              className="bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 shadow-md"
-              onClick={() => syncDataMutation.mutate()}
-              disabled={syncDataMutation.isPending}
-            >
-              Sync Data
-            </Button>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-white border-gray-200 shadow-lg">
-              <CardContent className="p-4 text-center">
-                <Heart className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{wearableData.heart_rate}</p>
-                <p className="text-gray-600 text-sm">Heart Rate (BPM)</p>
-                {wearableData.heart_rate > 85 && (
-                  <Badge className="mt-2 bg-orange-100 text-orange-700 border-orange-300 text-xs">Elevated</Badge>
-                )}
-              </CardContent>
-            </Card>
-            <Card className="bg-white border-gray-200 shadow-lg">
-              <CardContent className="p-4 text-center">
-                <Footprints className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{wearableData.steps?.toLocaleString()}</p>
-                <p className="text-gray-600 text-sm">Steps Today</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-white border-gray-200 shadow-lg">
-              <CardContent className="p-4 text-center">
-                <Zap className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{wearableData.calories_burned}</p>
-                <p className="text-gray-600 text-sm">Calories Burned</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-white border-gray-200 shadow-lg">
-              <CardContent className="p-4 text-center">
-                <TrendingUp className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{wearableData.recovery_score}</p>
-                <p className="text-gray-600 text-sm">Recovery Score</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Additional Metrics */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-            <Card className="bg-[#1a2332] border-gray-800">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Activity className="w-4 h-4 text-purple-400" />
-                  <span className="text-gray-400 text-sm">Active Time</span>
-                </div>
-                <p className="text-xl font-bold text-white">{wearableData.active_minutes} min</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-[#1a2332] border-gray-800">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Moon className="w-4 h-4 text-indigo-400" />
-                  <span className="text-gray-400 text-sm">Sleep</span>
-                </div>
-                <p className="text-xl font-bold text-white">{wearableData.sleep_hours}h</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-[#1a2332] border-gray-800">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Droplet className="w-4 h-4 text-cyan-400" />
-                  <span className="text-gray-400 text-sm">Hydration</span>
-                </div>
-                <p className="text-xl font-bold text-white capitalize">{wearableData.hydration_level}</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-[#1a2332] border-gray-800">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Brain className="w-4 h-4 text-pink-400" />
-                  <span className="text-gray-400 text-sm">Workout</span>
-                </div>
-                <p className="text-lg font-bold text-white capitalize">{wearableData.workout_type}</p>
-                <Badge className="mt-1 bg-orange-500/20 text-orange-400 border-none text-xs">
-                  {wearableData.workout_intensity}
-                </Badge>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        <Card className="bg-white border-gray-200 shadow-lg">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-gray-600 text-sm">Recovery</p>
+                <p className="text-3xl font-bold text-gray-900">{wearableData.recovery_score}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 text-sm">Sleep</p>
+                <p className="text-3xl font-bold text-gray-900">{wearableData.sleep_hours}h</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Connected Devices Summary */}
@@ -854,186 +763,7 @@ export default function Wearables() {
         </Card>
       )}
 
-      {/* VantaBot Integration */}
-      <Card className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/30">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#7cfc00] to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Brain className="w-6 h-6 text-black" />
-            </div>
-            <div>
-              <h3 className="text-white font-bold mb-2">AI-Powered Insights</h3>
-              <p className="text-gray-300 text-sm mb-3">
-                RokiBot monitors your wearable data 24/7 to provide real-time suggestions on hydration, supplements, recovery, and optimal workout timing.
-              </p>
-              <Link to={createPageUrl('RokiBot')}>
-                <Button className="bg-[#7cfc00] text-black hover:bg-[#6be600]">
-                  Chat with RokiBot
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-        </TabsContent>
-
-        {/* Analytics Tab */}
-        <TabsContent value="analytics" className="space-y-6 mt-6">
-          {historicalData.length < 3 ? (
-            <Card className="bg-[#1a2332] border-gray-800">
-              <CardContent className="p-12 text-center">
-                <BarChart3 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400">Not enough data yet. Keep tracking to see trends!</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              {/* Trends */}
-              <Card className="bg-[#1a2332] border-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-white">7-Day Trends</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64 mb-6">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={trendData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                        <XAxis dataKey="day" stroke="#9CA3AF" />
-                        <YAxis stroke="#9CA3AF" />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: '#1a2332', border: '1px solid #374151' }}
-                          labelStyle={{ color: '#fff' }}
-                        />
-                        <Line type="monotone" dataKey="recovery" stroke="#7cfc00" strokeWidth={2} name="Recovery Score" />
-                        <Line type="monotone" dataKey="sleep" stroke="#818cf8" strokeWidth={2} name="Sleep (h)" />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={trendData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                        <XAxis dataKey="day" stroke="#9CA3AF" />
-                        <YAxis stroke="#9CA3AF" />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: '#1a2332', border: '1px solid #374151' }}
-                          labelStyle={{ color: '#fff' }}
-                        />
-                        <Bar dataKey="steps" fill="#3b82f6" name="Steps" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Correlations */}
-              {correlations && (
-                <Card className="bg-[#1a2332] border-gray-800">
-                  <CardHeader>
-                    <CardTitle className="text-white">Performance Correlations</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div className="bg-[#0d1320] rounded-lg p-4 border border-gray-700">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Moon className="w-5 h-5 text-indigo-400" />
-                          <span className="text-gray-400 text-sm">Sleep Impact</span>
-                        </div>
-                        <p className="text-2xl font-bold text-white mb-1">{correlations.sleepRecoveryCorr}%</p>
-                        <p className="text-gray-500 text-xs">Avg correlation to recovery</p>
-                      </div>
-                      <div className="bg-[#0d1320] rounded-lg p-4 border border-gray-700">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Zap className="w-5 h-5 text-orange-400" />
-                          <span className="text-gray-400 text-sm">Intensity Effect</span>
-                        </div>
-                        <p className="text-2xl font-bold text-white mb-1">{correlations.intensityImpact}</p>
-                        <p className="text-gray-500 text-xs">Recovery drop after high intensity</p>
-                      </div>
-                      <div className="bg-[#0d1320] rounded-lg p-4 border border-gray-700">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Activity className="w-5 h-5 text-purple-400" />
-                          <span className="text-gray-400 text-sm">Low Sleep Effect</span>
-                        </div>
-                        <p className="text-2xl font-bold text-white mb-1">{correlations.sleepPerformanceImpact}</p>
-                        <p className="text-gray-500 text-xs">Performance impact</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </>
-          )}
-        </TabsContent>
-
-        {/* Goals Tab */}
-        <TabsContent value="goals" className="space-y-6 mt-6">
-          <Card className="bg-[#1a2332] border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-white">Personalized Goals</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {goalSuggestions.length === 0 ? (
-                <div className="text-center py-8">
-                  <Target className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400">Track more data to get personalized goals</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {goalSuggestions.map((goal, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="bg-[#0d1320] rounded-lg p-4 border border-gray-700"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h4 className="text-white font-semibold">{goal.metric}</h4>
-                          <p className="text-gray-400 text-sm">{goal.reason}</p>
-                        </div>
-                        <Badge className="bg-[#7cfc00]/20 text-[#7cfc00] border-none">Suggested</Badge>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="flex-1">
-                          <div className="flex justify-between text-sm mb-2">
-                            <span className="text-gray-400">Current: {goal.current}</span>
-                            <span className="text-[#7cfc00]">Target: {goal.target}</span>
-                          </div>
-                          <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-gradient-to-r from-[#7cfc00] to-teal-500"
-                              style={{ 
-                                width: `${Math.min((parseFloat(goal.current) / parseFloat(goal.target)) * 100, 100)}%` 
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Goal Insights */}
-          <Card className="bg-gradient-to-r from-[#7cfc00]/10 to-teal-500/10 border-[#7cfc00]/30">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <Target className="w-10 h-10 text-[#7cfc00]" />
-                <div>
-                  <h3 className="text-white font-bold mb-2">Smart Goal Setting</h3>
-                  <p className="text-gray-300 text-sm">
-                    Based on your last {historicalData.length} tracked days, we suggest these goals to optimize your performance and recovery. 
-                    RokiBot will monitor your progress and adjust recommendations automatically.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+    </div>
     </div>
     </PullToRefresh>
   );

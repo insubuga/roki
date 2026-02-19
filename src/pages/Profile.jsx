@@ -586,17 +586,11 @@ export default function Profile() {
             {locker ? (
               <div className="space-y-4">
                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-300 shadow-md">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-gray-600 text-sm font-medium">Your Locker</p>
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-900 font-bold text-xl">#{locker.locker_number}</p>
-                      <p className="text-green-600 text-sm font-medium">Active</p>
+                      <p className="text-gray-900 font-bold text-2xl">#{locker.locker_number}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-gray-600 text-sm">Access Code</p>
                       <p className="text-green-600 font-mono font-bold text-2xl">{locker.access_code}</p>
                     </div>
                   </div>
@@ -606,56 +600,27 @@ export default function Profile() {
                   locker={locker} 
                   gym={nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym)} 
                 />
-
-                <div className="grid grid-cols-2 gap-2">
-                  <BookingExtension locker={locker} />
-                  <ReportIssueDialog locker={locker} user={user} />
-                </div>
               </div>
             ) : (
-              <div className="space-y-4">
-                {/* AI Recommendations */}
-                {formData.preferred_gym && (
-                  <AILockerRecommendations
-                    recommendations={aiRecommendations}
-                    isLoading={loadingAiRecs}
-                    onSelectLocker={(lockerNumber) => {
-                      toast.success(`Selected locker #${lockerNumber}`);
-                    }}
+              <div>
+                <Button
+                  className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
+                  onClick={() => setShowCheckout(true)}
+                  disabled={!formData.preferred_gym}
+                >
+                  <Lock className="w-4 h-4 mr-2" />
+                  Book Locker
+                </Button>
+                
+                {showCheckout && formData.preferred_gym && (
+                  <LockerCheckout
+                    open={showCheckout}
+                    onClose={() => setShowCheckout(false)}
+                    gym={nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym)}
+                    user={user}
+                    onSuccess={(duration) => claimLockerMutation.mutate(duration)}
                   />
                 )}
-                
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 shadow-sm">
-                  <p className="text-gray-700 mb-3">
-                    {formData.preferred_gym && lockerAvailability[formData.preferred_gym] === 0 
-                      ? 'No lockers available at this gym' 
-                      : "You don't have a locker yet"}
-                  </p>
-                  {formData.preferred_gym && lockerAvailability[formData.preferred_gym] !== undefined && (
-                    <p className="text-green-600 text-sm mb-3 flex items-center gap-2 font-medium">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                      {lockerAvailability[formData.preferred_gym] === 0 ? 'Locker setup available' : `${lockerAvailability[formData.preferred_gym]} lockers available`}
-                    </p>
-                  )}
-                  <Button
-                    className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
-                    onClick={() => setShowCheckout(true)}
-                    disabled={!formData.preferred_gym}
-                  >
-                    <Lock className="w-4 h-4 mr-2" />
-                    Book Locker
-                  </Button>
-                  
-                  {showCheckout && formData.preferred_gym && (
-                    <LockerCheckout
-                      open={showCheckout}
-                      onClose={() => setShowCheckout(false)}
-                      gym={nearbyGyms.find(g => `${g.name}_${g.address}` === formData.preferred_gym)}
-                      user={user}
-                      onSuccess={(duration) => claimLockerMutation.mutate(duration)}
-                    />
-                  )}
-                </div>
               </div>
             )}
           </CardContent>
