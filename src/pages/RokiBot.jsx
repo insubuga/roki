@@ -59,36 +59,33 @@ export default function RokiBot() {
 
   // Handle query parameter for pre-filled questions
   useEffect(() => {
-    if (!conversation) return;
+    if (!conversation || messages.length === 0) return;
     
     const urlParams = new URLSearchParams(window.location.search);
     const queryQuestion = urlParams.get('q');
     
-    if (queryQuestion && messages.length > 0) {
-      setInput(queryQuestion);
-      // Auto-send after a short delay
+    if (queryQuestion) {
+      window.history.replaceState({}, '', window.location.pathname);
+      
       setTimeout(() => {
-        if (queryQuestion.trim()) {
+        if (queryQuestion.trim() && !isLoading) {
           setInput('');
-          setMessages(prev => [...prev, { role: 'user', content: queryQuestion }]);
           setIsLoading(true);
           
           const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
             setMessages(data.messages || []);
+            setIsLoading(false);
           });
 
           base44.agents.addMessage(conversation, {
             role: 'user',
             content: queryQuestion
-          }).then(() => {
-            setIsLoading(false);
-            setTimeout(() => unsubscribe(), 30000);
           }).catch(() => {
             setIsLoading(false);
           });
+          
+          setTimeout(() => unsubscribe(), 10000);
         }
-        // Clear URL parameter
-        window.history.replaceState({}, '', window.location.pathname);
       }, 500);
     }
   }, [conversation, messages.length]);
@@ -132,14 +129,14 @@ export default function RokiBot() {
     
     const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
 
     try {
       if (conversation) {
-        // Subscribe to updates
+        // Subscribe to updates before sending
         const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
           setMessages(data.messages || []);
+          setIsLoading(false);
         });
 
         await base44.agents.addMessage(conversation, {
@@ -147,17 +144,14 @@ export default function RokiBot() {
           content: userMessage
         });
 
-        // Clean up subscription after a delay
-        setTimeout(() => unsubscribe(), 30000);
+        // Clean up subscription after response is complete
+        setTimeout(() => {
+          unsubscribe();
+          setIsLoading(false);
+        }, 10000);
       }
     } catch (e) {
       console.error('Failed to send message:', e);
-      // Fallback response
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: "I'm having trouble connecting right now. Please try again in a moment."
-      }]);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -361,23 +355,29 @@ export default function RokiBot() {
       <div className="flex-1 bg-white rounded-xl border border-gray-200 shadow-lg flex flex-col overflow-hidden">
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <AnimatePresence>
+          <AnimatePresence mode="popLayout">
             {messages.map((message, idx) => (
               <motion.div
-                key={idx}
+                key={`${idx}-${message.role}`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
               >
                 <MessageBubble message={message} />
               </motion.div>
             ))}
+            {isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'user' && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center gap-2 text-gray-600"
+              >
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">RokiBot is thinking...</span>
+              </motion.div>
+            )}
           </AnimatePresence>
-          {isLoading && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm">RokiBot is thinking...</span>
-            </div>
-          )}
           <div ref={messagesEndRef} />
         </div>
 
