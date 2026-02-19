@@ -12,6 +12,7 @@ import IssueManagement from '../components/admin/IssueManagement';
 import SubscriptionManagement from '../components/admin/SubscriptionManagement';
 import DriverManagement from '../components/admin/DriverManagement';
 import AdminNotifications from '../components/admin/AdminNotifications';
+import DriverApplicationReview from './DriverApplicationReview';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -86,6 +87,9 @@ export default function AdminDashboard() {
           <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
             Overview
           </TabsTrigger>
+          <TabsTrigger value="applications" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
+            Applications
+          </TabsTrigger>
           <TabsTrigger value="drivers" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
             Drivers
           </TabsTrigger>
@@ -108,6 +112,10 @@ export default function AdminDashboard() {
             <AdminNotifications user={user} />
             <OverviewStats />
           </div>
+        </TabsContent>
+
+        <TabsContent value="applications">
+          <DriverApplicationReview />
         </TabsContent>
 
         <TabsContent value="drivers">
