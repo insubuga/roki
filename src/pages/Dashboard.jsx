@@ -12,10 +12,8 @@ import {
   Watch,
   Settings,
   CreditCard,
-  Users,
   Package,
   ChevronRight,
-  LogOut,
   Sparkles,
   MessageCircle
 } from 'lucide-react';
@@ -70,8 +68,7 @@ export default function Dashboard() {
       { icon: Package, title: 'Order History', page: 'OrderHistory' },
       { icon: Watch, title: 'Wearables', page: 'Wearables' },
     ],
-    community: [
-      { icon: Users, title: 'Community', page: 'Community' },
+    support: [
       { icon: Sparkles, title: 'RokiBot', page: 'RokiBot' },
       { icon: MessageCircle, title: 'Support Chat', page: 'Support' },
     ],
@@ -176,15 +173,15 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Community Section */}
+          {/* Support Section */}
           <Card className="bg-[var(--color-bg-card)] border-[var(--color-border)]">
             <CardContent className="p-4">
               <h3 className="text-[var(--color-text-primary)] font-semibold text-sm mb-3 flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Community & Support
+                <MessageCircle className="w-4 h-4" />
+                Support
               </h3>
               <div className="space-y-1">
-                {services.community.map((item) => {
+                {services.support.map((item) => {
                   const Icon = item.icon;
                   return (
                     <Link
