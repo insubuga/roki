@@ -1,3 +1,4 @@
+
 import { base44 } from '@/api/base44Client';
 
 export const createNotification = async (user_email, type, title, message, action_url = null, priority = 'normal') => {
@@ -17,41 +18,41 @@ export const createNotification = async (user_email, type, title, message, actio
 };
 
 export const NotificationTriggers = {
-  // VantaBot message
+  // RokiBot message
   vantaBotMessage: (user_email, message) => 
-    createNotification(user_email, 'vantabot', 'VantaBot Message', message, 'VantaBot', 'normal'),
+    createNotification(user_email, 'vantabot', 'RokiBot', message, 'RokiBot', 'low'),
 
   // Subscription changes
   subscriptionUpgraded: (user_email, plan) =>
-    createNotification(user_email, 'subscription', 'Plan Upgraded', `You're now on the ${plan} plan with enhanced benefits.`, 'Subscription', 'high'),
+    createNotification(user_email, 'subscription', 'Everything set', `${plan} plan active`, 'Subscription', 'low'),
 
   subscriptionDowngraded: (user_email, plan) =>
-    createNotification(user_email, 'subscription', 'Plan Changed', `You've switched to the ${plan} plan.`, 'Subscription', 'normal'),
+    createNotification(user_email, 'subscription', 'Plan updated', `Now on ${plan}`, 'Subscription', 'low'),
 
-  // Wearable data
+  // Wearable data - silent
   wearableSync: (user_email) =>
-    createNotification(user_email, 'wearable', 'Data Synced', 'Your wearable data has been updated.', 'Wearables', 'low'),
+    createNotification(user_email, 'wearable', 'Synced', 'Data updated', 'Wearables', 'low'),
 
   wearableAnomaly: (user_email, metric, value) =>
-    createNotification(user_email, 'wearable', 'Health Alert', `${metric} detected: ${value}. Consider reviewing your activity.`, 'Wearables', 'high'),
+    createNotification(user_email, 'wearable', 'Noted', `${metric}: ${value}`, 'Wearables', 'low'),
 
   lowRecovery: (user_email, score) =>
-    createNotification(user_email, 'wearable', 'Low Recovery Score', `Your recovery is at ${score}. VantaBot suggests rest or recovery support.`, 'Wearables', 'normal'),
+    createNotification(user_email, 'wearable', `Recovery at ${score}`, 'Support available if needed', 'Wearables', 'low'),
 
-  // Laundry reminders
+  // Laundry status - informational only
   laundryReady: (user_email) =>
-    createNotification(user_email, 'laundry', 'Laundry Ready', 'Your activewear is clean and ready for pickup!', 'Activewear', 'normal'),
+    createNotification(user_email, 'laundry', 'Ready', 'Laundry available for pickup', 'LaundryOrder', 'low'),
 
   laundryScheduled: (user_email, date) =>
-    createNotification(user_email, 'laundry', 'Drop-off Scheduled', `Laundry pickup scheduled for ${date}.`, 'Activewear', 'low'),
+    createNotification(user_email, 'laundry', 'Scheduled', `Pickup: ${date}`, 'LaundryOrder', 'low'),
 
-  // Delivery updates
+  // Delivery updates - status only
   deliveryDispatched: (user_email, orderNumber) =>
-    createNotification(user_email, 'delivery', 'Order Dispatched', `Order #${orderNumber} is on its way!`, 'Deliveries', 'normal'),
+    createNotification(user_email, 'delivery', 'En route', `Order #${orderNumber}`, 'Deliveries', 'low'),
 
   deliveryArriving: (user_email) =>
-    createNotification(user_email, 'delivery', 'Delivery Arriving Soon', 'Your order will arrive in ~10 minutes.', 'Deliveries', 'high'),
+    createNotification(user_email, 'delivery', 'Arriving', '~10 minutes', 'Deliveries', 'low'),
 
   deliveryCompleted: (user_email) =>
-    createNotification(user_email, 'delivery', 'Delivery Complete', 'Your order has been delivered.', 'Deliveries', 'low'),
+    createNotification(user_email, 'delivery', 'Delivered', 'Order complete', 'Deliveries', 'low'),
 };
