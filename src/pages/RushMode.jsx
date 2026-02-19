@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Zap, MapPin, Clock, AlertTriangle, Package, Bot, Search, ShoppingBag } from 'lucide-react';
+import { Zap, MapPin, Clock, AlertTriangle, Package, Bot, Search, ShoppingBag, Plus, Minus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MobileHeader from '../components/mobile/MobileHeader';
 import { Input } from '@/components/ui/input';
@@ -19,7 +19,7 @@ import { NotificationTriggers } from '../components/notifications/NotificationHe
 export default function RushMode() {
   const [user, setUser] = useState(null);
   const [selectedItem, setSelectedItem] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProducts, setSelectedProducts] = useState([]); // Array of {product, quantity}
   const [deliveryLocation, setDeliveryLocation] = useState('');
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -86,9 +86,31 @@ export default function RushMode() {
 
   const createRushOrderMutation = useMutation({
     mutationFn: async () => {
-      const product = selectedProduct || 
-        cartItems.find(item => item.product_id === selectedItem) ||
-        recentOrders.flatMap(o => o.items || []).find(i => i.product_id === selectedItem);
+      let orderItems = [];
+      let itemsTotal = 0;
+
+      // Handle multiple selected products from browse mode
+      if (selectedProducts.length > 0) {
+        orderItems = selectedProducts.map(sp => ({
+          product_id: sp.product.id,
+          product_name: sp.product.name,
+          quantity: sp.quantity,
+          price: sp.product.price
+        }));
+        itemsTotal = selectedProducts.reduce((sum, sp) => sum + (sp.product.price * sp.quantity), 0);
+      } 
+      // Handle single item from quick select
+      else if (selectedItem) {
+        const product = cartItems.find(item => item.product_id === selectedItem) ||
+          recentOrders.flatMap(o => o.items || []).find(i => i.product_id === selectedItem);
+        orderItems = [{
+          product_id: product?.product_id || selectedItem,
+          product_name: product?.product_name || 'Rush Item',
+          quantity: 1,
+          price: product?.price || 0
+        }];
+        itemsTotal = product?.price || 0;
+      }
       
       const rushFee = subscription.rush_delivery_fee || 15;
       const freeRushesRemaining = (subscription.rush_deliveries_included || 0) - (subscription.rush_deliveries_used || 0);
@@ -96,13 +118,8 @@ export default function RushMode() {
       
       const order = await base44.entities.Order.create({
         user_email: user.email,
-        items: [{
-          product_id: product?.id || product?.product_id || selectedItem,
-          product_name: product?.name || product?.product_name || 'Rush Item',
-          quantity: 1,
-          price: product?.price || 0
-        }],
-        total: (product?.price || 0) + actualRushFee,
+        items: orderItems,
+        total: itemsTotal + actualRushFee,
         delivery_type: 'rush',
         delivery_location: deliveryLocation,
         special_instructions: specialInstructions,
@@ -135,11 +152,36 @@ export default function RushMode() {
       }
       
       setSelectedItem('');
-      setSelectedProduct(null);
+      setSelectedProducts([]);
       setSpecialInstructions('');
       setSelectionMode('quick');
     },
   });
+
+  const toggleProductSelection = (product) => {
+    setSelectedProducts(prev => {
+      const existing = prev.find(p => p.product.id === product.id);
+      if (existing) {
+        return prev.filter(p => p.product.id !== product.id);
+      }
+      return [...prev, { product, quantity: 1 }];
+    });
+  };
+
+  const updateProductQuantity = (productId, delta) => {
+    setSelectedProducts(prev => 
+      prev.map(p => {
+        if (p.product.id === productId) {
+          const newQuantity = Math.max(1, p.quantity + delta);
+          return { ...p, quantity: newQuantity };
+        }
+        return p;
+      })
+    );
+  };
+
+  const getTotalItems = () => selectedProducts.reduce((sum, sp) => sum + sp.quantity, 0);
+  const getTotalPrice = () => selectedProducts.reduce((sum, sp) => sum + (sp.product.price * sp.quantity), 0);
 
   const allItems = [
     ...cartItems.map(item => ({ id: item.product_id, name: item.product_name, source: 'cart' })),
@@ -222,12 +264,70 @@ export default function RushMode() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Package className="w-5 h-5 text-orange-500" />
-                <h3 className="text-gray-900 font-semibold">Select Item</h3>
+                <h3 className="text-gray-900 font-semibold">Select Items</h3>
               </div>
-              {(selectedItem || selectedProduct) && (
-                <Badge className="bg-green-500 text-white">Selected</Badge>
+              {(selectedItem || selectedProducts.length > 0) && (
+                <Badge className="bg-green-500 text-white">
+                  {selectionMode === 'browse' ? `${getTotalItems()} items` : 'Selected'}
+                </Badge>
               )}
             </div>
+
+            {/* Selected Items Summary for Browse Mode */}
+            {selectedProducts.length > 0 && selectionMode === 'browse' && (
+              <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg space-y-2">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-gray-900">Your Rush Order</span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setSelectedProducts([])}
+                    className="h-7 text-xs text-red-600 hover:bg-red-50"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+                {selectedProducts.map(({ product, quantity }) => (
+                  <div key={product.id} className="flex items-center gap-2 bg-white rounded p-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                      <p className="text-xs text-gray-600">${product.price?.toFixed(2)} each</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => updateProductQuantity(product.id, -1)}
+                      >
+                        <Minus className="w-3 h-3" />
+                      </Button>
+                      <span className="w-6 text-center text-sm font-medium">{quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => updateProductQuantity(product.id, 1)}
+                      >
+                        <Plus className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-red-600 hover:bg-red-50"
+                        onClick={() => toggleProductSelection(product)}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <div className="flex justify-between items-center pt-2 border-t border-orange-200">
+                  <span className="font-semibold text-gray-900">Subtotal</span>
+                  <span className="font-bold text-green-700">${getTotalPrice().toFixed(2)}</span>
+                </div>
+              </div>
+            )}
 
             <Tabs value={selectionMode} onValueChange={setSelectionMode} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -252,7 +352,7 @@ export default function RushMode() {
                 ) : (
                   <Select value={selectedItem} onValueChange={(val) => {
                     setSelectedItem(val);
-                    setSelectedProduct(null);
+                    setSelectedProducts([]);
                   }}>
                     <SelectTrigger className="bg-gray-50 border-gray-300 text-gray-900 hover:bg-gray-100 focus:ring-2 focus:ring-orange-500">
                       <SelectValue placeholder="Select from recent items or cart" />
@@ -294,38 +394,49 @@ export default function RushMode() {
                           {category.replace('-', ' ')}
                         </h4>
                         <div className="grid grid-cols-1 gap-2">
-                          {products.map((product) => (
-                            <Card 
-                              key={product.id}
-                              className={`cursor-pointer transition-all hover:shadow-md ${
-                                selectedProduct?.id === product.id ? 'ring-2 ring-orange-500 bg-orange-50' : ''
-                              }`}
-                              onClick={() => {
-                                setSelectedProduct(product);
-                                setSelectedItem('');
-                              }}
-                            >
-                              <CardContent className="p-3 flex items-center gap-3">
-                                {product.image_url && (
-                                  <img 
-                                    src={product.image_url} 
-                                    alt={product.name}
-                                    className="w-12 h-12 object-cover rounded"
-                                  />
-                                )}
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-medium text-gray-900 text-sm truncate">{product.name}</h4>
-                                  <p className="text-gray-500 text-xs truncate">{product.description}</p>
-                                </div>
-                                <div className="text-right">
-                                  <p className="font-bold text-green-700">${product.price?.toFixed(2)}</p>
-                                  {selectedProduct?.id === product.id && (
-                                    <Badge className="bg-orange-500 text-white text-xs mt-1">Selected</Badge>
+                          {products.map((product) => {
+                            const isSelected = selectedProducts.some(sp => sp.product.id === product.id);
+                            const selectedItem = selectedProducts.find(sp => sp.product.id === product.id);
+                            
+                            return (
+                              <Card 
+                                key={product.id}
+                                className={`cursor-pointer transition-all hover:shadow-md ${
+                                  isSelected ? 'ring-2 ring-orange-500 bg-orange-50' : ''
+                                }`}
+                                onClick={() => {
+                                  toggleProductSelection(product);
+                                  setSelectedItem('');
+                                }}
+                              >
+                                <CardContent className="p-3 flex items-center gap-3">
+                                  {product.image_url && (
+                                    <img 
+                                      src={product.image_url} 
+                                      alt={product.name}
+                                      className="w-12 h-12 object-cover rounded"
+                                    />
                                   )}
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-medium text-gray-900 text-sm truncate">{product.name}</h4>
+                                    <p className="text-gray-500 text-xs truncate">{product.description}</p>
+                                  </div>
+                                  <div className="text-right flex flex-col items-end gap-1">
+                                    <p className="font-bold text-green-700">${product.price?.toFixed(2)}</p>
+                                    {isSelected ? (
+                                      <Badge className="bg-orange-500 text-white text-xs">
+                                        ✓ Qty: {selectedItem?.quantity}
+                                      </Badge>
+                                    ) : (
+                                      <Badge variant="outline" className="text-xs">
+                                        Tap to add
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
                         </div>
                       </div>
                     ))
@@ -385,7 +496,7 @@ export default function RushMode() {
           <Button 
             className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-7 text-lg hover:from-orange-600 hover:to-orange-700 shadow-lg"
             onClick={() => createRushOrderMutation.mutate()}
-            disabled={(!selectedItem && !selectedProduct) || !deliveryLocation || createRushOrderMutation.isPending}
+            disabled={(!selectedItem && selectedProducts.length === 0) || !deliveryLocation || createRushOrderMutation.isPending}
           >
             <Zap className="w-5 h-5 mr-2" />
             {createRushOrderMutation.isPending ? 'Processing...' : 
@@ -393,6 +504,15 @@ export default function RushMode() {
                 const rushFee = subscription?.rush_delivery_fee || 15;
                 const freeRushesRemaining = (subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0);
                 const actualRushFee = freeRushesRemaining > 0 ? 0 : rushFee;
+                const itemsTotal = selectedProducts.length > 0 ? getTotalPrice() : 0;
+                const total = itemsTotal + actualRushFee;
+                
+                if (selectedProducts.length > 0) {
+                  return actualRushFee === 0 
+                    ? `Confirm ${getTotalItems()} Items - $${total.toFixed(2)} (Rush Free)` 
+                    : `Confirm ${getTotalItems()} Items - $${total.toFixed(2)}`;
+                }
+                
                 return actualRushFee === 0 ? 'Confirm Rush - Free (Included)' : `Confirm Rush - $${actualRushFee.toFixed(2)}`;
               })()
             }
