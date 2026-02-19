@@ -10,6 +10,7 @@ import UserManagement from '../components/admin/UserManagement';
 import GymManagement from '../components/admin/GymManagement';
 import IssueManagement from '../components/admin/IssueManagement';
 import SubscriptionManagement from '../components/admin/SubscriptionManagement';
+import DriverManagement from '../components/admin/DriverManagement';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -84,6 +85,9 @@ export default function AdminDashboard() {
           <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
             Overview
           </TabsTrigger>
+          <TabsTrigger value="drivers" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
+            Drivers
+          </TabsTrigger>
           <TabsTrigger value="users" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
             Users
           </TabsTrigger>
@@ -100,6 +104,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="overview">
           <OverviewStats />
+        </TabsContent>
+
+        <TabsContent value="drivers">
+          <DriverManagement />
         </TabsContent>
 
         <TabsContent value="users">
