@@ -155,7 +155,6 @@ export default function Cart() {
       {/* Header */}
       <MobileHeader
         title="Cart"
-        subtitle="Review your items"
         icon={ShoppingCart}
         iconColor="text-amber-500"
       />

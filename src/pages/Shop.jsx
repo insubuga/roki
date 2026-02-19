@@ -227,11 +227,7 @@ export default function Shop() {
   })();
 
   // Pagination
-  const totalPages = Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE);
-  const paginatedProducts = filteredAndSortedProducts.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const paginatedProducts = filteredAndSortedProducts;
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -258,108 +254,10 @@ export default function Shop() {
         iconColor="text-amber-500"
       />
 
-      {/* Search and Sort */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <Input
-            placeholder="Search supplements..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-[#7cfc00] focus:border-transparent"
-          />
-        </div>
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-full sm:w-48 bg-white border-gray-300 text-gray-900">
-            <ArrowUpDown className="w-4 h-4 mr-2" />
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="featured">Featured First</SelectItem>
-            <SelectItem value="price-low">Price: Low to High</SelectItem>
-            <SelectItem value="price-high">Price: High to Low</SelectItem>
-            <SelectItem value="name">Name: A-Z</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Categories */}
-      <div className="overflow-x-auto pb-2">
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="bg-white border border-gray-200 shadow-sm">
-            {CATEGORIES.map((cat) => (
-              <TabsTrigger 
-                key={cat.value} 
-                value={cat.value}
-                className="data-[state=active]:bg-[#7cfc00] data-[state=active]:text-black text-gray-700"
-              >
-                {cat.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Featured & On Sale Products */}
-      {(() => {
-        const featuredProducts = products.filter(p => p.featured);
-        const onSaleProducts = products.filter(p => p.on_sale);
-        const showFeatured = featuredProducts.length > 0 && selectedCategory === 'all' && !searchQuery;
-        const showOnSale = onSaleProducts.length > 0 && selectedCategory === 'all' && !searchQuery;
-        
-        return (
-          <>
-            {showFeatured && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                  <h2 className="text-gray-900 font-bold text-xl">Featured Products</h2>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {featuredProducts.slice(0, 4).map((product) => (
-                    <ProductCard 
-                      key={product.id} 
-                      product={product} 
-                      addedItems={addedItems}
-                      addToCartMutation={addToCartMutation}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {showOnSale && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Tag className="w-5 h-5 text-red-500" />
-                  <h2 className="text-gray-900 font-bold text-xl">On Sale</h2>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {onSaleProducts.slice(0, 4).map((product) => (
-                    <ProductCard 
-                      key={product.id} 
-                      product={product} 
-                      addedItems={addedItems}
-                      addToCartMutation={addToCartMutation}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        );
-      })()}
-
-      {/* Personalized Recommendations */}
-      {recommendedProducts.length > 0 && selectedCategory === 'all' && !searchQuery && (
+      {/* Personalized First */}
+      {recommendedProducts.length > 0 && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-gray-900 font-bold text-xl">Recommended for You</h2>
-              <p className="text-gray-600 text-sm">Based on your activity and orders</p>
-            </div>
-            <Badge className="bg-[#FF9900] text-white border-none font-medium">Personalized</Badge>
-          </div>
+          <h2 className="text-gray-900 font-bold text-xl">For You</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {recommendedProducts.map((product) => (
               <ProductCard 
@@ -370,13 +268,6 @@ export default function Shop() {
               />
             ))}
           </div>
-        </div>
-      )}
-
-      {/* All Products */}
-      {selectedCategory === 'all' && !searchQuery && recommendedProducts.length > 0 && (
-        <div className="pt-4 border-t border-gray-200">
-          <h2 className="text-gray-900 font-bold text-xl mb-4">All Products</h2>
         </div>
       )}
 
@@ -411,39 +302,7 @@ export default function Shop() {
             </AnimatePresence>
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 mt-8">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="bg-white border-gray-300"
-              >
-                Previous
-              </Button>
-              <div className="flex gap-2">
-                {[...Array(totalPages)].map((_, i) => (
-                  <Button
-                    key={i}
-                    variant={currentPage === i + 1 ? 'default' : 'outline'}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={currentPage === i + 1 ? 'bg-[#7cfc00] text-black hover:bg-[#6ee000]' : 'bg-white border-gray-300'}
-                  >
-                    {i + 1}
-                  </Button>
-                ))}
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="bg-white border-gray-300"
-              >
-                Next
-              </Button>
-            </div>
-          )}
+
         </>
       )}
     </div>

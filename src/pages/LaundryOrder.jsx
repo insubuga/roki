@@ -164,13 +164,12 @@ export default function LaundryOrder() {
   }
 
   const activeOrders = orders.filter(o => o.status !== 'picked_up');
-  const pastOrders = orders.filter(o => o.status === 'picked_up');
-
+  
   const canCancelOrder = (order) => {
     return order.status === 'awaiting_pickup' || order.status === 'washing';
   };
 
-  const displayedOrders = filterStatus === 'active' ? activeOrders : pastOrders;
+  const displayedOrders = activeOrders;
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -182,27 +181,7 @@ export default function LaundryOrder() {
           iconColor="text-blue-400"
         />
 
-        {/* Stats Banner */}
-        <div className="grid grid-cols-3 gap-3">
-          <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-blue-500/20">
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-blue-400">{activeOrders.length}</p>
-              <p className="text-xs text-[var(--color-text-secondary)]">Active</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-green-500/10 to-green-600/10 border-green-500/20">
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-green-400">{pastOrders.length}</p>
-              <p className="text-xs text-[var(--color-text-secondary)]">Completed</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border-purple-500/20">
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-purple-400">{orders.length}</p>
-              <p className="text-xs text-[var(--color-text-secondary)]">Total</p>
-            </CardContent>
-          </Card>
-        </div>
+
 
         {/* New Order Button */}
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -215,23 +194,7 @@ export default function LaundryOrder() {
           </Button>
         </motion.div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-2 bg-[var(--color-bg-card)] p-1 rounded-lg">
-          <Button
-            variant={filterStatus === 'active' ? 'default' : 'ghost'}
-            className={`flex-1 ${filterStatus === 'active' ? 'bg-[var(--color-primary)] text-black' : 'text-[var(--color-text-secondary)]'}`}
-            onClick={() => setFilterStatus('active')}
-          >
-            Active ({activeOrders.length})
-          </Button>
-          <Button
-            variant={filterStatus === 'history' ? 'default' : 'ghost'}
-            className={`flex-1 ${filterStatus === 'history' ? 'bg-[var(--color-primary)] text-black' : 'text-[var(--color-text-secondary)]'}`}
-            onClick={() => setFilterStatus('history')}
-          >
-            History ({pastOrders.length})
-          </Button>
-        </div>
+
 
         {/* New Order Form */}
         <AnimatePresence>

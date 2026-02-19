@@ -256,9 +256,7 @@ export default function RushMode() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Main Form */}
-        <div className="lg:col-span-2 space-y-6">
+      <div className="space-y-6">
           {/* Select Item */}
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-md">
             <div className="flex items-center justify-between mb-4">
@@ -519,84 +517,7 @@ export default function RushMode() {
           </Button>
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* How it Works */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-md">
-            <h3 className="text-gray-900 font-bold text-center mb-6">How It Works</h3>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm">1</div>
-                <div>
-                  <p className="text-gray-900 font-semibold">Select</p>
-                  <p className="text-gray-600 text-sm">Pick your item</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm">2</div>
-                <div>
-                  <p className="text-gray-900 font-semibold">Confirm</p>
-                  <p className="text-gray-600 text-sm">We've got it</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm">3</div>
-                <div>
-                  <p className="text-gray-900 font-semibold">Delivered</p>
-                  <p className="text-gray-600 text-sm">~30 minutes</p>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Rush Pricing & Benefits */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-md">
-            <h3 className="text-gray-900 font-bold text-center mb-4">Your Rush Benefits</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Plan</span>
-                <span className="text-gray-900 capitalize font-medium">{subscription?.plan || 'free'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Free Rushes</span>
-                <span className="text-green-600 font-bold">
-                  {((subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0)) === 999 ? '∞' : 
-                   ((subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0))} remaining
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Rush Fee After</span>
-                <span className="text-gray-900 font-medium">${subscription?.rush_delivery_fee?.toFixed(2) || '15.00'}</span>
-              </div>
-              {subscription?.priority_dispatch && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Priority Dispatch</span>
-                  <span className="text-green-600 font-semibold">✓ Enabled</span>
-                </div>
-              )}
-              <div className="flex justify-between border-t border-gray-200 pt-3 mt-3">
-                <span className="text-gray-900 font-semibold">Delivery Time</span>
-                <span className="text-orange-600 font-bold">
-                  {subscription?.priority_dispatch ? '≤ 20 min' : '≤ 30 min'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Important Notes */}
-          <div className="bg-amber-50 rounded-xl p-6 border border-amber-200 shadow-md">
-            <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className="w-5 h-5 text-amber-600" />
-              <h3 className="text-gray-900 font-bold">Important Notes</h3>
-            </div>
-            <ul className="text-gray-700 text-sm space-y-2">
-              <li>• Available 6 AM - 10 PM</li>
-              <li>• Local stock only</li>
-              <li>• High demand may extend window</li>
-              <li>• Remote locations may incur extra fees</li>
-            </ul>
-          </div>
-        </div>
       </div>
     </div>
   );
