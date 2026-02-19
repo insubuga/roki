@@ -30,7 +30,6 @@ export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const location = useLocation();
-  const mainContentRef = React.useRef(null);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -78,15 +77,10 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Profile', page: 'Profile', icon: User, key: 'profile' },
   ];
 
-  const handleTabClick = (page, e) => {
+  const handleTabClick = (page) => {
     if (currentPageName === page) {
       // Already on this tab - scroll to top
-      e.preventDefault();
-      if (mainContentRef.current) {
-        mainContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -227,7 +221,7 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Main Content */}
-      <main ref={mainContentRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6 overflow-hidden">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6">
         <PageTransition pageKey={location.pathname}>
           {children}
         </PageTransition>
@@ -243,7 +237,7 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 key={item.key || item.page}
                 to={createPageUrl(item.page)}
-                onClick={(e) => handleTabClick(item.page, e)}
+                onClick={() => handleTabClick(item.page)}
                 className={`flex flex-col items-center justify-center gap-0.5 select-none transition-all ${
                   isActive ? 'text-green-600' : 'text-gray-500'
                 }`}
