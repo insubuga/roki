@@ -165,15 +165,25 @@ export default function Wearables() {
       setConnectedApps(prev => [...new Set([...prev, deviceId])]);
       setLastSyncTime(new Date());
       
+      let result;
       if (wearableData) {
-        return base44.entities.WearableData.update(wearableData.id, sampleData);
+        result = await base44.entities.WearableData.update(wearableData.id, sampleData);
       } else {
-        return base44.entities.WearableData.create(sampleData);
+        result = await base44.entities.WearableData.create(sampleData);
       }
+
+      // Auto-trigger supplement suggestions based on initial data
+      try {
+        await base44.functions.invoke('autoSuggestSupplements', {});
+      } catch (e) {
+        console.log('Auto-suggest call:', e);
+      }
+
+      return result;
     },
     onSuccess: (data, deviceId) => {
       const deviceName = [...wearableDevices, ...healthApps, ...fitnessApps].find(d => d.id === deviceId)?.name;
-      toast.success(`${deviceName} connected successfully!`);
+      toast.success(`${deviceName} connected! Auto-tracking enabled.`);
       queryClient.invalidateQueries({ queryKey: ['wearableData'] });
     },
   });
