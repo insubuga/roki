@@ -11,6 +11,7 @@ import GymManagement from '../components/admin/GymManagement';
 import IssueManagement from '../components/admin/IssueManagement';
 import SubscriptionManagement from '../components/admin/SubscriptionManagement';
 import DriverManagement from '../components/admin/DriverManagement';
+import AdminNotifications from '../components/admin/AdminNotifications';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -103,7 +104,10 @@ export default function AdminDashboard() {
         </TabsList>
 
         <TabsContent value="overview">
-          <OverviewStats />
+          <div className="space-y-6">
+            <AdminNotifications user={user} />
+            <OverviewStats />
+          </div>
         </TabsContent>
 
         <TabsContent value="drivers">
