@@ -57,6 +57,42 @@ export default function RokiBot() {
     }
   }, [user]);
 
+  // Handle query parameter for pre-filled questions
+  useEffect(() => {
+    if (!conversation) return;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryQuestion = urlParams.get('q');
+    
+    if (queryQuestion && messages.length > 0) {
+      setInput(queryQuestion);
+      // Auto-send after a short delay
+      setTimeout(() => {
+        if (queryQuestion.trim()) {
+          setInput('');
+          setMessages(prev => [...prev, { role: 'user', content: queryQuestion }]);
+          setIsLoading(true);
+          
+          const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
+            setMessages(data.messages || []);
+          });
+
+          base44.agents.addMessage(conversation, {
+            role: 'user',
+            content: queryQuestion
+          }).then(() => {
+            setIsLoading(false);
+            setTimeout(() => unsubscribe(), 30000);
+          }).catch(() => {
+            setIsLoading(false);
+          });
+        }
+        // Clear URL parameter
+        window.history.replaceState({}, '', window.location.pathname);
+      }, 500);
+    }
+  }, [conversation, messages.length]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
