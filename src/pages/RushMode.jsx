@@ -3,21 +3,27 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Zap, MapPin, Clock, AlertTriangle, Package, Bot } from 'lucide-react';
+import { Zap, MapPin, Clock, AlertTriangle, Package, Bot, Search, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MobileHeader from '../components/mobile/MobileHeader';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { NotificationTriggers } from '../components/notifications/NotificationHelper';
 
 export default function RushMode() {
   const [user, setUser] = useState(null);
   const [selectedItem, setSelectedItem] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [deliveryLocation, setDeliveryLocation] = useState('');
   const [specialInstructions, setSpecialInstructions] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectionMode, setSelectionMode] = useState('quick'); // 'quick' or 'browse'
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -72,9 +78,16 @@ export default function RushMode() {
     enabled: !!user?.email,
   });
 
+  const { data: allProducts = [] } = useQuery({
+    queryKey: ['products'],
+    queryFn: () => base44.entities.Product.filter({ in_stock: true }),
+    enabled: !!user,
+  });
+
   const createRushOrderMutation = useMutation({
     mutationFn: async () => {
-      const selectedProduct = cartItems.find(item => item.product_id === selectedItem) ||
+      const product = selectedProduct || 
+        cartItems.find(item => item.product_id === selectedItem) ||
         recentOrders.flatMap(o => o.items || []).find(i => i.product_id === selectedItem);
       
       const rushFee = subscription.rush_delivery_fee || 15;
@@ -84,12 +97,12 @@ export default function RushMode() {
       const order = await base44.entities.Order.create({
         user_email: user.email,
         items: [{
-          product_id: selectedItem,
-          product_name: selectedProduct?.product_name || 'Rush Item',
+          product_id: product?.id || product?.product_id || selectedItem,
+          product_name: product?.name || product?.product_name || 'Rush Item',
           quantity: 1,
-          price: selectedProduct?.price || 0
+          price: product?.price || 0
         }],
-        total: (selectedProduct?.price || 0) + actualRushFee,
+        total: (product?.price || 0) + actualRushFee,
         delivery_type: 'rush',
         delivery_location: deliveryLocation,
         special_instructions: specialInstructions,
@@ -122,7 +135,9 @@ export default function RushMode() {
       }
       
       setSelectedItem('');
+      setSelectedProduct(null);
       setSpecialInstructions('');
+      setSelectionMode('quick');
     },
   });
 
@@ -135,6 +150,21 @@ export default function RushMode() {
   const uniqueItems = allItems.filter((item, index, self) =>
     index === self.findIndex(t => t.id === item.id)
   );
+
+  // Filter products by search and category
+  const filteredProducts = allProducts.filter(product => {
+    const matchesSearch = product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
+  });
+
+  // Group by category
+  const productsByCategory = filteredProducts.reduce((acc, product) => {
+    const category = product.category || 'other';
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(product);
+    return acc;
+  }, {});
 
   if (!user) {
     return (
@@ -189,27 +219,120 @@ export default function RushMode() {
         <div className="lg:col-span-2 space-y-6">
           {/* Select Item */}
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-md">
-            <div className="flex items-center gap-2 mb-4">
-              <Package className="w-5 h-5 text-orange-500" />
-              <h3 className="text-gray-900 font-semibold">Select Item</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Package className="w-5 h-5 text-orange-500" />
+                <h3 className="text-gray-900 font-semibold">Select Item</h3>
+              </div>
+              {(selectedItem || selectedProduct) && (
+                <Badge className="bg-green-500 text-white">Selected</Badge>
+              )}
             </div>
-            <p className="text-gray-600 text-sm mb-4 text-center">Choose from recent items or cart</p>
-            <Select value={selectedItem} onValueChange={setSelectedItem}>
-              <SelectTrigger className="bg-gray-50 border-gray-300 text-gray-900 hover:bg-gray-100 focus:ring-2 focus:ring-orange-500">
-                <SelectValue placeholder="Select an item for rush delivery" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border-gray-200">
+
+            <Tabs value={selectionMode} onValueChange={setSelectionMode} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="quick">Quick Select</TabsTrigger>
+                <TabsTrigger value="browse">Browse All</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="quick" className="space-y-3">
+                <p className="text-gray-600 text-sm mb-3">Choose from your cart or recent orders</p>
                 {uniqueItems.length === 0 ? (
-                  <SelectItem value="none" disabled className="text-gray-500">No items available</SelectItem>
+                  <div className="bg-gray-50 rounded-lg p-6 text-center">
+                    <ShoppingBag className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+                    <p className="text-gray-600 text-sm">No recent items found</p>
+                    <Button 
+                      variant="link" 
+                      className="mt-2 text-orange-600"
+                      onClick={() => setSelectionMode('browse')}
+                    >
+                      Browse all products →
+                    </Button>
+                  </div>
                 ) : (
-                  uniqueItems.map((item) => (
-                    <SelectItem key={item.id} value={item.id} className="text-gray-900">
-                      {item.name} ({item.source})
-                    </SelectItem>
-                  ))
+                  <Select value={selectedItem} onValueChange={(val) => {
+                    setSelectedItem(val);
+                    setSelectedProduct(null);
+                  }}>
+                    <SelectTrigger className="bg-gray-50 border-gray-300 text-gray-900 hover:bg-gray-100 focus:ring-2 focus:ring-orange-500">
+                      <SelectValue placeholder="Select from recent items or cart" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-200 max-h-[300px]">
+                      {uniqueItems.map((item) => (
+                        <SelectItem key={item.id} value={item.id} className="text-gray-900">
+                          {item.name} <span className="text-gray-500 text-xs">({item.source})</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
-              </SelectContent>
-            </Select>
+              </TabsContent>
+
+              <TabsContent value="browse" className="space-y-4">
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    placeholder="Search products..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-gray-50 border-gray-300"
+                  />
+                </div>
+
+                {/* Products Grid */}
+                <div className="max-h-[500px] overflow-y-auto space-y-4">
+                  {Object.keys(productsByCategory).length === 0 ? (
+                    <div className="bg-gray-50 rounded-lg p-6 text-center">
+                      <Package className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+                      <p className="text-gray-600 text-sm">No products found</p>
+                    </div>
+                  ) : (
+                    Object.entries(productsByCategory).map(([category, products]) => (
+                      <div key={category}>
+                        <h4 className="text-sm font-semibold text-gray-700 mb-2 capitalize sticky top-0 bg-white py-2">
+                          {category.replace('-', ' ')}
+                        </h4>
+                        <div className="grid grid-cols-1 gap-2">
+                          {products.map((product) => (
+                            <Card 
+                              key={product.id}
+                              className={`cursor-pointer transition-all hover:shadow-md ${
+                                selectedProduct?.id === product.id ? 'ring-2 ring-orange-500 bg-orange-50' : ''
+                              }`}
+                              onClick={() => {
+                                setSelectedProduct(product);
+                                setSelectedItem('');
+                              }}
+                            >
+                              <CardContent className="p-3 flex items-center gap-3">
+                                {product.image_url && (
+                                  <img 
+                                    src={product.image_url} 
+                                    alt={product.name}
+                                    className="w-12 h-12 object-cover rounded"
+                                  />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-medium text-gray-900 text-sm truncate">{product.name}</h4>
+                                  <p className="text-gray-500 text-xs truncate">{product.description}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="font-bold text-green-700">${product.price?.toFixed(2)}</p>
+                                  {selectedProduct?.id === product.id && (
+                                    <Badge className="bg-orange-500 text-white text-xs mt-1">Selected</Badge>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
 
           {/* Delivery Details */}
@@ -262,7 +385,7 @@ export default function RushMode() {
           <Button 
             className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-7 text-lg hover:from-orange-600 hover:to-orange-700 shadow-lg"
             onClick={() => createRushOrderMutation.mutate()}
-            disabled={!selectedItem || !deliveryLocation || createRushOrderMutation.isPending}
+            disabled={(!selectedItem && !selectedProduct) || !deliveryLocation || createRushOrderMutation.isPending}
           >
             <Zap className="w-5 h-5 mr-2" />
             {createRushOrderMutation.isPending ? 'Processing...' : 
