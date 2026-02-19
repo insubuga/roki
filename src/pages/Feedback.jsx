@@ -12,10 +12,10 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
 const feedbackTypes = [
-  { id: 'feature', label: 'Feature Request', icon: Lightbulb, color: 'text-amber-500' },
-  { id: 'bug', label: 'Bug Report', icon: Bug, color: 'text-red-500' },
-  { id: 'praise', label: 'Praise', icon: ThumbsUp, color: 'text-green-500' },
-  { id: 'other', label: 'Other', icon: MessageSquare, color: 'text-blue-500' },
+  { id: 'feature', label: 'Feature Request', icon: Lightbulb, color: 'text-green-600' },
+  { id: 'bug', label: 'Bug Report', icon: Bug, color: 'text-red-600' },
+  { id: 'praise', label: 'Praise', icon: ThumbsUp, color: 'text-green-600' },
+  { id: 'other', label: 'Other', icon: MessageSquare, color: 'text-gray-600' },
 ];
 
 export default function Feedback() {
@@ -54,7 +54,7 @@ export default function Feedback() {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-[#7cfc00] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -64,28 +64,28 @@ export default function Feedback() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link to={createPageUrl('Dashboard')}>
-          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100">
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <MessageSquare className="w-8 h-8 text-orange-500" />
-            Beta Feedback
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <MessageSquare className="w-8 h-8 text-green-600" />
+            Feedback
           </h1>
-          <p className="text-gray-400 mt-1">Help us improve</p>
+          <p className="text-gray-600 mt-1">Help us improve</p>
         </div>
       </div>
 
       {/* Feedback Form */}
-      <Card className="bg-[#1a2332] border-gray-800">
+      <Card className="bg-white border-gray-200 shadow-md">
         <CardHeader>
-          <CardTitle className="text-white">Share Your Thoughts</CardTitle>
+          <CardTitle className="text-gray-900">Share Your Thoughts</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Feedback Type */}
           <div>
-            <Label className="text-gray-400 mb-3 block">What type of feedback?</Label>
+            <Label className="text-gray-700 mb-3 block font-medium">What type of feedback?</Label>
             <div className="grid grid-cols-2 gap-3">
               {feedbackTypes.map((type) => {
                 const Icon = type.icon;
@@ -95,14 +95,14 @@ export default function Feedback() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setFeedbackType(type.id)}
-                    className={`p-4 rounded-lg border ${
+                    className={`p-4 rounded-lg border-2 ${
                       feedbackType === type.id
-                        ? 'border-[#7cfc00] bg-[#7cfc00]/10'
-                        : 'border-gray-700 bg-[#0d1320]'
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-gray-200 bg-white hover:bg-gray-50'
                     } flex items-center gap-3 transition-all`}
                   >
                     <Icon className={`w-5 h-5 ${type.color}`} />
-                    <span className="text-white text-sm">{type.label}</span>
+                    <span className="text-gray-900 text-sm font-medium">{type.label}</span>
                   </motion.button>
                 );
               })}
@@ -111,7 +111,7 @@ export default function Feedback() {
 
           {/* Rating */}
           <div>
-            <Label className="text-gray-400 mb-3 block">How would you rate your experience?</Label>
+            <Label className="text-gray-700 mb-3 block font-medium">How would you rate your experience?</Label>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -121,7 +121,7 @@ export default function Feedback() {
                 >
                   <Star
                     className={`w-8 h-8 ${
-                      star <= rating ? 'text-amber-500 fill-amber-500' : 'text-gray-600'
+                      star <= rating ? 'text-green-500 fill-green-500' : 'text-gray-300'
                     }`}
                   />
                 </button>
@@ -131,23 +131,23 @@ export default function Feedback() {
 
           {/* Message */}
           <div>
-            <Label className="text-gray-400 mb-3 block">Tell us more</Label>
+            <Label className="text-gray-700 mb-3 block font-medium">Tell us more</Label>
             <Textarea
               placeholder="Share your thoughts, suggestions, or report issues..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="bg-[#0d1320] border-gray-700 text-white placeholder:text-gray-500 min-h-[150px]"
+              className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 min-h-[150px] focus:border-green-500 focus:ring-green-500"
             />
           </div>
 
           {/* Submit */}
           <Button
-            className="w-full bg-[#7cfc00] text-black hover:bg-[#6be600] font-semibold"
+            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 font-semibold shadow-md"
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
                 <Send className="w-4 h-4 mr-2" />
@@ -159,9 +159,9 @@ export default function Feedback() {
       </Card>
 
       {/* Info */}
-      <div className="bg-[#1a2332]/50 rounded-lg p-6 border border-gray-800 text-center">
-        <p className="text-gray-400 text-sm">
-          Your feedback helps us build a better VANTA for everyone. As a beta tester, your input is invaluable in shaping the future of this platform.
+      <div className="bg-green-50 rounded-lg p-6 border border-green-200 text-center">
+        <p className="text-gray-700 text-sm">
+          Your feedback helps us build a better ROKI for everyone. As a beta tester, your input is invaluable in shaping the future of this platform.
         </p>
       </div>
     </div>
