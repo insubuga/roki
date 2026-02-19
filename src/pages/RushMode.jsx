@@ -490,34 +490,31 @@ export default function RushMode() {
             </div>
           </div>
 
-          {/* Submit Button */}
-          <Button 
-            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-7 text-lg hover:from-orange-600 hover:to-orange-700 shadow-lg"
-            onClick={() => createRushOrderMutation.mutate()}
-            disabled={(!selectedItem && selectedProducts.length === 0) || !deliveryLocation || createRushOrderMutation.isPending}
-          >
-            <Zap className="w-5 h-5 mr-2" />
-            {createRushOrderMutation.isPending ? 'Processing...' : 
-              (() => {
-                const rushFee = subscription?.rush_delivery_fee || 15;
-                const freeRushesRemaining = (subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0);
-                const actualRushFee = freeRushesRemaining > 0 ? 0 : rushFee;
-                const itemsTotal = selectedProducts.length > 0 ? getTotalPrice() : 0;
-                const total = itemsTotal + actualRushFee;
-                
-                if (selectedProducts.length > 0) {
-                  return actualRushFee === 0 
-                    ? `Confirm ${getTotalItems()} Items - $${total.toFixed(2)} (Rush Free)` 
-                    : `Confirm ${getTotalItems()} Items - $${total.toFixed(2)}`;
-                }
-                
-                return actualRushFee === 0 ? 'Confirm Rush - Free (Included)' : `Confirm Rush - $${actualRushFee.toFixed(2)}`;
-              })()
-            }
-          </Button>
-        </div>
-
-
+        {/* Submit Button */}
+        <Button 
+          className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-7 text-lg hover:from-orange-600 hover:to-orange-700 shadow-lg"
+          onClick={() => createRushOrderMutation.mutate()}
+          disabled={(!selectedItem && selectedProducts.length === 0) || !deliveryLocation || createRushOrderMutation.isPending}
+        >
+          <Zap className="w-5 h-5 mr-2" />
+          {createRushOrderMutation.isPending ? 'Processing...' : 
+            (() => {
+              const rushFee = subscription?.rush_delivery_fee || 15;
+              const freeRushesRemaining = (subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0);
+              const actualRushFee = freeRushesRemaining > 0 ? 0 : rushFee;
+              const itemsTotal = selectedProducts.length > 0 ? getTotalPrice() : 0;
+              const total = itemsTotal + actualRushFee;
+              
+              if (selectedProducts.length > 0) {
+                return actualRushFee === 0 
+                  ? `Confirm ${getTotalItems()} Items - $${total.toFixed(2)} (Rush Free)` 
+                  : `Confirm ${getTotalItems()} Items - $${total.toFixed(2)}`;
+              }
+              
+              return actualRushFee === 0 ? 'Confirm Rush - Free (Included)' : `Confirm Rush - $${actualRushFee.toFixed(2)}`;
+            })()
+          }
+        </Button>
       </div>
     </div>
   );
