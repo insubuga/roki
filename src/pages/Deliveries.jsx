@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import PullToRefresh from '../components/mobile/PullToRefresh';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Truck, Package, Clock, CheckCircle, MapPin, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { Truck, Package, Clock, CheckCircle, MapPin, ExternalLink, ChevronDown, ChevronUp, User, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MobileHeader from '../components/mobile/MobileHeader';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import TrackingTimeline from '../components/delivery/TrackingTimeline';
+import DriverChat from '../components/delivery/DriverChat';
+import RatingModal from '../components/delivery/RatingModal';
 import { toast } from 'sonner';
 
 const statusColors = {
@@ -31,6 +33,7 @@ export default function Deliveries() {
   const [user, setUser] = useState(null);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [trackingData, setTrackingData] = useState({});
+  const [ratingOrder, setRatingOrder] = useState(null);
   const queryClient = useQueryClient();
 
   const handleRefresh = async () => {
@@ -82,6 +85,36 @@ export default function Deliveries() {
       return data || [];
     },
     enabled: !!user?.email,
+    refetchInterval: 5000,
+  });
+
+  useEffect(() => {
+    if (!user?.email) return;
+
+    const unsubscribe = base44.entities.Order.subscribe((event) => {
+      if (event.data?.user_email === user.email) {
+        queryClient.invalidateQueries({ queryKey: ['orders'] });
+        if (event.type === 'update') {
+          toast.success('📦 Order status updated!');
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, [user?.email, queryClient]);
+
+  const submitRatingMutation = useMutation({
+    mutationFn: async ({ order, rating, feedback }) => {
+      await base44.entities.Order.update(order.id, {
+        customer_rating: rating,
+        customer_feedback: feedback
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      toast.success('✓ Thank you for your feedback!');
+      setRatingOrder(null);
+    },
   });
 
   if (!user) {
@@ -202,6 +235,24 @@ export default function Deliveries() {
                       <span className="text-green-600 font-bold text-xl">${order.total?.toFixed(2)}</span>
                     </div>
 
+                    {/* Driver Info */}
+                    {order.driver_email && (
+                      <div className="mt-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 border border-green-200">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                              <User className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600">Your Driver</p>
+                              <p className="font-semibold text-gray-900">{order.driver_email.split('@')[0]}</p>
+                            </div>
+                          </div>
+                          <DriverChat order={order} user={user} />
+                        </div>
+                      </div>
+                    )}
+
                     {/* Track Shipment Button */}
                     {order.tracking_number && order.status === 'in_transit' && (
                       <>
@@ -249,7 +300,7 @@ export default function Deliveries() {
                     animate={{ opacity: 1 }}
                     className="bg-white rounded-xl p-6 border border-gray-200 shadow-md hover:shadow-lg transition-shadow"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-4">
                       <div>
                         <p className="text-gray-900 font-semibold">Order #{order.id.slice(-8)}</p>
                         <p className="text-gray-600 text-sm">
@@ -261,7 +312,42 @@ export default function Deliveries() {
                         <span className="text-green-700 font-medium">Delivered</span>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+
+                    {/* Rating Display or Button */}
+                    {order.customer_rating ? (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                        <p className="text-sm text-gray-600 mb-1">Your Rating</p>
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${
+                                i < order.customer_rating
+                                  ? 'fill-yellow-400 text-yellow-400'
+                                  : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                          <span className="ml-2 text-sm font-medium text-gray-700">
+                            {order.customer_rating}.0
+                          </span>
+                        </div>
+                        {order.customer_feedback && (
+                          <p className="text-sm text-gray-600 mt-2 italic">"{order.customer_feedback}"</p>
+                        )}
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={() => setRatingOrder(order)}
+                        variant="outline"
+                        className="w-full mb-4 border-yellow-300 text-yellow-700 hover:bg-yellow-50"
+                      >
+                        <Star className="w-4 h-4 mr-2" />
+                        Rate Your Delivery
+                      </Button>
+                    )}
+
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                       <span className="text-gray-600">{(order.items || []).length} items</span>
                       <span className="text-gray-900 font-bold">${order.total?.toFixed(2)}</span>
                     </div>
@@ -271,6 +357,15 @@ export default function Deliveries() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Rating Modal */}
+      {ratingOrder && (
+        <RatingModal
+          order={ratingOrder}
+          onSubmit={(data) => submitRatingMutation.mutate({ order: ratingOrder, ...data })}
+          onClose={() => setRatingOrder(null)}
+        />
       )}
     </div>
     </PullToRefresh>
