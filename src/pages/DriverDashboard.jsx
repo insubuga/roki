@@ -27,6 +27,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import RouteOptimizer from '@/components/driver/RouteOptimizer';
 import PerformanceStats from '@/components/driver/PerformanceStats';
 import RatingDialog from '@/components/driver/RatingDialog';
+import DriverSupportChat from '@/components/driver/SupportChat';
 
 export default function DriverDashboard() {
   const [user, setUser] = useState(null);
@@ -336,6 +337,9 @@ export default function DriverDashboard() {
             />
           )}
         </AnimatePresence>
+
+        {/* Driver Support Chat */}
+        <DriverSupportChat user={user} />
       </div>
     </PullToRefresh>
   );
