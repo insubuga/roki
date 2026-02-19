@@ -18,15 +18,20 @@ import {
   Phone,
   MessageSquare,
   ChevronRight,
-  Star
+  Star,
+  Award
 } from 'lucide-react';
 import { toast } from 'sonner';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
 import { motion, AnimatePresence } from 'framer-motion';
+import RouteOptimizer from '@/components/driver/RouteOptimizer';
+import PerformanceStats from '@/components/driver/PerformanceStats';
+import RatingDialog from '@/components/driver/RatingDialog';
 
 export default function DriverDashboard() {
   const [user, setUser] = useState(null);
   const [selectedDelivery, setSelectedDelivery] = useState(null);
+  const [ratingDelivery, setRatingDelivery] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -59,6 +64,24 @@ export default function DriverDashboard() {
     enabled: !!user,
   });
 
+  const { data: driverStats } = useQuery({
+    queryKey: ['driver-stats', user?.email],
+    queryFn: async () => {
+      const stats = await base44.entities.DriverStats.filter({ driver_email: user.email });
+      return stats[0] || {
+        driver_email: user.email,
+        total_deliveries: 0,
+        total_earnings: 0,
+        average_rating: 0,
+        total_ratings: 0,
+        on_time_percentage: 0,
+        acceptance_rate: 0,
+        completion_rate: 0
+      };
+    },
+    enabled: !!user?.email,
+  });
+
   // Real-time subscriptions
   useEffect(() => {
     if (!user) return;
@@ -86,12 +109,39 @@ export default function DriverDashboard() {
   }, [user, queryClient]);
 
   const updateOrderMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.Order.update(id, { status }),
+    mutationFn: async ({ id, status }) => {
+      await base44.entities.Order.update(id, { 
+        status,
+        driver_email: user.email,
+        driver_earnings: status === 'delivered' ? undefined : undefined // Calculated on backend
+      });
+      
+      // If delivered, prompt for rating
+      if (status === 'delivered') {
+        const order = orders.find(o => o.id === id);
+        setTimeout(() => setRatingDelivery(order), 1000);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['driver-stats'] });
       toast.success('✓ Status updated');
     },
     onError: () => toast.error('Failed to update'),
+  });
+
+  const submitRatingMutation = useMutation({
+    mutationFn: async ({ delivery, rating, feedback }) => {
+      await base44.entities.Order.update(delivery.id, {
+        driver_rating: rating,
+        driver_feedback: feedback
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
+      toast.success('✓ Rating submitted');
+      setRatingDelivery(null);
+    },
   });
 
   const updateLaundryMutation = useMutation({
@@ -185,6 +235,23 @@ export default function DriverDashboard() {
           </div>
         </div>
 
+        {/* Performance Stats */}
+        {driverStats && (
+          <div className="px-4 mb-4">
+            <PerformanceStats stats={driverStats} />
+          </div>
+        )}
+
+        {/* Route Optimizer */}
+        {allActiveDeliveries.length > 1 && (
+          <div className="px-4 mb-4">
+            <RouteOptimizer 
+              deliveries={allActiveDeliveries} 
+              onRouteSelect={(delivery) => setSelectedDelivery(delivery)}
+            />
+          </div>
+        )}
+
         {/* Active Deliveries */}
         <div className="px-4">
           <div className="flex items-center justify-between mb-4">
@@ -239,6 +306,7 @@ export default function DriverDashboard() {
           {selectedDelivery && (
             <DeliveryDetailModal 
               delivery={selectedDelivery}
+              driverStats={driverStats}
               onClose={() => setSelectedDelivery(null)}
               onUpdate={(status) => {
                 if (selectedDelivery.type === 'order') {
@@ -248,6 +316,23 @@ export default function DriverDashboard() {
                 }
                 setSelectedDelivery(null);
               }}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Rating Dialog */}
+        <AnimatePresence>
+          {ratingDelivery && (
+            <RatingDialog
+              delivery={ratingDelivery}
+              onSubmit={({ rating, feedback }) => {
+                submitRatingMutation.mutate({ 
+                  delivery: ratingDelivery, 
+                  rating, 
+                  feedback 
+                });
+              }}
+              onClose={() => setRatingDelivery(null)}
             />
           )}
         </AnimatePresence>
@@ -273,6 +358,11 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
 
   const nextAction = getNextAction();
   const location = delivery.delivery_location || delivery.gym_location || 'No location specified';
+  
+  // Calculate estimated earnings
+  const earnings = delivery.driver_earnings || (isOrder ? delivery.total * 0.15 : 15);
+  const distance = delivery.distance_miles || 2.5;
+  const duration = delivery.estimated_duration_minutes || 20;
 
   return (
     <motion.div
@@ -332,11 +422,14 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
             </div>
 
             <div className="flex flex-col items-end gap-2">
-              {delivery.total && (
-                <span className="font-bold text-green-700 text-lg">
-                  ${delivery.total.toFixed(2)}
-                </span>
-              )}
+              <div className="text-right">
+                <div className="font-bold text-green-700 text-lg">
+                  +${earnings.toFixed(2)}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {distance.toFixed(1)} mi • {duration} min
+                </div>
+              </div>
               <ChevronRight className="w-5 h-5 text-gray-400" />
             </div>
           </div>
@@ -389,8 +482,9 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
   );
 }
 
-function DeliveryDetailModal({ delivery, onClose, onUpdate }) {
+function DeliveryDetailModal({ delivery, driverStats, onClose, onUpdate }) {
   const isOrder = delivery.type === 'order';
+  const earnings = delivery.driver_earnings || (isOrder ? delivery.total * 0.15 : 15);
 
   const getNextStatus = () => {
     if (isOrder) {
@@ -445,10 +539,31 @@ function DeliveryDetailModal({ delivery, onClose, onUpdate }) {
                 <p className="text-sm text-gray-500">#{delivery.order_number || delivery.id.slice(0, 8)}</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <ChevronRight className="w-6 h-6 rotate-90" />
-            </Button>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-green-700">+${earnings.toFixed(2)}</div>
+              <p className="text-xs text-gray-500">Your earnings</p>
+            </div>
           </div>
+
+          {/* Driver Performance Badge */}
+          {driverStats && (
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-3 mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-purple-600" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Your Rating</p>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <span className="font-bold text-gray-900">{driverStats.average_rating?.toFixed(1) || 'N/A'}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-600">Total Deliveries</p>
+                <p className="text-lg font-bold text-gray-900">{driverStats.total_deliveries || 0}</p>
+              </div>
+            </div>
+          )}
 
           {/* Customer Info */}
           <div className="bg-gray-50 rounded-2xl p-4 mb-4">
