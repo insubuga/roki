@@ -65,10 +65,10 @@ export default function SmartSuggestions({ user }) {
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-gray-900 font-bold">Smart Suggestion</h3>
-              <Badge className="bg-green-500 text-white border-none text-xs">AI-Powered</Badge>
+              <h3 className="text-gray-900 font-bold">Ready for you</h3>
+              <Badge className="bg-green-500 text-white border-none text-xs">Auto-prepared</Badge>
             </div>
-            <p className="text-gray-700 text-sm mb-3">{topSuggestion.reason}</p>
+            <p className="text-gray-700 text-sm mb-3">Based on your data: {topSuggestion.product.name}</p>
             
             <div className="flex items-center gap-3 mb-4">
               {topSuggestion.product.image_url && (

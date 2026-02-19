@@ -102,14 +102,14 @@ Deno.serve(async (req) => {
                 booking_end: bookingEnd.toISOString()
               });
 
-              // Notify user
+              // Notify user - silent, preparatory
               await base44.asServiceRole.entities.Notification.create({
                 user_email: user.email,
                 type: 'system',
-                title: '🔐 Locker Auto-Booked',
-                message: `Locker #${locker.locker_number} reserved for you until ${bookingEnd.toLocaleTimeString()}`,
+                title: 'You\'re covered',
+                message: `Locker #${locker.locker_number} ready until ${bookingEnd.toLocaleTimeString()}`,
                 action_url: 'Profile',
-                priority: 'high'
+                priority: 'low'
               });
 
               console.log(`Auto-booked locker for ${user.email}`);

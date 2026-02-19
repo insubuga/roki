@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
       if (products.length > 0) {
         suggestions.push({
           product: products[0],
-          reason: 'Your recovery score is low. This can help speed up muscle recovery.',
+          reason: 'Recovery support ready',
           priority: 'high'
         });
       }
@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
       if (bcaaProducts.length > 0) {
         suggestions.push({
           product: bcaaProducts[0],
-          reason: 'After intense workouts, BCAAs help reduce muscle breakdown.',
+          reason: 'Post-workout support prepared',
           priority: 'high'
         });
       }
@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
       if (proteinProducts.length > 0) {
         suggestions.push({
           product: proteinProducts[0],
-          reason: 'High-intensity training increases protein needs for muscle repair.',
+          reason: 'Muscle support available',
           priority: 'medium'
         });
       }
@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
       if (vitaminProducts.length > 0) {
         suggestions.push({
           product: vitaminProducts[0],
-          reason: 'Poor sleep detected. Consider supplements that support rest and recovery.',
+          reason: 'Rest support ready',
           priority: 'medium'
         });
       }
@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
       if (hydrationProducts.length > 0) {
         suggestions.push({
           product: hydrationProducts[0],
-          reason: 'Hydration levels are suboptimal. Electrolytes can help maintain balance.',
+          reason: 'Hydration support available',
           priority: 'high'
         });
       }
@@ -87,22 +87,22 @@ Deno.serve(async (req) => {
     if (preWorkoutProducts.length > 0 && suggestions.length < 3) {
       suggestions.push({
         product: preWorkoutProducts[0],
-        reason: 'Boost energy and focus for your next workout session.',
+        reason: 'Pre-workout ready when you are',
         priority: 'low'
       });
     }
 
-    // Create notification for high-priority suggestions
+    // Silent notification - no pressure, just info
     if (suggestions.length > 0) {
       const highPrioritySuggestions = suggestions.filter(s => s.priority === 'high');
       if (highPrioritySuggestions.length > 0) {
         await base44.asServiceRole.entities.Notification.create({
           user_email: user.email,
           type: 'system',
-          title: '💡 Smart Supplement Suggestions',
-          message: `Based on your metrics, we recommend ${highPrioritySuggestions[0].product.name}`,
+          title: 'Ready for you',
+          message: `${highPrioritySuggestions[0].product.name} prepared based on your data`,
           action_url: 'Shop',
-          priority: 'normal'
+          priority: 'low'
         });
       }
     }
