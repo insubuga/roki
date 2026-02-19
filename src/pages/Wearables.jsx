@@ -573,6 +573,29 @@ export default function Wearables() {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="space-y-3 pt-3">
+                {/* Instructions Card */}
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex gap-3">
+                    <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-gray-900 font-semibold mb-2">Enable Health Access</p>
+                      <p className="text-gray-700 text-sm mb-3">
+                        To sync your health data, you need to grant ROKI access in your phone's settings:
+                      </p>
+                      <ol className="text-gray-700 text-sm space-y-2 ml-4 list-decimal">
+                        <li>Open your phone's <strong>Settings</strong></li>
+                        <li>Go to <strong>Privacy & Security</strong></li>
+                        <li>Tap <strong>Health</strong> (iOS) or <strong>Permissions</strong> (Android)</li>
+                        <li>Find <strong>ROKI</strong> in the app list</li>
+                        <li>Toggle on the data types you want to share</li>
+                      </ol>
+                      <p className="text-gray-600 text-xs mt-3 italic">
+                        You can enable or disable specific data types anytime from your phone settings.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {healthApps.map((app) => {
                   const isAppConnected = connectedApps.includes(app.id);
                   return (
@@ -594,8 +617,9 @@ export default function Wearables() {
                               {app.platform}
                             </Badge>
                           </div>
+                          <p className="text-gray-600 text-xs mt-0.5">{app.description}</p>
                           {isAppConnected && (
-                            <p className="text-green-600 text-xs flex items-center gap-1 mt-0.5">
+                            <p className="text-green-600 text-xs flex items-center gap-1 mt-1">
                               <CheckCircle className="w-3 h-3" /> Auto-syncing
                             </p>
                           )}
