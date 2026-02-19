@@ -162,13 +162,32 @@ export default function Shop() {
         });
       }
     },
+    onMutate: async (product) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['cartItems'] });
+      
+      // Snapshot previous value
+      const previousCart = queryClient.getQueryData(['cartItems', user?.email]);
+      
+      // Optimistically update
+      setAddedItems(prev => ({ ...prev, [product.id]: true }));
+      
+      return { previousCart };
+    },
     onSuccess: (_, product) => {
       queryClient.invalidateQueries({ queryKey: ['cartItems'] });
-      setAddedItems(prev => ({ ...prev, [product.id]: true }));
       toast.success('Added to cart');
       setTimeout(() => {
         setAddedItems(prev => ({ ...prev, [product.id]: false }));
       }, 2000);
+    },
+    onError: (err, product, context) => {
+      // Rollback on error
+      if (context?.previousCart) {
+        queryClient.setQueryData(['cartItems', user?.email], context.previousCart);
+      }
+      setAddedItems(prev => ({ ...prev, [product.id]: false }));
+      toast.error('Failed to add to cart');
     },
   });
 
