@@ -17,6 +17,7 @@ import {
   Shirt
 } from 'lucide-react';
 import NotificationDropdown from './components/notifications/NotificationDropdown';
+import FloatingAssistant from './components/assistant/FloatingAssistant';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -225,6 +226,9 @@ export default function Layout({ children, currentPageName }) {
           {children}
         </PageTransition>
       </main>
+
+      {/* Floating Assistant */}
+      <FloatingAssistant user={user} />
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 select-none shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
