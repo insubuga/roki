@@ -22,6 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import SmartSuggestions from '../components/dashboard/SmartSuggestions';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -124,6 +125,9 @@ export default function Dashboard() {
             );
           })}
         </div>
+
+        {/* Smart Suggestions */}
+        <SmartSuggestions user={user} />
 
         {/* Your Cart - if has items */}
         <Card className="bg-gradient-to-br from-[var(--color-primary)]/10 to-emerald-500/10 border-[var(--color-primary)]/30">
