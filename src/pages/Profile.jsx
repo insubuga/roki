@@ -95,16 +95,21 @@ export default function Profile() {
       if (!userLocation) return [];
       
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Find 10 real gym locations near latitude ${userLocation.latitude}, longitude ${userLocation.longitude}. Include popular chains like Planet Fitness, LA Fitness, 24 Hour Fitness, Equinox, Gold's Gym, Crunch Fitness, Anytime Fitness, etc. Return ONLY a JSON array with this exact structure, no other text:
-[
-  {
-    "name": "Gym Name",
-    "address": "Full address",
-    "distance_miles": 0.5,
-    "latitude": 40.7128,
-    "longitude": -74.0060
-  }
-]`,
+        prompt: `Find real gym locations WITHIN 15 MILES of latitude ${userLocation.latitude}, longitude ${userLocation.longitude}. 
+CRITICAL: Only include gyms that are 15 miles or less from the user's location. This is for delivery drivers who need to reach these locations quickly.
+Include popular chains like Planet Fitness, LA Fitness, 24 Hour Fitness, Equinox, Gold's Gym, Crunch Fitness, Anytime Fitness, etc.
+Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON object with this exact structure:
+{
+  "gyms": [
+    {
+      "name": "Gym Name",
+      "address": "Full address",
+      "distance_miles": 0.5,
+      "latitude": 40.7128,
+      "longitude": -74.0060
+    }
+  ]
+}`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -126,7 +131,9 @@ export default function Profile() {
         }
       });
       
-      return result.gyms || [];
+      // Filter to ensure only gyms within 15 miles are included
+      const gyms = result.gyms || [];
+      return gyms.filter(gym => gym.distance_miles <= 15);
     },
     enabled: !!userLocation,
   });
