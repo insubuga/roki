@@ -110,12 +110,20 @@ export default function DriverDashboard() {
   }, [user, queryClient]);
 
   const updateOrderMutation = useMutation({
-    mutationFn: async ({ id, status }) => {
-      await base44.entities.Order.update(id, { 
+    mutationFn: async ({ id, status, location }) => {
+      const updateData = { 
         status,
         driver_email: user.email,
-        driver_earnings: status === 'delivered' ? undefined : undefined // Calculated on backend
-      });
+      };
+      
+      // Add driver location for real-time tracking
+      if (location) {
+        updateData.driver_latitude = location.latitude;
+        updateData.driver_longitude = location.longitude;
+        updateData.driver_last_update = new Date().toISOString();
+      }
+      
+      await base44.entities.Order.update(id, updateData);
       
       // If delivered, prompt for rating
       if (status === 'delivered') {
@@ -287,9 +295,9 @@ export default function DriverDashboard() {
                     key={delivery.id}
                     delivery={delivery}
                     index={index}
-                    onUpdate={(status) => {
+                    onUpdate={(status, location) => {
                       if (delivery.type === 'order') {
-                        updateOrderMutation.mutate({ id: delivery.id, status });
+                        updateOrderMutation.mutate({ id: delivery.id, status, location });
                       } else {
                         updateLaundryMutation.mutate({ id: delivery.id, status });
                       }
@@ -349,13 +357,33 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
   const isRush = delivery.delivery_type === 'rush';
   const isOrder = delivery.type === 'order';
 
+  const updateWithLocation = async (status) => {
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        });
+      });
+      
+      onUpdate(status, {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      });
+    } catch (error) {
+      console.log('Location unavailable, updating without it');
+      onUpdate(status);
+    }
+  };
+
   const getNextAction = () => {
     if (isOrder) {
-      if (delivery.status === 'pending' || delivery.status === 'confirmed') return 'Pick Up';
-      if (delivery.status === 'in_transit') return 'Complete Delivery';
+      if (delivery.status === 'pending' || delivery.status === 'confirmed') return { label: 'En Route', status: 'in_transit' };
+      if (delivery.status === 'in_transit') return { label: 'Delivered', status: 'delivered' };
     } else {
-      if (delivery.status === 'awaiting_pickup' || delivery.status === 'washing') return 'Pick Up';
-      if (delivery.status === 'ready') return 'Deliver';
+      if (delivery.status === 'awaiting_pickup' || delivery.status === 'washing') return { label: 'En Route', status: 'in_transit' };
+      if (delivery.status === 'ready') return { label: 'Delivered', status: 'picked_up' };
     }
     return null;
   };
@@ -439,45 +467,59 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
           </div>
 
           {nextAction && (
-            <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-200">
+            <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
               <Button
-                variant="outline"
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
                 size="sm"
-                className="gap-1 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.open(`https://maps.google.com/?q=${encodeURIComponent(location)}`, '_blank');
+                  updateWithLocation(nextAction.status);
                 }}
               >
-                <Navigation className="w-3 h-3" />
-                Navigate
+                <CheckCircle2 className="w-3 h-3 mr-2" />
+                {nextAction.label}
               </Button>
+              
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(`https://maps.google.com/?q=${encodeURIComponent(location)}`, '_blank');
+                  }}
+                >
+                  <Navigation className="w-3 h-3" />
+                  Navigate
+                </Button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1 text-xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.location.href = `tel:${delivery.user_email}`;
-                }}
-              >
-                <Phone className="w-3 h-3" />
-                Call
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = `tel:${delivery.user_email}`;
+                  }}
+                >
+                  <Phone className="w-3 h-3" />
+                  Call
+                </Button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1 text-xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.location.href = `sms:${delivery.user_email}`;
-                }}
-              >
-                <MessageSquare className="w-3 h-3" />
-                Text
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = `sms:${delivery.user_email}`;
+                  }}
+                >
+                  <MessageSquare className="w-3 h-3" />
+                  Text
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

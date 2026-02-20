@@ -18,22 +18,35 @@ export default function RouteOptimizer({ deliveries, onRouteSelect }) {
   }, [deliveries]);
 
   const optimizeRoute = () => {
-    // Priority sorting: Rush orders first, then by proximity (mock implementation)
-    const sorted = [...deliveries].sort((a, b) => {
-      // Rush orders priority
+    // Filter deliveries within 15-mile radius (for gym deliveries)
+    const validDeliveries = deliveries.filter(d => {
+      const distance = d.distance_miles || 5;
+      return distance <= 15; // Max 15 miles for rush mode
+    });
+
+    // Priority sorting: Rush orders first, proximity to gyms, then by earnings
+    const sorted = [...validDeliveries].sort((a, b) => {
+      // Rush orders get highest priority
       if (a.delivery_type === 'rush' && b.delivery_type !== 'rush') return -1;
       if (a.delivery_type !== 'rush' && b.delivery_type === 'rush') return 1;
       
-      // Then by estimated earnings (higher first)
+      // Then sort by distance (closer first for speed)
+      const distA = a.distance_miles || 5;
+      const distB = b.distance_miles || 5;
+      if (Math.abs(distA - distB) > 2) {
+        return distA - distB; // Prioritize closer deliveries
+      }
+      
+      // If distances similar, prioritize higher earnings
       const earningsA = a.driver_earnings || (a.total * 0.15);
       const earningsB = b.driver_earnings || (b.total * 0.15);
       return earningsB - earningsA;
     });
 
-    // Calculate totals
-    const distance = sorted.reduce((sum, d) => sum + (d.distance_miles || Math.random() * 5 + 2), 0);
+    // Calculate optimized totals
+    const distance = sorted.reduce((sum, d) => sum + (d.distance_miles || 3), 0);
     const earnings = sorted.reduce((sum, d) => sum + (d.driver_earnings || (d.total * 0.15)), 0);
-    const time = sorted.reduce((sum, d) => sum + (d.estimated_duration_minutes || 20), 0);
+    const time = sorted.reduce((sum, d) => sum + (d.estimated_duration_minutes || 15), 0);
 
     setOptimizedRoute(sorted);
     setTotalDistance(distance);
