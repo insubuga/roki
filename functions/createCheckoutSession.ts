@@ -19,16 +19,24 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
 
     if (!user) {
+      console.error('Checkout error: User not authenticated');
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { duration, gym_name, gym_address } = await req.json();
+    console.log('Creating checkout session for duration:', duration);
 
     if (!duration || !PRICE_MAP[duration]) {
+      console.error('Invalid duration provided:', duration);
       return Response.json({ error: 'Invalid duration' }, { status: 400 });
     }
 
     const priceId = PRICE_MAP[duration];
+    console.log('Using price ID:', priceId);
+    
+    // Get the origin for redirect URLs
+    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('/') || 'http://localhost:3000';
+    console.log('Using origin for redirects:', origin);
     
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
@@ -40,8 +48,8 @@ Deno.serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: `${req.headers.get('origin')}/Profile?payment=success`,
-      cancel_url: `${req.headers.get('origin')}/Profile?payment=cancelled`,
+      success_url: `${origin}/Profile?payment=success`,
+      cancel_url: `${origin}/Profile?payment=cancelled`,
       customer_email: user.email,
       metadata: {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
@@ -53,6 +61,7 @@ Deno.serve(async (req) => {
       },
     });
 
+    console.log('Checkout session created successfully:', session.id);
     return Response.json({ 
       url: session.url,
       session_id: session.id 
