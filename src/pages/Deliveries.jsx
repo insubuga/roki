@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import TrackingTimeline from '../components/delivery/TrackingTimeline';
 import DriverChat from '../components/delivery/DriverChat';
 import RatingModal from '../components/delivery/RatingModal';
+import LiveTrackingMap from '../components/delivery/LiveTrackingMap';
 import { toast } from 'sonner';
 
 const statusColors = {
@@ -253,15 +254,22 @@ export default function Deliveries() {
                       </div>
                     )}
 
-                    {/* Track Shipment Button */}
-                    {order.tracking_number && order.status === 'in_transit' && (
+                    {/* Live Tracking - For in-transit orders */}
+                    {order.status === 'in_transit' && (
+                      <div className="mt-4">
+                        <LiveTrackingMap order={order} />
+                      </div>
+                    )}
+
+                    {/* Track Shipment Button - For external carrier tracking */}
+                    {order.tracking_number && order.carrier && (
                       <>
                         <Button
                           className="w-full mt-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 select-none shadow-md"
                           onClick={() => fetchTracking(order)}
                         >
                           <Truck className="w-4 h-4 mr-2 select-none" />
-                          {expandedOrder === order.id ? 'Hide' : 'View'} Live Tracking
+                          {expandedOrder === order.id ? 'Hide' : 'View'} External Tracking
                           {expandedOrder === order.id ? <ChevronUp className="w-4 h-4 ml-2 select-none" /> : <ChevronDown className="w-4 h-4 ml-2 select-none" />}
                         </Button>
 
