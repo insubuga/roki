@@ -32,6 +32,11 @@ export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Close mobile menu and dropdowns on location change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
   
   useEffect(() => {
     const loadUser = async () => {
@@ -87,7 +92,7 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] overscroll-none">
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <header className="bg-white/95 backdrop-blur-md border-b border-gray-200 fixed top-0 left-0 right-0 z-50 shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -203,7 +208,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200 py-4 shadow-lg">
+        <div className="md:hidden bg-white border-t border-gray-200 py-4 shadow-lg absolute left-0 right-0 top-full">
           <nav className="flex flex-col gap-2 px-4">
             {navItems.map((item) => (
               <Link
@@ -221,7 +226,7 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6" style={{ marginTop: '64px' }}>
         <PageTransition pageKey={location.pathname}>
           {children}
         </PageTransition>
