@@ -492,24 +492,28 @@ export default function Wearables() {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="space-y-3 pt-3">
-                {/* Instructions Card */}
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
+                {/* Instructions Card - Updated for Web App Reality */}
+                <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-4 mb-4">
                   <div className="flex gap-3">
-                    <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <Info className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-gray-900 font-semibold mb-2">Enable Health Access</p>
+                      <p className="text-gray-900 font-semibold mb-2">Demo Mode - Health App Integration</p>
                       <p className="text-gray-700 text-sm mb-3">
-                        To sync your health data, you need to grant ROKI access in your phone's settings:
+                        ROKI is currently a <strong>web app</strong>, which means direct access to Apple Health, Google Fit, or Samsung Health is not available. Web apps cannot access native health APIs due to platform restrictions.
                       </p>
-                      <ol className="text-gray-700 text-sm space-y-2 ml-4 list-decimal">
-                        <li>Open your phone's <strong>Settings</strong></li>
-                        <li>Go to <strong>Privacy & Security</strong></li>
-                        <li>Tap <strong>Health</strong> (iOS) or <strong>Permissions</strong> (Android)</li>
-                        <li>Find <strong>ROKI</strong> in the app list</li>
-                        <li>Toggle on the data types you want to share</li>
-                      </ol>
-                      <p className="text-gray-600 text-xs mt-3 italic">
-                        You can enable or disable specific data types anytime from your phone settings.
+                      <p className="text-gray-700 text-sm mb-3">
+                        <strong>Current Demo:</strong> Clicking "Connect" below will simulate health data syncing with sample data to showcase the experience.
+                      </p>
+                      <p className="text-gray-700 text-sm mb-2">
+                        <strong>For Real Health Data:</strong>
+                      </p>
+                      <ul className="text-gray-700 text-sm space-y-1 ml-4 list-disc">
+                        <li>Use the "Log Workout Manually" button below to enter your real data</li>
+                        <li>Or wait for ROKI's native mobile app (coming soon)</li>
+                        <li>Native apps can access Apple Health/Google Fit with proper permissions</li>
+                      </ul>
+                      <p className="text-orange-700 text-xs mt-3 font-semibold">
+                        💡 Tip: Try the manual logging feature for tracking real workouts and metrics!
                       </p>
                     </div>
                   </div>
@@ -557,10 +561,13 @@ export default function Wearables() {
                         <Button
                           size="sm"
                           className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700"
-                          onClick={() => connectDeviceMutation.mutate(app.id)}
+                          onClick={() => {
+                            toast.info('Starting demo connection with sample data...', { duration: 2000 });
+                            setTimeout(() => connectDeviceMutation.mutate(app.id), 500);
+                          }}
                           disabled={connectDeviceMutation.isPending}
                         >
-                          Connect
+                          Connect (Demo)
                         </Button>
                       )}
                     </motion.div>
@@ -679,41 +686,50 @@ export default function Wearables() {
         </CardContent>
       </Card>
 
-      {/* Manual Log Button */}
+      {/* Manual Log Button - Highlighted */}
       {!showManualLog && (
-        <Button
-          onClick={() => setShowManualLog(true)}
-          variant="outline"
-          className="w-full border-gray-700 text-gray-300 hover:bg-gray-800"
+        <motion.div
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
+          transition={{ repeat: 3, duration: 0.5 }}
         >
-          <Plus className="w-4 h-4 mr-2" />
-          Log Workout Manually
-        </Button>
+          <Button
+            onClick={() => setShowManualLog(true)}
+            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Log Your Real Workout Data
+          </Button>
+        </motion.div>
       )}
 
       {/* Manual Log Form */}
       {showManualLog && (
-        <Card className="bg-[#1a2332] border-gray-800">
+        <Card className="bg-white border-green-300 border-2 shadow-xl">
           <CardHeader>
-            <CardTitle className="text-white">Manual Entry</CardTitle>
+            <CardTitle className="text-gray-900 flex items-center gap-2">
+              <Activity className="w-5 h-5 text-green-600" />
+              Log Your Real Workout
+            </CardTitle>
+            <p className="text-gray-600 text-sm">Track your actual fitness data and progress</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="text-gray-400 text-sm block mb-2">Workout Type</label>
+              <label className="text-gray-700 text-sm font-medium block mb-2">Workout Type *</label>
               <input
                 type="text"
-                placeholder="e.g., chest, cardio, legs"
+                placeholder="e.g., chest, cardio, legs, arms"
                 value={manualData.workout_type}
                 onChange={(e) => setManualData({...manualData, workout_type: e.target.value})}
-                className="w-full bg-[#0d1320] border border-gray-700 rounded-lg px-4 py-2 text-white"
+                className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
             <div>
-              <label className="text-gray-400 text-sm block mb-2">Intensity</label>
+              <label className="text-gray-700 text-sm font-medium block mb-2">Intensity *</label>
               <select
                 value={manualData.workout_intensity}
                 onChange={(e) => setManualData({...manualData, workout_intensity: e.target.value})}
-                className="w-full bg-[#0d1320] border border-gray-700 rounded-lg px-4 py-2 text-white"
+                className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 <option value="light">Light</option>
                 <option value="moderate">Moderate</option>
@@ -722,7 +738,7 @@ export default function Wearables() {
               </select>
             </div>
             <div>
-              <label className="text-gray-400 text-sm block mb-2">Sleep (hours)</label>
+              <label className="text-gray-700 text-sm font-medium block mb-2">Sleep (hours)</label>
               <input
                 type="number"
                 min="0"
@@ -730,31 +746,31 @@ export default function Wearables() {
                 step="0.5"
                 value={manualData.sleep_hours}
                 onChange={(e) => setManualData({...manualData, sleep_hours: parseFloat(e.target.value) || 0})}
-                className="w-full bg-[#0d1320] border border-gray-700 rounded-lg px-4 py-2 text-white"
+                className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
             <div>
-              <label className="text-gray-400 text-sm block mb-2">Steps</label>
+              <label className="text-gray-700 text-sm font-medium block mb-2">Steps Today</label>
               <input
                 type="number"
                 min="0"
                 value={manualData.steps}
                 onChange={(e) => setManualData({...manualData, steps: parseInt(e.target.value) || 0})}
-                className="w-full bg-[#0d1320] border border-gray-700 rounded-lg px-4 py-2 text-white"
+                className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
             <div className="flex gap-3">
               <Button
                 onClick={() => manualLogMutation.mutate()}
                 disabled={!manualData.workout_type || manualLogMutation.isPending}
-                className="flex-1 bg-[#7cfc00] text-black hover:bg-[#6be600]"
+                className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
               >
-                Save Entry
+                {manualLogMutation.isPending ? 'Saving...' : 'Save Workout'}
               </Button>
               <Button
                 onClick={() => setShowManualLog(false)}
                 variant="outline"
-                className="border-gray-700"
+                className="border-gray-300"
               >
                 Cancel
               </Button>
