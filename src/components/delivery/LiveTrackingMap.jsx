@@ -84,7 +84,7 @@ export default function LiveTrackingMap({ order }) {
         </div>
 
         {/* Map */}
-        <div className="h-[300px] relative">
+        <div className="h-[250px] sm:h-[300px] md:h-[350px] relative">
           <MapContainer
             center={[center.lat, center.lng]}
             zoom={13}

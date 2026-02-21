@@ -174,10 +174,10 @@ export default function Deliveries() {
               <div className="space-y-4">
                 {activeOrders.map((order) => (
                   <motion.div
-                    key={order.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-xl p-6 border border-gray-200 shadow-lg hover:shadow-xl transition-shadow"
+                   key={order.id}
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200 shadow-lg hover:shadow-xl transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div>
@@ -193,7 +193,7 @@ export default function Deliveries() {
                     </div>
 
                     {/* Items */}
-                    <div className="space-y-2 mb-4 bg-gray-50 rounded-lg p-4">
+                    <div className="space-y-2 mb-4 bg-gray-50 rounded-lg p-3 sm:p-4">
                       {(order.items || []).map((item, idx) => (
                         <div key={idx} className="flex justify-between text-sm">
                           <span className="text-gray-700 font-medium">{item.product_name} x{item.quantity}</span>

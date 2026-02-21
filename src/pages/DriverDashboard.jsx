@@ -214,32 +214,32 @@ export default function DriverDashboard() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20"
+              className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/20"
             >
-              <DollarSign className="w-5 h-5 text-green-200 mb-1" />
-              <p className="text-2xl font-bold text-white">${todayEarnings.toFixed(0)}</p>
-              <p className="text-xs text-green-100">Today</p>
+              <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-green-200 mb-1" />
+              <p className="text-xl sm:text-2xl font-bold text-white">${todayEarnings.toFixed(0)}</p>
+              <p className="text-[10px] sm:text-xs text-green-100">Today</p>
             </motion.div>
 
             <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20"
+              className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/20"
             >
-              <CheckCircle2 className="w-5 h-5 text-green-200 mb-1" />
-              <p className="text-2xl font-bold text-white">{completedToday}</p>
-              <p className="text-xs text-green-100">Completed</p>
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-200 mb-1" />
+              <p className="text-xl sm:text-2xl font-bold text-white">{completedToday}</p>
+              <p className="text-[10px] sm:text-xs text-green-100">Completed</p>
             </motion.div>
 
             <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20"
+              className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/20"
             >
-              <TrendingUp className="w-5 h-5 text-green-200 mb-1" />
-              <p className="text-2xl font-bold text-white">{allActiveDeliveries.length}</p>
-              <p className="text-xs text-green-100">Active</p>
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-200 mb-1" />
+              <p className="text-xl sm:text-2xl font-bold text-white">{allActiveDeliveries.length}</p>
+              <p className="text-[10px] sm:text-xs text-green-100">Active</p>
             </motion.div>
           </div>
         </div>
@@ -480,44 +480,44 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
                 {nextAction.label}
               </Button>
               
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1 text-xs"
+                  className="gap-0.5 sm:gap-1 text-[10px] sm:text-xs px-2 h-8"
                   onClick={(e) => {
                     e.stopPropagation();
                     window.open(`https://maps.google.com/?q=${encodeURIComponent(location)}`, '_blank');
                   }}
                 >
                   <Navigation className="w-3 h-3" />
-                  Navigate
+                  <span className="hidden xs:inline">Navigate</span>
                 </Button>
 
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1 text-xs"
+                  className="gap-0.5 sm:gap-1 text-[10px] sm:text-xs px-2 h-8"
                   onClick={(e) => {
                     e.stopPropagation();
                     window.location.href = `tel:${delivery.user_email}`;
                   }}
                 >
                   <Phone className="w-3 h-3" />
-                  Call
+                  <span className="hidden xs:inline">Call</span>
                 </Button>
 
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1 text-xs"
+                  className="gap-0.5 sm:gap-1 text-[10px] sm:text-xs px-2 h-8"
                   onClick={(e) => {
                     e.stopPropagation();
                     window.location.href = `sms:${delivery.user_email}`;
                   }}
                 >
                   <MessageSquare className="w-3 h-3" />
-                  Text
+                  <span className="hidden xs:inline">Text</span>
                 </Button>
               </div>
             </div>

@@ -85,29 +85,29 @@ export default function RouteOptimizer({ deliveries, onRouteSelect }) {
         </div>
 
         {/* Route Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="bg-white rounded-lg p-3 border border-blue-100">
-            <div className="flex items-center gap-2 mb-1">
-              <DollarSign className="w-4 h-4 text-green-600" />
-              <span className="text-xs text-gray-600">Earnings</span>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
+          <div className="bg-white rounded-lg p-2 sm:p-3 border border-blue-100">
+            <div className="flex items-center gap-1 sm:gap-2 mb-1">
+              <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
+              <span className="text-[10px] sm:text-xs text-gray-600">Earnings</span>
             </div>
-            <p className="text-lg font-bold text-green-700">${totalEarnings.toFixed(2)}</p>
+            <p className="text-base sm:text-lg font-bold text-green-700">${totalEarnings.toFixed(2)}</p>
           </div>
 
-          <div className="bg-white rounded-lg p-3 border border-blue-100">
-            <div className="flex items-center gap-2 mb-1">
-              <MapPin className="w-4 h-4 text-blue-600" />
-              <span className="text-xs text-gray-600">Distance</span>
+          <div className="bg-white rounded-lg p-2 sm:p-3 border border-blue-100">
+            <div className="flex items-center gap-1 sm:gap-2 mb-1">
+              <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+              <span className="text-[10px] sm:text-xs text-gray-600">Distance</span>
             </div>
-            <p className="text-lg font-bold text-blue-700">{totalDistance.toFixed(1)} mi</p>
+            <p className="text-base sm:text-lg font-bold text-blue-700">{totalDistance.toFixed(1)} mi</p>
           </div>
 
-          <div className="bg-white rounded-lg p-3 border border-blue-100">
-            <div className="flex items-center gap-2 mb-1">
-              <Clock className="w-4 h-4 text-orange-600" />
-              <span className="text-xs text-gray-600">Time</span>
+          <div className="bg-white rounded-lg p-2 sm:p-3 border border-blue-100">
+            <div className="flex items-center gap-1 sm:gap-2 mb-1">
+              <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-orange-600" />
+              <span className="text-[10px] sm:text-xs text-gray-600">Time</span>
             </div>
-            <p className="text-lg font-bold text-orange-700">{totalTime} min</p>
+            <p className="text-base sm:text-lg font-bold text-orange-700">{totalTime} min</p>
           </div>
         </div>
 
