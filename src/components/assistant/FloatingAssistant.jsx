@@ -161,7 +161,7 @@ export default function FloatingAssistant({ user }) {
     <>
       {/* Floating Button */}
       <motion.div
-        className="fixed bottom-24 md:bottom-8 right-6 z-40"
+        className="fixed bottom-20 md:bottom-8 right-4 z-30"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
       >
@@ -189,7 +189,7 @@ export default function FloatingAssistant({ user }) {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-44 md:bottom-28 right-6 z-40 w-80 max-w-[calc(100vw-3rem)]"
+            className="fixed bottom-36 md:bottom-28 right-4 z-30 w-80 max-w-[calc(100vw-3rem)]"
           >
             <Card className="bg-white border-gray-200 shadow-2xl">
               <CardContent className="p-4">
