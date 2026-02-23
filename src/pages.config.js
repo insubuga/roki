@@ -66,6 +66,10 @@ import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
 import Wearables from './pages/Wearables';
+import Schedule from './pages/Schedule';
+import Network from './pages/Network';
+import Performance from './pages/Performance';
+import OperationsView from './pages/OperationsView';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +93,10 @@ export const PAGES = {
     "Support": Support,
     "SupportAdmin": SupportAdmin,
     "Wearables": Wearables,
+    "Schedule": Schedule,
+    "Network": Network,
+    "Performance": Performance,
+    "OperationsView": OperationsView,
 }
 
 export const pagesConfig = {

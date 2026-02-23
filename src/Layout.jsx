@@ -14,7 +14,8 @@ import {
   Home,
   Lock,
   Zap,
-  Shirt
+  Shirt,
+  Calendar
 } from 'lucide-react';
 import NotificationDropdown from './components/notifications/NotificationDropdown';
 import FloatingAssistant from './components/assistant/FloatingAssistant';
@@ -60,9 +61,11 @@ export default function Layout({ children, currentPageName }) {
 
   const navItems = [
     { name: 'Dashboard', page: 'Dashboard' },
-    { name: 'Supplies', page: 'Shop', hasDropdown: true },
-    ...(user?.role === 'driver' || user?.role === 'admin' ? [{ name: 'Driver', page: 'DriverDashboard' }] : []),
-    ...(user?.role === 'user' && !user?.role.includes('driver') ? [{ name: 'Become a Driver', page: 'DriverOnboarding' }] : []),
+    { name: 'Schedule', page: 'Schedule' },
+    { name: 'Network', page: 'Network' },
+    { name: 'Performance', page: 'Performance' },
+    ...(user?.role === 'admin' ? [{ name: 'Operations', page: 'OperationsView' }] : []),
+    ...(user?.role === 'driver' ? [{ name: 'Driver', page: 'DriverDashboard' }] : []),
   ];
 
   const handleLogout = () => {
@@ -76,10 +79,10 @@ export default function Layout({ children, currentPageName }) {
 
   const bottomNavItems = [
     { name: 'Status', page: 'Dashboard', icon: Home },
-    { name: 'Node', page: 'Profile', icon: Lock, key: 'locker' },
-    { name: 'Rush', page: 'RushMode', icon: Zap },
+    { name: 'Schedule', page: 'Schedule', icon: Calendar },
+    { name: 'Network', page: 'Network', icon: Lock },
     { name: 'Execute', page: 'LaundryOrder', icon: Shirt },
-    { name: 'System', page: 'Profile', icon: User, key: 'profile' },
+    { name: 'Profile', page: 'Profile', icon: User, key: 'profile' },
   ];
 
   const handleTabClick = (page) => {
@@ -110,25 +113,7 @@ export default function Layout({ children, currentPageName }) {
             <nav className="hidden md:flex items-center gap-8">
               {navItems.map((item) => (
                 item.hasDropdown ? (
-                  <DropdownMenu key={item.name}>
-                    <DropdownMenuTrigger className="flex items-center gap-1 text-gray-700 hover:text-green-600 transition-colors font-medium">
-                      {item.name}
-                      <ChevronDown className="w-4 h-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-white border-gray-200 shadow-lg">
-                      <DropdownMenuItem asChild>
-                        <Link to={createPageUrl('Shop')} className="text-gray-700 hover:text-green-600 hover:bg-green-50">
-                          Configure Auto-Replenish
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={createPageUrl('Cart')} className="text-gray-700 hover:text-green-600 hover:bg-green-50">
-                          Scheduled Items
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
+                  (
                   <Link
                     key={item.name}
                     to={createPageUrl(item.page)}
@@ -141,8 +126,7 @@ export default function Layout({ children, currentPageName }) {
                       <span className="absolute -bottom-4 left-0 right-0 h-0.5 bg-green-600 rounded-full" />
                     )}
                   </Link>
-                )
-              ))}
+              )}
             </nav>
 
             {/* Right Side */}
