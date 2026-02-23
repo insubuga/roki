@@ -56,7 +56,7 @@ export default function Dashboard() {
   const quickActions = [
     { icon: ShoppingCart, title: 'Shop', page: 'Shop', color: 'from-green-500 to-emerald-600' },
     { icon: Zap, title: 'Rush', page: 'RushMode', color: 'from-red-500 to-pink-600' },
-    { icon: Shirt, title: 'Laundry', page: 'LaundryOrder', color: 'from-cyan-500 to-blue-600' },
+    { icon: Shirt, title: 'Gear', subtitle: 'Always ready', page: 'LaundryOrder', color: 'from-cyan-500 to-blue-600' },
     { icon: Truck, title: 'Track', page: 'Deliveries', color: 'from-orange-500 to-amber-600' },
   ];
 
@@ -109,14 +109,21 @@ export default function Dashboard() {
               <Link
                 key={action.title}
                 to={createPageUrl(action.page)}
-                className="flex flex-col items-center gap-2 select-none"
+                className="flex flex-col items-center gap-1.5 select-none"
               >
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-lg`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-[var(--color-text-primary)] text-xs font-medium text-center">
-                  {action.title}
-                </span>
+                <div className="flex flex-col items-center">
+                  <span className="text-[var(--color-text-primary)] text-xs font-medium text-center">
+                    {action.title}
+                  </span>
+                  {action.subtitle && (
+                    <span className="text-[var(--color-text-secondary)] text-[10px] text-center leading-tight">
+                      {action.subtitle}
+                    </span>
+                  )}
+                </div>
               </Link>
             );
           })}

@@ -175,11 +175,28 @@ export default function LaundryOrder() {
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-6">
         <MobileHeader 
-          title="Laundry Service" 
-          subtitle="Freshly cleaned gym wear delivered to your locker"
+          title="Clean Gear Guarantee" 
+          subtitle="You'll never miss because your gear isn't ready"
           icon={Shirt}
           iconColor="text-blue-400"
         />
+
+        {/* Readiness Promise */}
+        <Card className="bg-gradient-to-br from-blue-500 to-cyan-600 border-0 shadow-xl">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-white font-bold text-base mb-1">Always Ready</p>
+                <p className="text-blue-50 text-sm leading-relaxed">
+                  Skip the excuses. We automate your laundry so your gear is always fresh and ready at your locker. Zero prep needed.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
 
 
