@@ -29,6 +29,7 @@ import GymMapView from '../components/locker/GymMapView';
 import BookingExtension from '../components/locker/BookingExtension';
 import LockerCheckout from '../components/payment/LockerCheckout';
 import AILockerRecommendations from '../components/locker/AILockerRecommendations';
+import MemberDataHistory from '../components/profile/MemberDataHistory';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -390,6 +391,9 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
         icon={Settings}
         iconColor="text-green-600"
       />
+
+      {/* Member History - Top Priority */}
+      <MemberDataHistory user={user} />
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Account Info */}
