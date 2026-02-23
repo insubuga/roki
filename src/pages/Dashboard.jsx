@@ -131,7 +131,7 @@ export default function Dashboard() {
         {/* Smart Suggestions */}
         <SmartSuggestions user={user} />
 
-        {/* Your Cart - if has items */}
+        {/* System Status */}
         <Card className="bg-gradient-to-br from-[var(--color-primary)]/10 to-emerald-500/10 border-[var(--color-primary)]/30">
           <CardContent className="p-4">
             <Link to={createPageUrl('Cart')} className="flex items-center justify-between">
@@ -140,8 +140,8 @@ export default function Dashboard() {
                   <ShoppingCart className="w-5 h-5 text-[var(--color-primary)]" />
                 </div>
                 <div>
-                  <p className="text-[var(--color-text-primary)] font-semibold text-sm">Your Cart</p>
-                  <p className="text-[var(--color-text-secondary)] text-xs">Ready to checkout</p>
+                  <p className="text-[var(--color-text-primary)] font-semibold text-sm">Scheduled Supplies</p>
+                  <p className="text-[var(--color-text-secondary)] text-xs">Ready for execution</p>
                 </div>
               </div>
               <ChevronRight className="w-5 h-5 text-[var(--color-text-muted)]" />

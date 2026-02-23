@@ -87,7 +87,7 @@ export default function Cart() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cartItems'] });
-      toast.success('Item removed from cart');
+      toast.success('Item removed from schedule');
     },
   });
 
@@ -121,7 +121,7 @@ export default function Cart() {
 
       if (data?.url) {
         console.log('Redirecting to Stripe:', data.url);
-        toast.success('Redirecting to secure checkout...');
+        toast.success('Initializing replenishment cycle...');
         setTimeout(() => {
           window.location.href = data.url;
         }, 500);
@@ -154,7 +154,7 @@ export default function Cart() {
     <div className="space-y-6">
       {/* Header */}
       <MobileHeader
-        title="Cart"
+        title="Scheduled Replenishment"
         icon={ShoppingCart}
         iconColor="text-amber-500"
       />
@@ -166,11 +166,11 @@ export default function Cart() {
       ) : cartItems.length === 0 ? (
         <div className="bg-[#1a2332] rounded-xl p-12 text-center border border-gray-800">
           <ShoppingCart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-          <h2 className="text-xl text-white font-semibold mb-2">Your cart is empty</h2>
-          <p className="text-gray-400 mb-6">Add some supplements to get started</p>
+          <h2 className="text-xl text-white font-semibold mb-2">No items scheduled</h2>
+          <p className="text-gray-400 mb-6">Configure your replenishment cycle</p>
           <Link to={createPageUrl('Shop')}>
             <Button className="bg-[#7cfc00] text-black hover:bg-[#6be600]">
-              Browse Shop
+              Configure Supplies
             </Button>
           </Link>
         </div>
@@ -242,7 +242,7 @@ export default function Cart() {
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800 sticky top-24">
-              <h2 className="text-xl font-bold text-white mb-4">Order Summary</h2>
+              <h2 className="text-xl font-bold text-white mb-4">Cycle Summary</h2>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between text-gray-400">
                   <span>Subtotal</span>
@@ -268,11 +268,11 @@ export default function Cart() {
                 {isCheckingOut ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin select-none" />
-                    Processing...
+                    Initializing...
                   </>
                 ) : (
                   <>
-                    Checkout
+                    Execute Replenishment
                     <ArrowRight className="w-4 h-4 ml-2 select-none" />
                   </>
                 )}
@@ -284,7 +284,7 @@ export default function Cart() {
                 disabled={isCheckingOut}
               >
                 <Zap className="w-4 h-4 mr-2 select-none" />
-                Rush Delivery - $15
+                Redundancy Mode - $15
               </Button>
             </div>
           </div>

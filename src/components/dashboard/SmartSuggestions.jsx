@@ -44,9 +44,9 @@ export default function SmartSuggestions({ user }) {
           image_url: product.image_url
         });
       }
-      toast.success('Added to cart!');
+      toast.success('Scheduled for replenishment');
     } catch (error) {
-      toast.error('Failed to add to cart');
+      toast.error('Failed to schedule');
     }
   };
 
@@ -65,10 +65,10 @@ export default function SmartSuggestions({ user }) {
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-gray-900 font-bold">Ready for you</h3>
-              <Badge className="bg-green-500 text-white border-none text-xs">Auto-prepared</Badge>
+              <h3 className="text-gray-900 font-bold">System Recommendation</h3>
+              <Badge className="bg-green-500 text-white border-none text-xs">Auto-optimized</Badge>
             </div>
-            <p className="text-gray-700 text-sm mb-3">Based on your data: {topSuggestion.product.name}</p>
+            <p className="text-gray-700 text-sm mb-3">Signal analysis: {topSuggestion.product.name}</p>
             
             <div className="flex items-center gap-3 mb-4">
               {topSuggestion.product.image_url && (
@@ -91,7 +91,7 @@ export default function SmartSuggestions({ user }) {
                 onClick={() => handleAddToCart(topSuggestion.product)}
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
-                Add to Cart
+                Schedule
               </Button>
               <Button
                 size="sm"
@@ -99,7 +99,7 @@ export default function SmartSuggestions({ user }) {
                 className="border-gray-300 text-gray-700"
                 onClick={() => navigate(createPageUrl('Shop'))}
               >
-                View All
+                Configure
               </Button>
             </div>
 

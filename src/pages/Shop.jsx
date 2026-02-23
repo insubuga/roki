@@ -176,7 +176,7 @@ export default function Shop() {
     },
     onSuccess: (_, product) => {
       queryClient.invalidateQueries({ queryKey: ['cartItems'] });
-      toast.success('Added to cart');
+      toast.success('Scheduled for replenishment');
       setTimeout(() => {
         setAddedItems(prev => ({ ...prev, [product.id]: false }));
       }, 2000);
@@ -187,7 +187,7 @@ export default function Shop() {
         queryClient.setQueryData(['cartItems', user?.email], context.previousCart);
       }
       setAddedItems(prev => ({ ...prev, [product.id]: false }));
-      toast.error('Failed to add to cart');
+      toast.error('Failed to schedule');
     },
   });
 
@@ -248,8 +248,8 @@ export default function Shop() {
     <div className="space-y-6">
       {/* Header */}
       <MobileHeader 
-        title="Shop Supplements" 
-        subtitle="Premium supplements delivered to your locker"
+        title="Replenishment Automation" 
+        subtitle="System-optimized recovery supplies"
         icon={ShoppingCart}
         iconColor="text-amber-500"
       />
@@ -257,7 +257,7 @@ export default function Shop() {
       {/* Personalized First */}
       {recommendedProducts.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-gray-900 font-bold text-xl">For You</h2>
+          <h2 className="text-gray-900 font-bold text-xl">Auto-Optimized</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {recommendedProducts.map((product) => (
               <ProductCard 
@@ -376,9 +376,9 @@ function ProductCard({ product, addedItems, addToCartMutation }) {
             disabled={addToCartMutation.isPending}
           >
             {addedItems[product.id] ? (
-              <><Check className="w-4 h-4 mr-1" /> Added</>
+              <><Check className="w-4 h-4 mr-1" /> Scheduled</>
             ) : (
-              <>Add to Cart</>
+              <>Schedule</>
             )}
           </Button>
         </div>
