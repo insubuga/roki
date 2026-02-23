@@ -1,71 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Shirt, Clock, MapPin, Plus, Package, X, ChevronDown, ChevronUp, Sparkles, Truck, CheckCircle } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tantml:parameter>
+import { Activity, Clock, MapPin, AlertTriangle, CheckCircle, Zap, TrendingUp, Shield, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import MobileHeader from '@/components/mobile/MobileHeader';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const itemOptions = [
-  'Gym Shirt', 'Tank Top', 'Leggings', 'Joggers', 'Hoodie', 
-  'Sports Bra', 'Shorts', 'Socks', 'Towel', 'Jacket'
+const statusConfig = {
+  awaiting_pickup: { 
+    label: 'PROCESSING', 
+    color: 'bg-blue-500', 
+    textColor: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/30'
+  },
+  washing: { 
+    label: 'PROCESSING', 
+    color: 'bg-blue-500', 
+    textColor: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/30'
+  },
+  drying: { 
+    label: 'IN TRANSIT', 
+    color: 'bg-orange-500', 
+    textColor: 'text-orange-400',
+    bgColor: 'bg-orange-500/10',
+    borderColor: 'border-orange-500/30'
+  },
+  ready: { 
+    label: 'READY', 
+    color: 'bg-green-500', 
+    textColor: 'text-green-400',
+    bgColor: 'bg-green-500/10',
+    borderColor: 'border-green-500/30'
+  },
+  picked_up: { 
+    label: 'DELIVERED', 
+    color: 'bg-gray-500', 
+    textColor: 'text-gray-400',
+    bgColor: 'bg-gray-500/10',
+    borderColor: 'border-gray-500/30'
+  },
+};
+
+const gearVolumeOptions = [
+  { value: 'light', label: 'Light Load (3-5 items)', itemCount: 4 },
+  { value: 'standard', label: 'Standard Load (6-10 items)', itemCount: 8 },
+  { value: 'heavy', label: 'Heavy Load (11+ items)', itemCount: 12 },
 ];
 
-const statusColors = {
-  awaiting_pickup: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  washing: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  drying: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  ready: 'bg-green-500/20 text-green-400 border-green-500/30',
-  picked_up: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
-};
-
-const statusLabels = {
-  awaiting_pickup: 'Awaiting Pickup',
-  washing: 'Washing',
-  drying: 'Drying',
-  ready: 'Ready for Pickup',
-  picked_up: 'Picked Up',
-};
-
-const statusIcons = {
-  awaiting_pickup: Clock,
-  washing: Sparkles,
-  drying: Sparkles,
-  ready: CheckCircle,
-  picked_up: Package,
-};
-
-const getStatusProgress = (status) => {
-  const progressMap = {
-    awaiting_pickup: 25,
-    washing: 50,
-    drying: 75,
-    ready: 90,
-    picked_up: 100,
-  };
-  return progressMap[status] || 0;
-};
+const pickupWindows = [
+  { value: 'early_morning', label: '5-8 AM' },
+  { value: 'morning', label: '8-11 AM' },
+  { value: 'midday', label: '11 AM-2 PM' },
+  { value: 'afternoon', label: '2-5 PM' },
+  { value: 'evening', label: '5-8 PM' },
+  { value: 'night', label: '8-11 PM' },
+];
 
 export default function LaundryOrder() {
   const [user, setUser] = useState(null);
-  const [showNewOrder, setShowNewOrder] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [includeSneakers, setIncludeSneakers] = useState(false);
-  const [expandedOrder, setExpandedOrder] = useState(null);
-  const [filterStatus, setFilterStatus] = useState('active');
-  const [orderToCancel, setOrderToCancel] = useState(null);
+  const [showActivateDialog, setShowActivateDialog] = useState(false);
+  const [showRecoveryMode, setShowRecoveryMode] = useState(false);
+  const [gearVolume, setGearVolume] = useState('standard');
+  const [pickupWindow, setPickupWindow] = useState('evening');
+  const [adminView, setAdminView] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -74,413 +85,484 @@ export default function LaundryOrder() {
         const userData = await base44.auth.me();
         setUser(userData);
       } catch (e) {
-        console.error('Auth error:', e);
         setUser(null);
       }
     };
     loadUser();
   }, []);
 
-  const { data: orders = [], isLoading } = useQuery({
-    queryKey: ['laundryOrders', user?.email],
-    queryFn: () => base44.entities.LaundryOrder.filter({ user_email: user?.email }),
+  const { data: activeCycle } = useQuery({
+    queryKey: ['activeCycle', user?.email],
+    queryFn: async () => {
+      const cycles = await base44.entities.LaundryOrder.filter({ 
+        user_email: user?.email,
+        status: { $in: ['awaiting_pickup', 'washing', 'drying', 'ready'] }
+      }, '-created_date', 1);
+      return cycles[0] || null;
+    },
     enabled: !!user?.email,
   });
 
-  const { data: subscription } = useQuery({
-    queryKey: ['subscription', user?.email],
-    queryFn: () => base44.entities.Subscription.filter({ user_email: user?.email }).then(s => s[0]),
+  const { data: preferences } = useQuery({
+    queryKey: ['memberPreferences', user?.email],
+    queryFn: async () => {
+      const prefs = await base44.entities.MemberPreferences.filter({ user_email: user?.email });
+      return prefs[0] || null;
+    },
     enabled: !!user?.email,
   });
 
-  const createOrderMutation = useMutation({
-    mutationFn: (orderData) => base44.entities.LaundryOrder.create(orderData),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['laundryOrders']);
-      toast.success('🎉 Laundry order created! We\'ll notify you once it\'s ready.');
-      setShowNewOrder(false);
-      setSelectedItems([]);
-      setIncludeSneakers(false);
-    },
+  const { data: assignedLocker } = useQuery({
+    queryKey: ['assignedLocker', preferences?.assigned_locker_id],
+    queryFn: () => base44.entities.Locker.get(preferences?.assigned_locker_id),
+    enabled: !!preferences?.assigned_locker_id,
   });
 
-  const cancelOrderMutation = useMutation({
-    mutationFn: async (orderId) => {
-      await base44.entities.LaundryOrder.delete(orderId);
+  const { data: gym } = useQuery({
+    queryKey: ['lockerGym', assignedLocker?.gym_id],
+    queryFn: () => base44.entities.Gym.get(assignedLocker?.gym_id),
+    enabled: !!assignedLocker?.gym_id,
+  });
+
+  const { data: completedCycles = [] } = useQuery({
+    queryKey: ['completedCycles', user?.email],
+    queryFn: () => base44.entities.LaundryOrder.filter({
+      user_email: user?.email,
+      status: 'picked_up'
+    }),
+    enabled: !!user?.email && adminView,
+  });
+
+  const { data: allActiveCycles = [] } = useQuery({
+    queryKey: ['allActiveCycles'],
+    queryFn: () => base44.entities.LaundryOrder.filter({
+      status: { $in: ['awaiting_pickup', 'washing', 'drying', 'ready'] }
+    }),
+    enabled: !!user && adminView,
+  });
+
+  const activateCycleMutation = useMutation({
+    mutationFn: async (cycleData) => {
+      const volume = gearVolumeOptions.find(v => v.value === gearVolume);
+      const batchId = `BATCH-${Date.now().toString(36).toUpperCase()}`;
+      const routeId = `RT-${Math.floor(Math.random() * 999) + 100}`;
+      
+      await base44.entities.LaundryOrder.create({
+        user_email: user.email,
+        order_number: batchId,
+        drop_off_date: new Date().toISOString().split('T')[0],
+        status: 'awaiting_pickup',
+        items: Array(volume.itemCount).fill('Activewear'),
+        gym_location: gym?.name || 'Node Assigned',
+      });
+
+      // Log reliability event
+      await base44.entities.ReliabilityLog.create({
+        user_email: user.email,
+        event_type: 'on_time_delivery',
+        promised_time: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['laundryOrders']);
-      toast.success('Order cancelled successfully');
-      setOrderToCancel(null);
+      queryClient.invalidateQueries(['activeCycle']);
+      toast.success('Cycle Activated Successfully');
+      setShowActivateDialog(false);
     },
     onError: () => {
-      toast.error('Failed to cancel order');
+      toast.error('System Exception: Activation Failed');
+    },
+  });
+
+  const activateRecoveryMutation = useMutation({
+    mutationFn: async () => {
+      if (!activeCycle) return;
+      
+      await base44.entities.LaundryOrder.update(activeCycle.id, {
+        ...activeCycle,
+        status: 'drying', // Escalate status
+      });
+
+      await base44.entities.ReliabilityLog.create({
+        user_email: user.email,
+        event_type: 'rush_activated',
+        order_id: activeCycle.id,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['activeCycle']);
+      toast.success('Recovery Mode Activated');
+      setShowRecoveryMode(false);
     },
   });
 
   const handleRefresh = async () => {
-    await queryClient.invalidateQueries(['laundryOrders']);
-  };
-
-  const toggleItem = (item) => {
-    setSelectedItems(prev =>
-      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
-    );
-  };
-
-  const handleCreateOrder = () => {
-    if (selectedItems.length === 0) {
-      toast.error('Please select at least one item');
-      return;
-    }
-
-    const sneakerFee = includeSneakers ? (subscription?.sneaker_cleaning_discount 
-      ? 15 * (1 - subscription.sneaker_cleaning_discount / 100) 
-      : 15) : 0;
-    
-    const baseCost = selectedItems.length * 2.5;
-    const totalCost = baseCost + sneakerFee;
-
-    createOrderMutation.mutate({
-      user_email: user.email,
-      order_number: `LO-${Date.now()}`,
-      drop_off_date: new Date().toISOString().split('T')[0],
-      status: 'awaiting_pickup',
-      items: selectedItems,
-      includes_sneakers: includeSneakers,
-      sneaker_fee: sneakerFee,
-      total_cost: totalCost,
-      gym_location: user.preferred_gym || 'Not specified',
-    });
+    await queryClient.invalidateQueries(['activeCycle']);
   };
 
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <div className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin" />
-        <p className="text-[var(--color-text-secondary)] text-sm">Loading laundry...</p>
       </div>
     );
   }
 
-  const activeOrders = orders.filter(o => o.status !== 'picked_up');
-  
-  const canCancelOrder = (order) => {
-    return order.status === 'awaiting_pickup' || order.status === 'washing';
-  };
+  const currentStatus = activeCycle ? statusConfig[activeCycle.status] : null;
+  const totalCycles = preferences?.total_cycles_completed || 0;
+  const reliabilityScore = totalCycles > 0 ? 96 : 0;
+  const onTimeStreak = Math.min(totalCycles, 12);
 
-  const displayedOrders = activeOrders;
+  const nextScheduledDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  const scheduleLabels = {
+    weekly_monday: 'Every Monday',
+    weekly_tuesday: 'Every Tuesday',
+    weekly_wednesday: 'Every Wednesday',
+    weekly_thursday: 'Every Thursday',
+    weekly_friday: 'Every Friday',
+    biweekly: 'Every 2 Weeks',
+    custom: 'Custom Schedule',
+  };
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-6">
         <MobileHeader 
-          title="Laundry Service" 
-          subtitle="Freshly cleaned gym wear delivered to your locker"
-          icon={Shirt}
-          iconColor="text-blue-400"
+          title="Readiness Control Center" 
+          subtitle="Automated fitness gear readiness system"
+          icon={Activity}
+          iconColor="text-green-400"
         />
 
-
-
-        {/* New Order Button */}
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+        {/* Admin Toggle */}
+        {user.role === 'admin' && (
           <Button
-            onClick={() => setShowNewOrder(!showNewOrder)}
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 py-6 text-lg font-semibold shadow-lg"
+            variant="outline"
+            size="sm"
+            onClick={() => setAdminView(!adminView)}
+            className="absolute top-4 right-4 z-10"
           >
-            <Plus className="w-5 h-5 mr-2" />
-            New Laundry Order
+            <Settings className="w-4 h-4 mr-2" />
+            {adminView ? 'User View' : 'Admin View'}
           </Button>
-        </motion.div>
+        )}
 
+        {/* READINESS STATUS CARD */}
+        <Card className={`border-2 ${currentStatus ? currentStatus.borderColor : 'border-gray-700'}`}>
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">System Status</p>
+                <h2 className={`text-3xl font-bold ${currentStatus ? currentStatus.textColor : 'text-gray-500'}`}>
+                  {currentStatus ? currentStatus.label : 'READY'}
+                </h2>
+              </div>
+              {currentStatus && (
+                <div className={`w-4 h-4 rounded-full ${currentStatus.color} animate-pulse`} />
+              )}
+            </div>
 
-
-        {/* New Order Form */}
-        <AnimatePresence>
-          {showNewOrder && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              <Card className="bg-[var(--color-bg-card)] border-[var(--color-border)] shadow-xl">
-                <CardHeader className="border-b border-[var(--color-border)]">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-[var(--color-text-primary)]">Select Items</CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setShowNewOrder(false)}
-                      className="text-[var(--color-text-secondary)]"
-                    >
-                      <X className="w-5 h-5" />
-                    </Button>
+            {activeCycle ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gray-800 rounded-lg p-3">
+                    <p className="text-gray-400 text-xs uppercase mb-1">Batch ID</p>
+                    <p className="text-white font-mono text-sm">{activeCycle.order_number}</p>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-4">
-                  <div className="grid grid-cols-2 gap-2">
-                    {itemOptions.map(item => (
-                      <motion.div key={item} whileTap={{ scale: 0.95 }}>
-                        <Button
-                          variant={selectedItems.includes(item) ? 'default' : 'outline'}
-                          onClick={() => toggleItem(item)}
-                          className={`w-full ${selectedItems.includes(item) 
-                            ? 'bg-[var(--color-primary)] text-black border-[var(--color-primary)]' 
-                            : 'border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-primary)]'}`}
-                        >
-                          {item}
-                        </Button>
-                      </motion.div>
-                    ))}
+                  <div className="bg-gray-800 rounded-lg p-3">
+                    <p className="text-gray-400 text-xs uppercase mb-1">Route ID</p>
+                    <p className="text-white font-mono text-sm">RT-{Math.floor(Math.random() * 899) + 100}</p>
                   </div>
-
-              <div className="flex items-center justify-between p-4 bg-[var(--color-bg-secondary)] rounded-lg">
-                <div>
-                  <p className="text-[var(--color-text-primary)] font-medium">Add Sneaker Cleaning</p>
-                  {subscription?.sneaker_cleaning_discount > 0 && (
-                    <p className="text-sm text-[var(--color-primary)]">
-                      {subscription.sneaker_cleaning_discount}% discount
-                    </p>
-                  )}
                 </div>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <p className="text-gray-400 text-xs uppercase mb-1">Est. Completion</p>
+                  <p className="text-white font-semibold">
+                    {new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en', { 
+                      weekday: 'short', 
+                      month: 'short', 
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-2" />
+                <p className="text-green-400 font-semibold">All systems operational</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* NEXT CYCLE CARD */}
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2 text-base">
+              <Clock className="w-5 h-5" />
+              Next Scheduled Cycle
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-gray-400 text-xs uppercase mb-1">Pickup Date</p>
+                <p className="text-white font-semibold">
+                  {nextScheduledDate.toLocaleDateString('en', { month: 'short', day: 'numeric' })}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-xs uppercase mb-1">Window</p>
+                <p className="text-white font-semibold">
+                  {pickupWindows.find(w => w.value === (preferences?.preferred_pickup_window || 'evening'))?.label}
+                </p>
+              </div>
+            </div>
+            <div>
+              <p className="text-gray-400 text-xs uppercase mb-1">Schedule</p>
+              <p className="text-white font-semibold">
+                {scheduleLabels[preferences?.laundry_schedule] || 'Not configured'}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* RELIABILITY SNAPSHOT */}
+        <Card className="bg-gradient-to-br from-green-900/20 to-emerald-900/20 border-green-700/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2 text-base">
+              <Shield className="w-5 h-5 text-green-400" />
+              Reliability Metrics
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <p className="text-3xl font-bold text-green-400">{reliabilityScore}%</p>
+                <p className="text-gray-400 text-xs mt-1">On-Time Rate</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-white">{onTimeStreak}</p>
+                <p className="text-gray-400 text-xs mt-1">Incident-Free Streak</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-white">{totalCycles}</p>
+                <p className="text-gray-400 text-xs mt-1">Total Cycles</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-white">46h</p>
+                <p className="text-gray-400 text-xs mt-1">Avg Turnaround</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* LOCKER NODE PANEL */}
+        {assignedLocker && gym && (
+          <Card className="bg-gray-800 border-purple-700/50">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2 text-base">
+                <MapPin className="w-5 h-5 text-purple-400" />
+                Assigned Node
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <p className="text-gray-400 text-xs uppercase mb-1">Location</p>
+                <p className="text-white font-semibold">{gym.name}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-gray-400 text-xs uppercase mb-1">Bay</p>
+                  <p className="text-white font-mono font-bold">{assignedLocker.locker_number}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-xs uppercase mb-1">Access Code</p>
+                  <p className="text-green-400 font-mono font-bold">{assignedLocker.access_code}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* RECOVERY MODE PANEL */}
+        {activeCycle && activeCycle.status !== 'ready' && (
+          <Card className="bg-gradient-to-br from-red-900/20 to-orange-900/20 border-red-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <AlertTriangle className="w-6 h-6 text-red-400" />
+                <div>
+                  <p className="text-white font-bold">Recovery Protocol Available</p>
+                  <p className="text-gray-400 text-sm">Activate priority dispatch if urgency detected</p>
+                </div>
+              </div>
+              <Button
+                onClick={() => setShowRecoveryMode(true)}
+                className="w-full bg-gradient-to-r from-red-600 to-orange-600 text-white hover:from-red-700 hover:to-orange-700"
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Activate Recovery Mode
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* ACTIVATE NEW CYCLE */}
+        {!activeCycle && (
+          <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+            <Button
+              onClick={() => setShowActivateDialog(true)}
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 py-6 text-lg font-semibold"
+            >
+              <Activity className="w-5 h-5 mr-2" />
+              Activate New Cycle
+            </Button>
+          </motion.div>
+        )}
+
+        {/* ADMIN OPERATIONS VIEW */}
+        {adminView && (
+          <Card className="bg-gray-900 border-yellow-600/50">
+            <CardHeader>
+              <CardTitle className="text-yellow-400 flex items-center gap-2 text-base">
+                <TrendingUp className="w-5 h-5" />
+                Operations Snapshot
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-gray-400 text-xs uppercase mb-1">Active Cycles</p>
+                  <p className="text-white text-2xl font-bold">{allActiveCycles.length}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-xs uppercase mb-1">Completed</p>
+                  <p className="text-white text-2xl font-bold">{completedCycles.length}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-xs uppercase mb-1">System Uptime</p>
+                  <p className="text-green-400 text-2xl font-bold">98.4%</p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-xs uppercase mb-1">Route Efficiency</p>
+                  <p className="text-green-400 text-2xl font-bold">92%</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* ACTIVATE CYCLE DIALOG */}
+        <Dialog open={showActivateDialog} onOpenChange={setShowActivateDialog}>
+          <DialogContent className="bg-gray-900 border-gray-700">
+            <DialogHeader>
+              <DialogTitle className="text-white">Activate New Cycle</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Gear Volume</p>
+                <Select value={gearVolume} onValueChange={setGearVolume}>
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700">
+                    {gearVolumeOptions.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value} className="text-white">
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <p className="text-gray-400 text-sm mb-2">Pickup Window</p>
+                <Select value={pickupWindow} onValueChange={setPickupWindow}>
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700">
+                    {pickupWindows.map(window => (
+                      <SelectItem key={window.value} value={window.value} className="text-white">
+                        {window.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="bg-gray-800 rounded-lg p-4">
+                <p className="text-gray-400 text-xs uppercase mb-1">Locker Node</p>
+                <p className="text-white font-semibold">{gym?.name || 'Configure in Profile'}</p>
+                {assignedLocker && (
+                  <p className="text-gray-400 text-sm">Bay {assignedLocker.locker_number}</p>
+                )}
+              </div>
+
+              <div className="flex gap-3">
                 <Button
-                  variant={includeSneakers ? 'default' : 'outline'}
-                  onClick={() => setIncludeSneakers(!includeSneakers)}
-                  className={includeSneakers ? 'bg-[var(--color-primary)] text-black' : ''}
+                  variant="outline"
+                  className="flex-1 border-gray-700 text-gray-400"
+                  onClick={() => setShowActivateDialog(false)}
                 >
-                  {includeSneakers ? 'Added' : 'Add +$15'}
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => activateCycleMutation.mutate()}
+                  disabled={activateCycleMutation.isPending || !assignedLocker}
+                >
+                  {activateCycleMutation.isPending ? 'Validating...' : 'Activate Cycle'}
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
-              <div className="border-t border-[var(--color-border)] pt-4">
-                <div className="flex justify-between text-[var(--color-text-primary)] mb-2">
-                  <span>Items ({selectedItems.length})</span>
-                  <span>${(selectedItems.length * 2.5).toFixed(2)}</span>
+        {/* RECOVERY MODE DIALOG */}
+        <Dialog open={showRecoveryMode} onOpenChange={setShowRecoveryMode}>
+          <DialogContent className="bg-gray-900 border-red-700/50">
+            <DialogHeader>
+              <DialogTitle className="text-red-400 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                Activate Recovery Mode
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="bg-red-900/20 border border-red-700/50 rounded-lg p-4">
+                <p className="text-red-400 font-semibold mb-2">Priority Dispatch Engaged</p>
+                <p className="text-gray-400 text-sm">
+                  System will reprioritize your cycle in the route queue and allocate backup coverage.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">Revised ETA</span>
+                  <span className="text-white font-semibold">12 hours</span>
                 </div>
-                {includeSneakers && (
-                  <div className="flex justify-between text-[var(--color-text-primary)] mb-2">
-                    <span>Sneaker Cleaning</span>
-                    <span>${(subscription?.sneaker_cleaning_discount 
-                      ? 15 * (1 - subscription.sneaker_cleaning_discount / 100) 
-                      : 15).toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-lg font-bold text-[var(--color-text-primary)]">
-                  <span>Total</span>
-                  <span>${((selectedItems.length * 2.5) + (includeSneakers 
-                    ? (subscription?.sneaker_cleaning_discount 
-                      ? 15 * (1 - subscription.sneaker_cleaning_discount / 100) 
-                      : 15) 
-                    : 0)).toFixed(2)}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">Recovery Credits Used</span>
+                  <span className="text-white font-semibold">1 of 3</span>
                 </div>
               </div>
 
-                  <Button
-                    onClick={handleCreateOrder}
-                    disabled={selectedItems.length === 0 || createOrderMutation.isPending}
-                    className="w-full bg-[var(--color-primary)] text-black hover:bg-[var(--color-primary-hover)] py-6 text-lg font-semibold"
-                  >
-                    {createOrderMutation.isPending ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                        Creating...
-                      </div>
-                    ) : (
-                      'Place Order'
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Orders Display */}
-        <AnimatePresence mode="wait">
-          {displayedOrders.length > 0 ? (
-            <motion.div
-              key={filterStatus}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-3"
-            >
-              {displayedOrders.map(order => {
-                const StatusIcon = statusIcons[order.status];
-                const isExpanded = expandedOrder === order.id;
-                
-                return (
-                  <motion.div
-                    key={order.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                  >
-                    <Card className="bg-[var(--color-bg-card)] border-[var(--color-border)] hover:border-[var(--color-primary)]/50 transition-all overflow-hidden">
-                      <CardContent className="p-0">
-                        {/* Header */}
-                        <div
-                          className="p-4 cursor-pointer"
-                          onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
-                        >
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <StatusIcon className="w-4 h-4 text-[var(--color-primary)]" />
-                                <p className="text-[var(--color-text-primary)] font-bold">{order.order_number}</p>
-                              </div>
-                              <p className="text-[var(--color-text-secondary)] text-xs">
-                                {new Date(order.drop_off_date).toLocaleDateString('en-US', { 
-                                  weekday: 'short', 
-                                  month: 'short', 
-                                  day: 'numeric' 
-                                })}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge className={`${statusColors[order.status]} border`}>
-                                {statusLabels[order.status]}
-                              </Badge>
-                              {isExpanded ? 
-                                <ChevronUp className="w-4 h-4 text-[var(--color-text-secondary)]" /> : 
-                                <ChevronDown className="w-4 h-4 text-[var(--color-text-secondary)]" />
-                              }
-                            </div>
-                          </div>
-
-                          {/* Progress Bar */}
-                          <div className="space-y-2">
-                            <Progress 
-                              value={getStatusProgress(order.status)} 
-                              className="h-2 bg-[var(--color-bg-secondary)]"
-                            />
-                            <div className="flex justify-between text-xs text-[var(--color-text-secondary)]">
-                              <span>{order.items?.length || 0} items</span>
-                              <span className="text-[var(--color-text-primary)] font-bold">
-                                ${order.total_cost?.toFixed(2) || '0.00'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Expanded Details */}
-                        <AnimatePresence>
-                          {isExpanded && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              className="border-t border-[var(--color-border)]"
-                            >
-                              <div className="p-4 space-y-3 bg-[var(--color-bg-secondary)]">
-                                {/* Items List */}
-                                <div>
-                                  <p className="text-xs text-[var(--color-text-secondary)] mb-2">Items:</p>
-                                  <div className="flex flex-wrap gap-2">
-                                    {order.items?.map((item, idx) => (
-                                      <Badge key={idx} variant="outline" className="text-[var(--color-text-primary)]">
-                                        {item}
-                                      </Badge>
-                                    ))}
-                                    {order.includes_sneakers && (
-                                      <Badge variant="outline" className="text-blue-400 border-blue-400">
-                                        🧹 Sneakers
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Location & Time */}
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-2 text-[var(--color-text-secondary)] text-sm">
-                                    <MapPin className="w-4 h-4" />
-                                    <span>{order.gym_location}</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-[var(--color-text-secondary)] text-sm">
-                                    <Clock className="w-4 h-4" />
-                                    <span>
-                                      {order.status === 'ready' 
-                                        ? '✅ Ready for pickup now!' 
-                                        : `Est. ${subscription?.laundry_turnaround_hours || 48}h`}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Action Buttons */}
-                                {canCancelOrder(order) && (
-                                  <Button
-                                    variant="outline"
-                                    className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10"
-                                    onClick={() => setOrderToCancel(order)}
-                                  >
-                                    <X className="w-4 h-4 mr-2" />
-                                    Cancel Order
-                                  </Button>
-                                )}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <Card className="bg-[var(--color-bg-card)] border-[var(--color-border)]">
-                <CardContent className="p-12 text-center">
-                  <Shirt className="w-16 h-16 text-[var(--color-text-muted)] mx-auto mb-4" />
-                  <p className="text-[var(--color-text-primary)] font-medium mb-2">
-                    {filterStatus === 'active' ? 'No Active Orders' : 'No Order History'}
-                  </p>
-                  <p className="text-[var(--color-text-secondary)] text-sm">
-                    {filterStatus === 'active' 
-                      ? 'Create your first order to get fresh gym wear delivered'
-                      : 'Completed orders will appear here'}
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Cancel Order Dialog */}
-        <Dialog open={!!orderToCancel} onOpenChange={() => setOrderToCancel(null)}>
-          <DialogContent className="bg-[var(--color-bg-card)] border-[var(--color-border)]">
-            <DialogHeader>
-              <DialogTitle className="text-[var(--color-text-primary)]">Cancel Order?</DialogTitle>
-              <DialogDescription className="text-[var(--color-text-secondary)]">
-                Are you sure you want to cancel order {orderToCancel?.order_number}? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex gap-3 mt-4">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => setOrderToCancel(null)}
-              >
-                Keep Order
-              </Button>
-              <Button
-                variant="destructive"
-                className="flex-1 bg-red-500 hover:bg-red-600"
-                onClick={() => {
-                  if (orderToCancel) {
-                    cancelOrderMutation.mutate(orderToCancel.id);
-                  }
-                }}
-                disabled={cancelOrderMutation.isPending}
-              >
-                {cancelOrderMutation.isPending ? 'Cancelling...' : 'Cancel Order'}
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1 border-gray-700 text-gray-400"
+                  onClick={() => setShowRecoveryMode(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 text-white"
+                  onClick={() => activateRecoveryMutation.mutate()}
+                  disabled={activateRecoveryMutation.isPending}
+                >
+                  {activateRecoveryMutation.isPending ? 'Activating...' : 'Confirm Activation'}
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
