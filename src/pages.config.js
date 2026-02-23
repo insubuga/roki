@@ -55,7 +55,6 @@ import DriverApplicationReview from './pages/DriverApplicationReview';
 import DriverDashboard from './pages/DriverDashboard';
 import DriverOnboarding from './pages/DriverOnboarding';
 import Feedback from './pages/Feedback';
-import LaundryOrder from './pages/LaundryOrder';
 import OrderHistory from './pages/OrderHistory';
 import PaymentHistory from './pages/PaymentHistory';
 import Profile from './pages/Profile';
@@ -78,7 +77,6 @@ export const PAGES = {
     "DriverDashboard": DriverDashboard,
     "DriverOnboarding": DriverOnboarding,
     "Feedback": Feedback,
-    "LaundryOrder": LaundryOrder,
     "OrderHistory": OrderHistory,
     "PaymentHistory": PaymentHistory,
     "Profile": Profile,
