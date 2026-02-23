@@ -11,26 +11,6 @@ import { toast } from 'sonner';
 
 const plans = [
   {
-    id: 'free',
-    name: 'Starter',
-    price: 0,
-    laundryCredits: 2,
-    laundryTurnaround: 48,
-    sneakerCleaning: 0,
-    premiumSneaker: false,
-    rushDeliveries: 0,
-    rushFee: 15,
-    priorityDispatch: false,
-    features: [
-      'Try ROKI risk-free',
-      'Basic locker access',
-      'Standard delivery only',
-      'Pay per sneaker clean',
-    ],
-    color: 'border-gray-300',
-    buttonClass: 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white',
-  },
-  {
     id: 'basic',
     name: 'Core',
     price: 39,
@@ -73,28 +53,6 @@ const plans = [
     color: 'border-green-300',
     buttonClass: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-md',
   },
-  {
-    id: 'elite',
-    name: 'Elite',
-    price: 99,
-    laundryCredits: 999,
-    laundryTurnaround: 12,
-    sneakerCleaning: 100,
-    premiumSneaker: true,
-    rushDeliveries: 999,
-    rushFee: 0,
-    priorityDispatch: true,
-    features: [
-      'Never think about laundry again',
-      '12h premium turnaround',
-      'Unlimited everything',
-      'Concierge-level service',
-      'Personal RokiBot assistant',
-      'VIP locker access',
-    ],
-    color: 'border-purple-300',
-    buttonClass: 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md',
-  },
 ];
 
 export default function Subscription() {
@@ -124,20 +82,15 @@ export default function Subscription() {
 
   const updateSubscriptionMutation = useMutation({
     mutationFn: async (planId) => {
-      // For paid plans, redirect to Stripe checkout
-      if (planId !== 'free') {
-        const response = await base44.functions.invoke('createSubscriptionCheckout', {
-          plan_id: planId
-        });
-        
-        if (response.data.url) {
-          window.location.href = response.data.url;
-        }
-        return null;
-      }
+      // Redirect to Stripe checkout for all plans
+      const response = await base44.functions.invoke('createSubscriptionCheckout', {
+        plan_id: planId
+      });
       
-      // For free plan, update directly (downgrade)
-      const plan = plans.find(p => p.id === planId);
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      }
+      return null;
       
       if (subscription) {
         return base44.entities.Subscription.update(subscription.id, {
@@ -172,27 +125,8 @@ export default function Subscription() {
         });
       }
     },
-    onSuccess: async (data, variables) => {
-      if (!data) return; // Redirected to Stripe
-      
-      const oldPlan = subscription?.plan || 'free';
-      const newPlan = variables;
-      
-      toast.success(`Switched to ${newPlan.toUpperCase()} plan!`);
-      queryClient.invalidateQueries({ queryKey: ['subscription'] });
-      
-      // Create notification
-      if (newPlan !== oldPlan && user?.email) {
-        const planTiers = { free: 0, basic: 1, pro: 2, elite: 3 };
-        const isUpgrade = planTiers[newPlan] > planTiers[oldPlan];
-        
-        const { NotificationTriggers } = await import('../components/notifications/NotificationHelper');
-        if (isUpgrade) {
-          await NotificationTriggers.subscriptionUpgraded(user.email, newPlan);
-        } else {
-          await NotificationTriggers.subscriptionDowngraded(user.email, newPlan);
-        }
-      }
+    onSuccess: async () => {
+      // User will be redirected to Stripe
     },
   });
 
@@ -209,7 +143,7 @@ export default function Subscription() {
     },
   });
 
-  const currentPlan = subscription?.plan || 'free';
+  const currentPlan = subscription?.plan || 'basic';
 
   if (!user) {
     return (
@@ -321,7 +255,7 @@ export default function Subscription() {
       )}
 
       {/* Plans Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         {plans.map((plan) => (
           <motion.div
             key={plan.id}
