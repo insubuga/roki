@@ -112,21 +112,19 @@ export default function Layout({ children, currentPageName }) {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-8">
               {navItems.map((item) => (
-                item.hasDropdown ? (
-                  (
-                  <Link
-                    key={item.name}
-                    to={createPageUrl(item.page)}
-                    className={`text-gray-700 hover:text-green-600 transition-colors font-medium relative ${
-                      currentPageName === item.page ? 'text-green-600 font-semibold' : ''
-                    }`}
-                  >
-                    {item.name}
-                    {currentPageName === item.page && (
-                      <span className="absolute -bottom-4 left-0 right-0 h-0.5 bg-green-600 rounded-full" />
-                    )}
-                  </Link>
-              )}
+                <Link
+                  key={item.name}
+                  to={createPageUrl(item.page)}
+                  className={`text-gray-700 hover:text-green-600 transition-colors font-medium relative ${
+                    currentPageName === item.page ? 'text-green-600 font-semibold' : ''
+                  }`}
+                >
+                  {item.name}
+                  {currentPageName === item.page && (
+                    <span className="absolute -bottom-4 left-0 right-0 h-0.5 bg-green-600 rounded-full" />
+                  )}
+                </Link>
+              ))}
             </nav>
 
             {/* Right Side */}
