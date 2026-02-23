@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Shirt, Clock, MapPin, Plus, Package, X, ChevronDown, ChevronUp, Sparkles, Truck, CheckCircle } from 'lucide-react';
+import { Shirt, Clock, MapPin, Plus, Package, X, ChevronDown, ChevronUp, Sparkles, Truck, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -43,7 +43,7 @@ const statusIcons = {
   awaiting_pickup: Clock,
   washing: Sparkles,
   drying: Sparkles,
-  ready: CheckCircle,
+  ready: CheckCircle2,
   picked_up: Package,
 };
 
@@ -186,7 +186,7 @@ export default function LaundryOrder() {
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0">
-                <CheckCircle className="w-5 h-5 text-white" />
+                <CheckCircle2 className="w-5 h-5 text-white" />
               </div>
               <div>
                 <p className="text-white font-bold text-base mb-1">Always Ready</p>
