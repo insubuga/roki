@@ -100,7 +100,10 @@ export default function Layout({ children, currentPageName }) {
               <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md">
                 <ShoppingCart className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">ROKI</span>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent leading-none">ROKI</span>
+                <span className="text-[9px] text-gray-500 font-medium leading-none hidden sm:block">Readiness OS</span>
+              </div>
             </Link>
 
             {/* Desktop Navigation */}

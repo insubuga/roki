@@ -52,25 +52,25 @@ export default function Dashboard() {
     );
   }
 
-  // Quick actions - most used features
+  // System components - integrated readiness layers
   const quickActions = [
-    { icon: ShoppingCart, title: 'Shop', page: 'Shop', color: 'from-green-500 to-emerald-600' },
-    { icon: Zap, title: 'Rush', page: 'RushMode', color: 'from-red-500 to-pink-600' },
-    { icon: Shirt, title: 'Laundry', page: 'LaundryOrder', color: 'from-cyan-500 to-blue-600' },
-    { icon: Truck, title: 'Track', page: 'Deliveries', color: 'from-orange-500 to-amber-600' },
+    { icon: ShoppingCart, title: 'Shop', subtitle: 'Replenishment', page: 'Shop', color: 'from-green-500 to-emerald-600' },
+    { icon: Zap, title: 'Rush', subtitle: 'Redundancy', page: 'RushMode', color: 'from-red-500 to-pink-600' },
+    { icon: Shirt, title: 'Laundry', subtitle: 'Execution', page: 'LaundryOrder', color: 'from-cyan-500 to-blue-600' },
+    { icon: Truck, title: 'Track', subtitle: 'Distribution', page: 'Deliveries', color: 'from-orange-500 to-amber-600' },
   ];
 
-  // Services menu - organized by category
+  // System controls - organized by function
   const services = {
     account: [
-      { icon: Settings, title: 'Profile & Locker', page: 'Profile' },
-      { icon: CreditCard, title: 'Subscription', page: 'Subscription' },
-      { icon: Package, title: 'Order History', page: 'OrderHistory' },
-      { icon: Watch, title: 'Wearables', page: 'Wearables' },
+      { icon: Settings, title: 'Profile & Locker', subtitle: 'Distribution nodes', page: 'Profile' },
+      { icon: CreditCard, title: 'Subscription', subtitle: 'System access', page: 'Subscription' },
+      { icon: Package, title: 'Order History', subtitle: 'Execution log', page: 'OrderHistory' },
+      { icon: Watch, title: 'Wearables', subtitle: 'Signal input', page: 'Wearables' },
     ],
     support: [
-      { icon: Sparkles, title: 'RokiBot', page: 'RokiBot' },
-      { icon: MessageCircle, title: 'Support Chat', page: 'Support' },
+      { icon: Sparkles, title: 'RokiBot', subtitle: 'System intelligence', page: 'RokiBot' },
+      { icon: MessageCircle, title: 'Support Chat', subtitle: 'Human backup', page: 'Support' },
     ],
   };
 
@@ -97,26 +97,32 @@ export default function Dashboard() {
               <h1 className="text-[var(--color-text-primary)] text-lg font-bold">
                 {user.full_name?.split(' ')[0] || 'Hey'}
               </h1>
+              <p className="text-[var(--color-text-secondary)] text-xs">Readiness Operating System</p>
             </div>
           </div>
         </div>
 
-        {/* Quick Actions - Compact Grid */}
-        <div className="grid grid-cols-4 gap-3">
+        {/* System Components */}
+        <div className="grid grid-cols-2 gap-3">
           {quickActions.map((action) => {
             const Icon = action.icon;
             return (
               <Link
                 key={action.title}
                 to={createPageUrl(action.page)}
-                className="flex flex-col items-center gap-2 select-none"
+                className="flex items-center gap-3 p-4 bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all select-none"
               >
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-lg`}>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-md flex-shrink-0`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-[var(--color-text-primary)] text-xs font-medium text-center">
-                  {action.title}
-                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[var(--color-text-primary)] text-sm font-bold truncate">
+                    {action.title}
+                  </p>
+                  <p className="text-[var(--color-text-secondary)] text-xs truncate">
+                    {action.subtitle}
+                  </p>
+                </div>
               </Link>
             );
           })}
@@ -145,12 +151,12 @@ export default function Dashboard() {
 
         {/* Services Menu - Compact List */}
         <div className="space-y-4">
-          {/* Account Section */}
+          {/* System Controls */}
           <Card className="bg-[var(--color-bg-card)] border-[var(--color-border)]">
             <CardContent className="p-4">
               <h3 className="text-[var(--color-text-primary)] font-semibold text-sm mb-3 flex items-center gap-2">
                 <Settings className="w-4 h-4" />
-                Account & Services
+                System Controls
               </h3>
               <div className="space-y-1">
                 {services.account.map((item) => {
@@ -163,7 +169,10 @@ export default function Dashboard() {
                     >
                       <div className="flex items-center gap-3">
                         <Icon className="w-4 h-4 text-[var(--color-text-secondary)]" />
-                        <span className="text-[var(--color-text-primary)] text-sm">{item.title}</span>
+                        <div>
+                          <p className="text-[var(--color-text-primary)] text-sm font-medium">{item.title}</p>
+                          <p className="text-[var(--color-text-muted)] text-xs">{item.subtitle}</p>
+                        </div>
                       </div>
                       <ChevronRight className="w-4 h-4 text-[var(--color-text-muted)]" />
                     </Link>
@@ -173,12 +182,12 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Support Section */}
+          {/* Intelligence Layer */}
           <Card className="bg-[var(--color-bg-card)] border-[var(--color-border)]">
             <CardContent className="p-4">
               <h3 className="text-[var(--color-text-primary)] font-semibold text-sm mb-3 flex items-center gap-2">
                 <MessageCircle className="w-4 h-4" />
-                Support
+                Intelligence
               </h3>
               <div className="space-y-1">
                 {services.support.map((item) => {
@@ -191,7 +200,10 @@ export default function Dashboard() {
                     >
                       <div className="flex items-center gap-3">
                         <Icon className="w-4 h-4 text-[var(--color-text-secondary)]" />
-                        <span className="text-[var(--color-text-primary)] text-sm">{item.title}</span>
+                        <div>
+                          <p className="text-[var(--color-text-primary)] text-sm font-medium">{item.title}</p>
+                          <p className="text-[var(--color-text-muted)] text-xs">{item.subtitle}</p>
+                        </div>
                       </div>
                       <ChevronRight className="w-4 h-4 text-[var(--color-text-muted)]" />
                     </Link>
