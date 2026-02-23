@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import SmartSuggestions from '../components/dashboard/SmartSuggestions';
+import SystemStatus from '../components/dashboard/SystemStatus';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -52,11 +53,11 @@ export default function Dashboard() {
     );
   }
 
-  // System components - integrated readiness layers
+  // System access modules
   const quickActions = [
-    { icon: ShoppingCart, title: 'Shop', subtitle: 'Replenishment', page: 'Shop', color: 'from-green-500 to-emerald-600' },
-    { icon: Zap, title: 'Rush', subtitle: 'Redundancy', page: 'RushMode', color: 'from-red-500 to-pink-600' },
     { icon: Shirt, title: 'Laundry', subtitle: 'Execution', page: 'LaundryOrder', color: 'from-cyan-500 to-blue-600' },
+    { icon: Zap, title: 'Rush', subtitle: 'Redundancy', page: 'RushMode', color: 'from-red-500 to-pink-600' },
+    { icon: ShoppingCart, title: 'Supplies', subtitle: 'Auto-Replenish', page: 'Shop', color: 'from-green-500 to-emerald-600' },
     { icon: Truck, title: 'Track', subtitle: 'Distribution', page: 'Deliveries', color: 'from-orange-500 to-amber-600' },
   ];
 
@@ -102,7 +103,13 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* System Components */}
+        {/* System Status - Primary */}
+        <SystemStatus user={user} />
+
+        {/* Smart Suggestions */}
+        <SmartSuggestions user={user} />
+
+        {/* Quick Access Modules */}
         <div className="grid grid-cols-2 gap-3">
           {quickActions.map((action) => {
             const Icon = action.icon;
@@ -110,16 +117,16 @@ export default function Dashboard() {
               <Link
                 key={action.title}
                 to={createPageUrl(action.page)}
-                className="flex items-center gap-3 p-4 bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all select-none"
+                className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all select-none"
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-md flex-shrink-0`}>
-                  <Icon className="w-6 h-6 text-white" />
+                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${action.color} flex items-center justify-center flex-shrink-0`}>
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[var(--color-text-primary)] text-sm font-bold truncate">
+                  <p className="text-gray-900 text-sm font-semibold truncate">
                     {action.title}
                   </p>
-                  <p className="text-[var(--color-text-secondary)] text-xs truncate">
+                  <p className="text-gray-500 text-xs truncate">
                     {action.subtitle}
                   </p>
                 </div>
@@ -127,27 +134,6 @@ export default function Dashboard() {
             );
           })}
         </div>
-
-        {/* Smart Suggestions */}
-        <SmartSuggestions user={user} />
-
-        {/* System Status */}
-        <Card className="bg-gradient-to-br from-[var(--color-primary)]/10 to-emerald-500/10 border-[var(--color-primary)]/30">
-          <CardContent className="p-4">
-            <Link to={createPageUrl('Cart')} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[var(--color-primary)]/20 rounded-xl flex items-center justify-center">
-                  <ShoppingCart className="w-5 h-5 text-[var(--color-primary)]" />
-                </div>
-                <div>
-                  <p className="text-[var(--color-text-primary)] font-semibold text-sm">Scheduled Supplies</p>
-                  <p className="text-[var(--color-text-secondary)] text-xs">Ready for execution</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-[var(--color-text-muted)]" />
-            </Link>
-          </CardContent>
-        </Card>
 
         {/* Services Menu - Compact List */}
         <div className="space-y-4">

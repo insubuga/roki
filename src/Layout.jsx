@@ -60,7 +60,7 @@ export default function Layout({ children, currentPageName }) {
 
   const navItems = [
     { name: 'Dashboard', page: 'Dashboard' },
-    { name: 'Shop', page: 'Shop', hasDropdown: true },
+    { name: 'Supplies', page: 'Shop', hasDropdown: true },
     ...(user?.role === 'driver' || user?.role === 'admin' ? [{ name: 'Driver', page: 'DriverDashboard' }] : []),
     ...(user?.role === 'user' && !user?.role.includes('driver') ? [{ name: 'Become a Driver', page: 'DriverOnboarding' }] : []),
   ];
@@ -75,11 +75,11 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const bottomNavItems = [
-    { name: 'Home', page: 'Dashboard', icon: Home },
-    { name: 'Locker', page: 'Profile', icon: Lock, key: 'locker' },
+    { name: 'Status', page: 'Dashboard', icon: Home },
+    { name: 'Node', page: 'Profile', icon: Lock, key: 'locker' },
     { name: 'Rush', page: 'RushMode', icon: Zap },
-    { name: 'Laundry', page: 'LaundryOrder', icon: Shirt },
-    { name: 'Profile', page: 'Profile', icon: User, key: 'profile' },
+    { name: 'Execute', page: 'LaundryOrder', icon: Shirt },
+    { name: 'System', page: 'Profile', icon: User, key: 'profile' },
   ];
 
   const handleTabClick = (page) => {
@@ -118,12 +118,12 @@ export default function Layout({ children, currentPageName }) {
                     <DropdownMenuContent className="bg-white border-gray-200 shadow-lg">
                       <DropdownMenuItem asChild>
                         <Link to={createPageUrl('Shop')} className="text-gray-700 hover:text-green-600 hover:bg-green-50">
-                          Browse Supplements
+                          Configure Auto-Replenish
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link to={createPageUrl('Cart')} className="text-gray-700 hover:text-green-600 hover:bg-green-50">
-                          View Cart
+                          Scheduled Items
                         </Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
