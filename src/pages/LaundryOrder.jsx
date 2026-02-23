@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Shirt, Clock, MapPin, Plus, Package, X, ChevronDown, ChevronUp, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Shirt, Clock, MapPin, Plus, Package, X, ChevronDown, ChevronUp, Sparkles, Truck, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import MobileHeader from '@/components/mobile/MobileHeader';
@@ -43,7 +43,7 @@ const statusIcons = {
   awaiting_pickup: Clock,
   washing: Sparkles,
   drying: Sparkles,
-  ready: CheckCircle2,
+  ready: CheckCircle,
   picked_up: Package,
 };
 
@@ -175,28 +175,13 @@ export default function LaundryOrder() {
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-6">
         <MobileHeader 
-          title="Clean Gear Guarantee" 
-          subtitle="You'll never miss because your gear isn't ready"
+          title="Laundry Service" 
+          subtitle="Freshly cleaned gym wear delivered to your locker"
           icon={Shirt}
           iconColor="text-blue-400"
         />
 
-        {/* Readiness Promise */}
-        <Card className="bg-gradient-to-br from-blue-500 to-cyan-600 border-0 shadow-xl">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0">
-                <CheckCircle2 className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="text-white font-bold text-base mb-1">Always Ready</p>
-                <p className="text-blue-50 text-sm leading-relaxed">
-                  Skip the excuses. We automate your laundry so your gear is always fresh and ready at your locker. Zero prep needed.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
 
         {/* New Order Button */}
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -208,6 +193,8 @@ export default function LaundryOrder() {
             New Laundry Order
           </Button>
         </motion.div>
+
+
 
         {/* New Order Form */}
         <AnimatePresence>
