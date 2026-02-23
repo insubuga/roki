@@ -1,82 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Activity, Clock, MapPin, AlertTriangle, CheckCircle, Zap, TrendingUp, Shield, Settings } from 'lucide-react';
+import { Activity, Clock, MapPin, AlertTriangle, TrendingUp, Database, Radio, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import MobileHeader from '@/components/mobile/MobileHeader';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
-import { motion } from 'framer-motion';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
 
-const statusConfig = {
-  awaiting_pickup: { 
-    label: 'PROCESSING', 
-    color: 'bg-blue-500', 
-    textColor: 'text-blue-400',
-    bgColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-500/30'
-  },
-  washing: { 
-    label: 'PROCESSING', 
-    color: 'bg-blue-500', 
-    textColor: 'text-blue-400',
-    bgColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-500/30'
-  },
-  drying: { 
-    label: 'IN TRANSIT', 
-    color: 'bg-orange-500', 
-    textColor: 'text-orange-400',
-    bgColor: 'bg-orange-500/10',
-    borderColor: 'border-orange-500/30'
-  },
-  ready: { 
-    label: 'READY', 
-    color: 'bg-green-500', 
-    textColor: 'text-green-400',
-    bgColor: 'bg-green-500/10',
-    borderColor: 'border-green-500/30'
-  },
-  picked_up: { 
-    label: 'DELIVERED', 
-    color: 'bg-gray-500', 
-    textColor: 'text-gray-400',
-    bgColor: 'bg-gray-500/10',
-    borderColor: 'border-gray-500/30'
-  },
+const cycleStates = {
+  queued: { label: 'QUEUED', color: 'bg-gray-500', textColor: 'text-gray-400' },
+  collected: { label: 'COLLECTED', color: 'bg-blue-500', textColor: 'text-blue-400' },
+  processing: { label: 'PROCESSING', color: 'bg-blue-500', textColor: 'text-blue-400' },
+  quality_check: { label: 'QUALITY CHECK', color: 'bg-purple-500', textColor: 'text-purple-400' },
+  dispatched: { label: 'DISPATCHED', color: 'bg-orange-500', textColor: 'text-orange-400' },
+  delivered: { label: 'DELIVERED', color: 'bg-green-500', textColor: 'text-green-400' },
 };
 
 const gearVolumeOptions = [
-  { value: 'light', label: 'Light Load (3-5 items)', itemCount: 4 },
-  { value: 'standard', label: 'Standard Load (6-10 items)', itemCount: 8 },
-  { value: 'heavy', label: 'Heavy Load (11+ items)', itemCount: 12 },
-];
-
-const pickupWindows = [
-  { value: 'early_morning', label: '5-8 AM' },
-  { value: 'morning', label: '8-11 AM' },
-  { value: 'midday', label: '11 AM-2 PM' },
-  { value: 'afternoon', label: '2-5 PM' },
-  { value: 'evening', label: '5-8 PM' },
-  { value: 'night', label: '8-11 PM' },
+  { value: 'light', label: '3-5 Units', itemCount: 4 },
+  { value: 'standard', label: '6-10 Units', itemCount: 8 },
+  { value: 'heavy', label: '11-15 Units', itemCount: 12 },
 ];
 
 export default function LaundryOrder() {
   const [user, setUser] = useState(null);
   const [showActivateDialog, setShowActivateDialog] = useState(false);
-  const [showRecoveryMode, setShowRecoveryMode] = useState(false);
+  const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
   const [gearVolume, setGearVolume] = useState('standard');
-  const [pickupWindow, setPickupWindow] = useState('evening');
-  const [adminView, setAdminView] = useState(false);
+  const [operationsView, setOperationsView] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -124,13 +79,10 @@ export default function LaundryOrder() {
     enabled: !!assignedLocker?.gym_id,
   });
 
-  const { data: completedCycles = [] } = useQuery({
-    queryKey: ['completedCycles', user?.email],
-    queryFn: () => base44.entities.LaundryOrder.filter({
-      user_email: user?.email,
-      status: 'picked_up'
-    }),
-    enabled: !!user?.email && adminView,
+  const { data: allLockers = [] } = useQuery({
+    queryKey: ['allLockers'],
+    queryFn: () => base44.entities.Locker.list(),
+    enabled: !!user && operationsView,
   });
 
   const { data: allActiveCycles = [] } = useQuery({
@@ -138,25 +90,30 @@ export default function LaundryOrder() {
     queryFn: () => base44.entities.LaundryOrder.filter({
       status: { $in: ['awaiting_pickup', 'washing', 'drying', 'ready'] }
     }),
-    enabled: !!user && adminView,
+    enabled: !!user && operationsView,
+  });
+
+  const { data: reliabilityLogs = [] } = useQuery({
+    queryKey: ['reliabilityLogs'],
+    queryFn: () => base44.entities.ReliabilityLog.list('-created_date', 30),
+    enabled: !!user,
   });
 
   const activateCycleMutation = useMutation({
-    mutationFn: async (cycleData) => {
+    mutationFn: async () => {
       const volume = gearVolumeOptions.find(v => v.value === gearVolume);
-      const batchId = `BATCH-${Date.now().toString(36).toUpperCase()}`;
-      const routeId = `RT-${Math.floor(Math.random() * 999) + 100}`;
+      const batchId = `B${Date.now().toString(36).toUpperCase()}`;
+      const routeId = `RT${Math.floor(Math.random() * 899) + 100}`;
       
       await base44.entities.LaundryOrder.create({
         user_email: user.email,
         order_number: batchId,
-        drop_off_date: new Date().toISOString().split('T')[0],
+        drop_off_date: new Date().toISOString(),
         status: 'awaiting_pickup',
-        items: Array(volume.itemCount).fill('Activewear'),
+        items: Array(volume.itemCount).fill('Unit'),
         gym_location: gym?.name || 'Node Assigned',
       });
 
-      // Log reliability event
       await base44.entities.ReliabilityLog.create({
         user_email: user.email,
         event_type: 'on_time_delivery',
@@ -165,11 +122,8 @@ export default function LaundryOrder() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['activeCycle']);
-      toast.success('Cycle Activated Successfully');
+      toast.success('Cycle Activated');
       setShowActivateDialog(false);
-    },
-    onError: () => {
-      toast.error('System Exception: Activation Failed');
     },
   });
 
@@ -179,7 +133,7 @@ export default function LaundryOrder() {
       
       await base44.entities.LaundryOrder.update(activeCycle.id, {
         ...activeCycle,
-        status: 'drying', // Escalate status
+        status: 'drying',
       });
 
       await base44.entities.ReliabilityLog.create({
@@ -190,8 +144,8 @@ export default function LaundryOrder() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['activeCycle']);
-      toast.success('Recovery Mode Activated');
-      setShowRecoveryMode(false);
+      toast.success('Recovery Protocol Activated');
+      setShowRecoveryDialog(false);
     },
   });
 
@@ -202,272 +156,345 @@ export default function LaundryOrder() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  const currentStatus = activeCycle ? statusConfig[activeCycle.status] : null;
+  // Calculate operational metrics
   const totalCycles = preferences?.total_cycles_completed || 0;
   const reliabilityScore = totalCycles > 0 ? 96 : 0;
-  const onTimeStreak = Math.min(totalCycles, 12);
+  const avgTurnaround = 2760; // minutes (46 hours)
+  const slaAdherence = 98;
+  const incidentCount = reliabilityLogs.filter(l => l.event_type !== 'on_time_delivery').length;
+  const routeEfficiency = 92;
+  const clusterLoad = allActiveCycles.length > 0 ? Math.min(85, allActiveCycles.length * 8) : 42;
+  const nodeUtilization = allLockers.length > 0 ? Math.round((allLockers.filter(l => l.status === 'claimed').length / allLockers.length) * 100) : 0;
 
-  const nextScheduledDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  const scheduleLabels = {
-    weekly_monday: 'Every Monday',
-    weekly_tuesday: 'Every Tuesday',
-    weekly_wednesday: 'Every Wednesday',
-    weekly_thursday: 'Every Thursday',
-    weekly_friday: 'Every Friday',
-    biweekly: 'Every 2 Weeks',
-    custom: 'Custom Schedule',
+  // Cycle state mapping
+  const getCycleState = (status) => {
+    const stateMap = {
+      'awaiting_pickup': 'queued',
+      'washing': 'processing',
+      'drying': 'dispatched',
+      'ready': 'delivered',
+    };
+    return stateMap[status] || 'queued';
   };
+
+  const currentState = activeCycle ? cycleStates[getCycleState(activeCycle.status)] : null;
+  const pickupTime = activeCycle ? new Date(activeCycle.created_date) : null;
+  const expectedDelivery = pickupTime ? new Date(pickupTime.getTime() + avgTurnaround * 60 * 1000) : null;
+  const variance = activeCycle && expectedDelivery ? Math.round((expectedDelivery - new Date()) / 60000) : 0;
+
+  // Sparkline data for turnaround trend
+  const turnaroundTrend = Array.from({ length: 7 }, (_, i) => ({
+    value: avgTurnaround + Math.floor(Math.random() * 400 - 200)
+  }));
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
-      <div className="space-y-6">
-        <MobileHeader 
-          title="Readiness Control Center" 
-          subtitle="Automated fitness gear readiness system"
-          icon={Activity}
-          iconColor="text-green-400"
-        />
-
-        {/* Admin Toggle */}
-        {user.role === 'admin' && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setAdminView(!adminView)}
-            className="absolute top-4 right-4 z-10"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            {adminView ? 'User View' : 'Admin View'}
-          </Button>
-        )}
-
-        {/* READINESS STATUS CARD */}
-        <Card className={`border-2 ${currentStatus ? currentStatus.borderColor : 'border-gray-700'}`}>
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">System Status</p>
-                <h2 className={`text-3xl font-bold ${currentStatus ? currentStatus.textColor : 'text-gray-500'}`}>
-                  {currentStatus ? currentStatus.label : 'READY'}
-                </h2>
-              </div>
-              {currentStatus && (
-                <div className={`w-4 h-4 rounded-full ${currentStatus.color} animate-pulse`} />
-              )}
-            </div>
-
-            {activeCycle ? (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gray-800 rounded-lg p-3">
-                    <p className="text-gray-400 text-xs uppercase mb-1">Batch ID</p>
-                    <p className="text-white font-mono text-sm">{activeCycle.order_number}</p>
-                  </div>
-                  <div className="bg-gray-800 rounded-lg p-3">
-                    <p className="text-gray-400 text-xs uppercase mb-1">Route ID</p>
-                    <p className="text-white font-mono text-sm">RT-{Math.floor(Math.random() * 899) + 100}</p>
-                  </div>
-                </div>
-                <div className="bg-gray-800 rounded-lg p-3">
-                  <p className="text-gray-400 text-xs uppercase mb-1">Est. Completion</p>
-                  <p className="text-white font-semibold">
-                    {new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en', { 
-                      weekday: 'short', 
-                      month: 'short', 
-                      day: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit'
-                    })}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-4">
-                <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-2" />
-                <p className="text-green-400 font-semibold">All systems operational</p>
-              </div>
+      <div className="min-h-screen bg-gray-950 text-white pb-6">
+        {/* System State Band */}
+        <div className="bg-gray-900 border-b border-gray-800 px-4 py-3 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Logistics Control Console</h1>
+            {user.role === 'admin' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setOperationsView(!operationsView)}
+                className="text-xs text-yellow-400 hover:text-yellow-300"
+              >
+                {operationsView ? 'User View' : 'Operations View'}
+              </Button>
             )}
-          </CardContent>
-        </Card>
-
-        {/* NEXT CYCLE CARD */}
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2 text-base">
-              <Clock className="w-5 h-5" />
-              Next Scheduled Cycle
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <p className="text-gray-400 text-xs uppercase mb-1">Pickup Date</p>
-                <p className="text-white font-semibold">
-                  {nextScheduledDate.toLocaleDateString('en', { month: 'short', day: 'numeric' })}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-xs uppercase mb-1">Window</p>
-                <p className="text-white font-semibold">
-                  {pickupWindows.find(w => w.value === (preferences?.preferred_pickup_window || 'evening'))?.label}
-                </p>
-              </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+            <div>
+              <p className="text-gray-500 uppercase">System Status</p>
+              <p className="text-green-400 font-mono font-bold">STABLE</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase mb-1">Schedule</p>
-              <p className="text-white font-semibold">
-                {scheduleLabels[preferences?.laundry_schedule] || 'Not configured'}
-              </p>
+              <p className="text-gray-500 uppercase">Cluster Load</p>
+              <p className="text-white font-mono font-bold">{clusterLoad}%</p>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* RELIABILITY SNAPSHOT */}
-        <Card className="bg-gradient-to-br from-green-900/20 to-emerald-900/20 border-green-700/50">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2 text-base">
-              <Shield className="w-5 h-5 text-green-400" />
-              Reliability Metrics
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <p className="text-3xl font-bold text-green-400">{reliabilityScore}%</p>
-                <p className="text-gray-400 text-xs mt-1">On-Time Rate</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-white">{onTimeStreak}</p>
-                <p className="text-gray-400 text-xs mt-1">Incident-Free Streak</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-white">{totalCycles}</p>
-                <p className="text-gray-400 text-xs mt-1">Total Cycles</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-white">46h</p>
-                <p className="text-gray-400 text-xs mt-1">Avg Turnaround</p>
-              </div>
+            <div>
+              <p className="text-gray-500 uppercase">Route Capacity</p>
+              <p className="text-white font-mono font-bold">{100 - routeEfficiency}%</p>
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-gray-500 uppercase">SLA Turnaround</p>
+              <p className="text-white font-mono font-bold">{avgTurnaround / 60}h</p>
+            </div>
+            <div>
+              <p className="text-gray-500 uppercase">Incident Rate</p>
+              <p className="text-white font-mono font-bold">{((incidentCount / (totalCycles || 1)) * 100).toFixed(1)}%</p>
+            </div>
+          </div>
+        </div>
 
-        {/* LOCKER NODE PANEL */}
-        {assignedLocker && gym && (
-          <Card className="bg-gray-800 border-purple-700/50">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2 text-base">
-                <MapPin className="w-5 h-5 text-purple-400" />
-                Assigned Node
+        <div className="px-4 space-y-4">
+          {/* Active Cycle Monitor */}
+          {activeCycle ? (
+            <Card className={`bg-gray-900 border-2 ${currentState?.color.replace('bg-', 'border-')}`}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Radio className="w-4 h-4" />
+                    ACTIVE CYCLE MONITOR
+                  </span>
+                  <Badge className={`${currentState?.color} text-white text-xs font-mono`}>
+                    {currentState?.label}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="bg-gray-800 p-2 rounded">
+                    <p className="text-gray-500 uppercase mb-1">Cycle ID</p>
+                    <p className="text-white font-mono">{activeCycle.order_number}</p>
+                  </div>
+                  <div className="bg-gray-800 p-2 rounded">
+                    <p className="text-gray-500 uppercase mb-1">Route ID</p>
+                    <p className="text-white font-mono">RT{Math.floor(Math.random() * 899) + 100}</p>
+                  </div>
+                  <div className="bg-gray-800 p-2 rounded">
+                    <p className="text-gray-500 uppercase mb-1">Node</p>
+                    <p className="text-white font-mono">{assignedLocker?.locker_number || 'N/A'}</p>
+                  </div>
+                  <div className="bg-gray-800 p-2 rounded">
+                    <p className="text-gray-500 uppercase mb-1">Batch Volume</p>
+                    <p className="text-white font-mono">{activeCycle.items?.length || 0} units</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Pickup Timestamp</span>
+                    <span className="text-white font-mono">{pickupTime?.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Expected Delivery</span>
+                    <span className="text-white font-mono">{expectedDelivery?.toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">SLA Commitment</span>
+                    <span className="text-green-400 font-mono font-bold">48h</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Variance</span>
+                    <span className={`font-mono font-bold ${variance > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {variance > 0 ? '+' : ''}{variance}min
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="p-6 text-center">
+                <Database className="w-12 h-12 text-gray-700 mx-auto mb-3" />
+                <p className="text-gray-500 text-sm mb-4">No active cycle</p>
+                <Button
+                  onClick={() => setShowActivateDialog(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white font-mono text-sm"
+                  disabled={!assignedLocker}
+                >
+                  ACTIVATE NEW CYCLE
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Route & Node Allocation */}
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                ROUTE & NODE ALLOCATION
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-gray-500 uppercase mb-1">Route Window</p>
+                  <p className="text-white font-mono">{preferences?.preferred_pickup_window?.replace('_', ' ').toUpperCase() || 'NOT SET'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 uppercase mb-1">Route Code</p>
+                  <p className="text-white font-mono">RT{Math.floor(Math.random() * 899) + 100}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 uppercase mb-1">Route Load</p>
+                  <p className="text-white font-mono font-bold">{routeEfficiency}%</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 uppercase mb-1">Cluster Density</p>
+                  <p className="text-green-400 font-mono font-bold">{preferences?.route_density_contribution || 0}%</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Locker Node Status */}
+          {assignedLocker && gym && (
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Database className="w-4 h-4" />
+                  NODE STATUS
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-xs">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-gray-500 uppercase">Node ID</p>
+                    <p className="text-white font-mono">{assignedLocker.locker_number}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 uppercase">Location</p>
+                    <p className="text-white">{gym.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 uppercase">Bay Number</p>
+                    <p className="text-green-400 font-mono font-bold">{assignedLocker.locker_number}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 uppercase">Utilization</p>
+                    <p className="text-white font-mono">{nodeUtilization}%</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Reliability & Performance Metrics */}
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                PERFORMANCE METRICS (30-DAY)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-3 gap-3 text-xs">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-green-400 font-mono">{reliabilityScore}%</p>
+                  <p className="text-gray-500 uppercase mt-1">On-Time</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-white font-mono">{totalCycles}</p>
+                  <p className="text-gray-500 uppercase mt-1">Cycles</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-white font-mono">{incidentCount}</p>
+                  <p className="text-gray-500 uppercase mt-1">Incidents</p>
+                </div>
+              </div>
+              
+              <div className="space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500">Avg Turnaround</span>
+                  <span className="text-white font-mono">{avgTurnaround / 60}h</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500">SLA Adherence</span>
+                  <span className="text-green-400 font-mono font-bold">{slaAdherence}%</span>
+                </div>
+              </div>
+
               <div>
-                <p className="text-gray-400 text-xs uppercase mb-1">Location</p>
-                <p className="text-white font-semibold">{gym.name}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <p className="text-gray-400 text-xs uppercase mb-1">Bay</p>
-                  <p className="text-white font-mono font-bold">{assignedLocker.locker_number}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-xs uppercase mb-1">Access Code</p>
-                  <p className="text-green-400 font-mono font-bold">{assignedLocker.access_code}</p>
-                </div>
+                <p className="text-gray-500 text-xs uppercase mb-2">Turnaround Trend</p>
+                <ResponsiveContainer width="100%" height={40}>
+                  <LineChart data={turnaroundTrend}>
+                    <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
-        )}
 
-        {/* RECOVERY MODE PANEL */}
-        {activeCycle && activeCycle.status !== 'ready' && (
-          <Card className="bg-gradient-to-br from-red-900/20 to-orange-900/20 border-red-700/50">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <AlertTriangle className="w-6 h-6 text-red-400" />
-                <div>
-                  <p className="text-white font-bold">Recovery Protocol Available</p>
-                  <p className="text-gray-400 text-sm">Activate priority dispatch if urgency detected</p>
+          {/* Recovery Protocol */}
+          {activeCycle && variance < -60 && (
+            <Card className="bg-gradient-to-br from-red-950/50 to-orange-950/50 border-red-800">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5" />
+                  <div>
+                    <p className="text-white font-bold text-sm">VARIANCE DETECTED</p>
+                    <p className="text-gray-400 text-xs mt-1">SLA breach risk — recovery protocol available</p>
+                  </div>
                 </div>
-              </div>
-              <Button
-                onClick={() => setShowRecoveryMode(true)}
-                className="w-full bg-gradient-to-r from-red-600 to-orange-600 text-white hover:from-red-700 hover:to-orange-700"
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Activate Recovery Mode
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+                <div className="space-y-2 text-xs mb-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Root Cause</span>
+                    <span className="text-red-400 font-mono">Route Congestion</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Revised ETA</span>
+                    <span className="text-white font-mono">+12h</span>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setShowRecoveryDialog(true)}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-mono"
+                >
+                  ENGAGE RECOVERY PROTOCOL
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
-        {/* ACTIVATE NEW CYCLE */}
-        {!activeCycle && (
-          <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-            <Button
-              onClick={() => setShowActivateDialog(true)}
-              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 py-6 text-lg font-semibold"
-            >
-              <Activity className="w-5 h-5 mr-2" />
-              Activate New Cycle
-            </Button>
-          </motion.div>
-        )}
+          {/* Operations View */}
+          {operationsView && (
+            <Card className="bg-gray-950 border-yellow-600/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-yellow-400 flex items-center gap-2">
+                  <Activity className="w-4 h-4" />
+                  OPERATIONS SNAPSHOT
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <p className="text-gray-500 uppercase mb-1">Active Cycles</p>
+                    <p className="text-white text-xl font-bold font-mono">{allActiveCycles.length}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 uppercase mb-1">Node Utilization</p>
+                    <p className="text-white text-xl font-bold font-mono">{nodeUtilization}%</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 uppercase mb-1">Route Efficiency</p>
+                    <p className="text-green-400 text-xl font-bold font-mono">{routeEfficiency}%</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 uppercase mb-1">Cost/Cluster</p>
+                    <p className="text-white text-xl font-bold font-mono">$210</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
-        {/* ADMIN OPERATIONS VIEW */}
-        {adminView && (
-          <Card className="bg-gray-900 border-yellow-600/50">
-            <CardHeader>
-              <CardTitle className="text-yellow-400 flex items-center gap-2 text-base">
-                <TrendingUp className="w-5 h-5" />
-                Operations Snapshot
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-400 text-xs uppercase mb-1">Active Cycles</p>
-                  <p className="text-white text-2xl font-bold">{allActiveCycles.length}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-xs uppercase mb-1">Completed</p>
-                  <p className="text-white text-2xl font-bold">{completedCycles.length}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-xs uppercase mb-1">System Uptime</p>
-                  <p className="text-green-400 text-2xl font-bold">98.4%</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-xs uppercase mb-1">Route Efficiency</p>
-                  <p className="text-green-400 text-2xl font-bold">92%</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* ACTIVATE CYCLE DIALOG */}
+        {/* Activate Cycle Dialog */}
         <Dialog open={showActivateDialog} onOpenChange={setShowActivateDialog}>
           <DialogContent className="bg-gray-900 border-gray-700">
             <DialogHeader>
-              <DialogTitle className="text-white">Activate New Cycle</DialogTitle>
+              <DialogTitle className="text-white font-mono text-sm">ACTIVATE NEW CYCLE</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
-                <p className="text-gray-400 text-sm mb-2">Gear Volume</p>
+                <p className="text-gray-400 text-xs uppercase mb-2">Batch Volume</p>
                 <Select value={gearVolume} onValueChange={setGearVolume}>
-                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white font-mono text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 border-gray-700">
                     {gearVolumeOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white">
+                      <SelectItem key={opt.value} value={opt.value} className="text-white font-mono text-sm">
                         {opt.label}
                       </SelectItem>
                     ))}
@@ -475,92 +502,87 @@ export default function LaundryOrder() {
                 </Select>
               </div>
 
-              <div>
-                <p className="text-gray-400 text-sm mb-2">Pickup Window</p>
-                <Select value={pickupWindow} onValueChange={setPickupWindow}>
-                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700">
-                    {pickupWindows.map(window => (
-                      <SelectItem key={window.value} value={window.value} className="text-white">
-                        {window.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="bg-gray-800 rounded-lg p-4">
-                <p className="text-gray-400 text-xs uppercase mb-1">Locker Node</p>
-                <p className="text-white font-semibold">{gym?.name || 'Configure in Profile'}</p>
-                {assignedLocker && (
-                  <p className="text-gray-400 text-sm">Bay {assignedLocker.locker_number}</p>
-                )}
+              <div className="bg-gray-800 rounded p-3 text-xs space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Node Assignment</span>
+                  <span className="text-white font-mono">{assignedLocker?.locker_number || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Route Capacity</span>
+                  <span className="text-green-400 font-mono">Available</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">SLA Impact</span>
+                  <span className="text-green-400 font-mono">+0h</span>
+                </div>
               </div>
 
               <div className="flex gap-3">
                 <Button
                   variant="outline"
-                  className="flex-1 border-gray-700 text-gray-400"
+                  className="flex-1 border-gray-700 text-gray-400 text-xs"
                   onClick={() => setShowActivateDialog(false)}
                 >
-                  Cancel
+                  CANCEL
                 </Button>
                 <Button
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-mono"
                   onClick={() => activateCycleMutation.mutate()}
                   disabled={activateCycleMutation.isPending || !assignedLocker}
                 >
-                  {activateCycleMutation.isPending ? 'Validating...' : 'Activate Cycle'}
+                  {activateCycleMutation.isPending ? 'VALIDATING...' : 'ACTIVATE'}
                 </Button>
               </div>
             </div>
           </DialogContent>
         </Dialog>
 
-        {/* RECOVERY MODE DIALOG */}
-        <Dialog open={showRecoveryMode} onOpenChange={setShowRecoveryMode}>
+        {/* Recovery Protocol Dialog */}
+        <Dialog open={showRecoveryDialog} onOpenChange={setShowRecoveryDialog}>
           <DialogContent className="bg-gray-900 border-red-700/50">
             <DialogHeader>
-              <DialogTitle className="text-red-400 flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5" />
-                Activate Recovery Mode
+              <DialogTitle className="text-red-400 font-mono text-sm flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" />
+                RECOVERY PROTOCOL
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="bg-red-900/20 border border-red-700/50 rounded-lg p-4">
-                <p className="text-red-400 font-semibold mb-2">Priority Dispatch Engaged</p>
-                <p className="text-gray-400 text-sm">
-                  System will reprioritize your cycle in the route queue and allocate backup coverage.
+              <div className="bg-red-950/30 border border-red-800 rounded p-3">
+                <p className="text-red-400 font-bold text-xs mb-2">PRIORITY DISPATCH ENGAGED</p>
+                <p className="text-gray-400 text-xs">
+                  Route queue reprioritized. Backup allocation assigned.
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm">Revised ETA</span>
-                  <span className="text-white font-semibold">12 hours</span>
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Revised ETA</span>
+                  <span className="text-white font-mono">12h</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm">Recovery Credits Used</span>
-                  <span className="text-white font-semibold">1 of 3</span>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Recovery Cost</span>
+                  <span className="text-white font-mono">1 credit</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Reliability Impact</span>
+                  <span className="text-yellow-400 font-mono">-2%</span>
                 </div>
               </div>
 
               <div className="flex gap-3">
                 <Button
                   variant="outline"
-                  className="flex-1 border-gray-700 text-gray-400"
-                  onClick={() => setShowRecoveryMode(false)}
+                  className="flex-1 border-gray-700 text-gray-400 text-xs"
+                  onClick={() => setShowRecoveryDialog(false)}
                 >
-                  Cancel
+                  CANCEL
                 </Button>
                 <Button
-                  className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 text-white"
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs font-mono"
                   onClick={() => activateRecoveryMutation.mutate()}
                   disabled={activateRecoveryMutation.isPending}
                 >
-                  {activateRecoveryMutation.isPending ? 'Activating...' : 'Confirm Activation'}
+                  {activateRecoveryMutation.isPending ? 'ACTIVATING...' : 'CONFIRM'}
                 </Button>
               </div>
             </div>
