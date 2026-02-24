@@ -385,12 +385,10 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
   return (
     <div className="space-y-6">
       {/* Header */}
-      <MobileHeader
-        title="Profile"
-        subtitle="Account settings"
-        icon={Settings}
-        iconColor="text-green-600"
-      />
+      <div className="mb-6">
+        <h1 className="text-foreground text-xl font-bold font-mono">PROFILE</h1>
+        <p className="text-muted-foreground text-xs font-mono uppercase">Account settings</p>
+      </div>
 
       {/* Member History - Top Priority */}
       <MemberDataHistory user={user} />
@@ -399,7 +397,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
         {/* Account Info */}
         <Card className="bg-card border-border shadow-lg">
           <CardHeader>
-            <CardTitle className="text-foreground flex items-center gap-2">
+            <CardTitle className="text-foreground flex items-center gap-2 font-mono uppercase text-sm">
               <User className="w-5 h-5 text-green-600" />
               Account Information
             </CardTitle>
@@ -422,7 +420,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
                 )}
               </div>
               <div>
-                <p className="text-foreground font-semibold mb-1">Profile Photo</p>
+                <p className="text-foreground font-semibold mb-1 font-mono text-sm">Profile Photo</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -444,31 +442,31 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
             </div>
 
             <div>
-              <Label className="text-foreground font-medium">Full Name</Label>
+              <Label className="text-foreground font-medium font-mono text-xs uppercase">Full Name</Label>
               <Input
                 value={user.full_name || ''}
                 disabled
-                className="bg-muted border-border text-muted-foreground mt-1"
+                className="bg-muted border-border text-muted-foreground mt-1 font-mono"
               />
             </div>
             <div>
-              <Label className="text-foreground font-medium">Email</Label>
+              <Label className="text-foreground font-medium font-mono text-xs uppercase">Email</Label>
               <div className="flex items-center gap-2 mt-1">
                 <Mail className="w-5 h-5 text-muted-foreground" />
                 <Input
                   value={user.email || ''}
                   disabled
-                  className="bg-muted border-border text-muted-foreground"
+                  className="bg-muted border-border text-muted-foreground font-mono"
                 />
               </div>
             </div>
             <div>
-              <Label className="text-foreground font-medium">Phone</Label>
+              <Label className="text-foreground font-medium font-mono text-xs uppercase">Phone</Label>
               <Input
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="Enter your phone number"
-                className="bg-muted border-border text-foreground mt-1 focus:ring-2 focus:ring-green-500"
+                className="bg-muted border-border text-foreground mt-1 focus:ring-2 focus:ring-green-500 font-mono"
               />
             </div>
           </CardContent>
@@ -477,7 +475,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
         {/* Gym & Locker */}
         <Card className="bg-card border-border shadow-lg">
           <CardHeader>
-            <CardTitle className="text-foreground flex items-center gap-2">
+            <CardTitle className="text-foreground flex items-center gap-2 font-mono uppercase text-sm">
               <Lock className="w-5 h-5 text-green-600" />
               Gym & Locker
             </CardTitle>
@@ -485,7 +483,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
           <CardContent className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label className="text-foreground font-medium">Preferred Gym</Label>
+                <Label className="text-foreground font-medium font-mono text-xs uppercase">Preferred Gym</Label>
                 <Button
                   size="sm"
                   className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 h-7 text-xs shadow-md"
@@ -641,20 +639,20 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
       {/* Actions */}
       <div className="flex items-center justify-between gap-4">
         <Button
-          className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 select-none shadow-md"
+          className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 select-none shadow-md font-mono"
           onClick={() => updateProfileMutation.mutate(formData)}
           disabled={updateProfileMutation.isPending}
         >
           <Save className="w-4 h-4 mr-2 select-none" />
-          Save Changes
+          SAVE CHANGES
         </Button>
 
         {/* Delete Account */}
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50 select-none">
+            <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50 select-none font-mono">
               <Trash2 className="w-4 h-4 mr-2 select-none" />
-              Delete Account
+              DELETE ACCOUNT
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="bg-card border-red-300">
