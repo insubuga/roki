@@ -87,7 +87,7 @@ export default function Cart() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cartItems'] });
-      toast.success('Item removed from schedule');
+      toast.success('Item removed');
     },
   });
 
@@ -121,7 +121,7 @@ export default function Cart() {
 
       if (data?.url) {
         console.log('Redirecting to Stripe:', data.url);
-        toast.success('Initializing replenishment cycle...');
+        toast.success('Proceeding to checkout...');
         setTimeout(() => {
           window.location.href = data.url;
         }, 500);
@@ -154,9 +154,9 @@ export default function Cart() {
     <div className="space-y-6">
       {/* Header */}
       <MobileHeader
-        title="Scheduled Replenishment"
+        title="Supply Queue"
         icon={ShoppingCart}
-        iconColor="text-amber-500"
+        iconColor="text-purple-500"
       />
 
       {isLoading ? (
@@ -166,11 +166,11 @@ export default function Cart() {
       ) : cartItems.length === 0 ? (
         <div className="bg-card rounded-xl p-12 text-center border border-border">
           <ShoppingCart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl text-foreground font-semibold mb-2">No items scheduled</h2>
-          <p className="text-muted-foreground mb-6">Configure your replenishment cycle</p>
+          <h2 className="text-xl text-foreground font-semibold mb-2">Supply queue empty</h2>
+          <p className="text-muted-foreground mb-6">Add optimization modules to your order</p>
           <Link to={createPageUrl('Shop')}>
             <Button className="bg-green-600 text-white hover:bg-green-700">
-              Configure Supplies
+              Browse Enhancements
             </Button>
           </Link>
         </div>
@@ -242,7 +242,7 @@ export default function Cart() {
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-card rounded-xl p-6 border border-border sticky top-24">
-              <h2 className="text-xl font-bold text-foreground mb-4">Cycle Summary</h2>
+              <h2 className="text-xl font-bold text-foreground mb-4">Order Summary</h2>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
@@ -272,7 +272,7 @@ export default function Cart() {
                   </>
                 ) : (
                   <>
-                    Execute Replenishment
+                    Checkout
                     <ArrowRight className="w-4 h-4 ml-2 select-none" />
                   </>
                 )}
@@ -284,7 +284,7 @@ export default function Cart() {
                 disabled={isCheckingOut}
               >
                 <Zap className="w-4 h-4 mr-2 select-none" />
-                Redundancy Mode - $15
+                Priority Delivery - $15
               </Button>
             </div>
           </div>
