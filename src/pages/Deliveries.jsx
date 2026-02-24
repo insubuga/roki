@@ -4,7 +4,7 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import PullToRefresh from '../components/mobile/PullToRefresh';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Truck, Package, Clock, CheckCircle, MapPin, ExternalLink, ChevronDown, ChevronUp, User, Star } from 'lucide-react';
+import { Truck, Package, Clock, CheckCircle, MapPin, ExternalLink, ChevronDown, ChevronUp, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MobileHeader from '../components/mobile/MobileHeader';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import TrackingTimeline from '../components/delivery/TrackingTimeline';
 import DriverChat from '../components/delivery/DriverChat';
-import RatingModal from '../components/delivery/RatingModal';
 import LiveTrackingMap from '../components/delivery/LiveTrackingMap';
 import { toast } from 'sonner';
 
@@ -34,7 +33,6 @@ export default function Deliveries() {
   const [user, setUser] = useState(null);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [trackingData, setTrackingData] = useState({});
-  const [ratingOrder, setRatingOrder] = useState(null);
   const queryClient = useQueryClient();
 
   const handleRefresh = async () => {
@@ -104,19 +102,7 @@ export default function Deliveries() {
     return unsubscribe;
   }, [user?.email, queryClient]);
 
-  const submitRatingMutation = useMutation({
-    mutationFn: async ({ order, rating, feedback }) => {
-      await base44.entities.Order.update(order.id, {
-        customer_rating: rating,
-        customer_feedback: feedback
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-      toast.success('✓ Thank you for your feedback!');
-      setRatingOrder(null);
-    },
-  });
+
 
   if (!user) {
     return (
@@ -321,39 +307,7 @@ export default function Deliveries() {
                       </div>
                     </div>
 
-                    {/* Rating Display or Button */}
-                    {order.customer_rating ? (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-                        <p className="text-sm text-gray-600 mb-1">Your Rating</p>
-                        <div className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-4 h-4 ${
-                                i < order.customer_rating
-                                  ? 'fill-yellow-400 text-yellow-400'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                          ))}
-                          <span className="ml-2 text-sm font-medium text-gray-700">
-                            {order.customer_rating}.0
-                          </span>
-                        </div>
-                        {order.customer_feedback && (
-                          <p className="text-sm text-gray-600 mt-2 italic">"{order.customer_feedback}"</p>
-                        )}
-                      </div>
-                    ) : (
-                      <Button
-                        onClick={() => setRatingOrder(order)}
-                        variant="outline"
-                        className="w-full mb-4 border-yellow-300 text-yellow-700 hover:bg-yellow-50"
-                      >
-                        <Star className="w-4 h-4 mr-2" />
-                        Rate Your Delivery
-                      </Button>
-                    )}
+
 
                     <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                       <span className="text-gray-600">{(order.items || []).length} items</span>
@@ -367,14 +321,7 @@ export default function Deliveries() {
         </div>
       )}
 
-      {/* Rating Modal */}
-      {ratingOrder && (
-        <RatingModal
-          order={ratingOrder}
-          onSubmit={(data) => submitRatingMutation.mutate({ order: ratingOrder, ...data })}
-          onClose={() => setRatingOrder(null)}
-        />
-      )}
+
     </div>
     </PullToRefresh>
   );
