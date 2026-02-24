@@ -48,7 +48,6 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import AdminDashboard from './pages/AdminDashboard';
-import Cart from './pages/Cart';
 import Configuration from './pages/Configuration';
 import Dashboard from './pages/Dashboard';
 import Deliveries from './pages/Deliveries';
@@ -65,20 +64,15 @@ import PaymentHistory from './pages/PaymentHistory';
 import Performance from './pages/Performance';
 import Profile from './pages/Profile';
 import RiskRecovery from './pages/RiskRecovery';
-import RokiBot from './pages/RokiBot';
-import RushMode from './pages/RushMode';
 import Schedule from './pages/Schedule';
-import Shop from './pages/Shop';
 import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
-import Wearables from './pages/Wearables';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminDashboard": AdminDashboard,
-    "Cart": Cart,
     "Configuration": Configuration,
     "Dashboard": Dashboard,
     "Deliveries": Deliveries,
@@ -95,14 +89,10 @@ export const PAGES = {
     "Performance": Performance,
     "Profile": Profile,
     "RiskRecovery": RiskRecovery,
-    "RokiBot": RokiBot,
-    "RushMode": RushMode,
     "Schedule": Schedule,
-    "Shop": Shop,
     "Subscription": Subscription,
     "Support": Support,
     "SupportAdmin": SupportAdmin,
-    "Wearables": Wearables,
 }
 
 export const pagesConfig = {
