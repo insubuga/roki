@@ -50,7 +50,6 @@
 import AdminDashboard from './pages/AdminDashboard';
 import Configuration from './pages/Configuration';
 import Dashboard from './pages/Dashboard';
-import Deliveries from './pages/Deliveries';
 import DriverApplicationReview from './pages/DriverApplicationReview';
 import DriverDashboard from './pages/DriverDashboard';
 import DriverOnboarding from './pages/DriverOnboarding';
@@ -75,7 +74,6 @@ export const PAGES = {
     "AdminDashboard": AdminDashboard,
     "Configuration": Configuration,
     "Dashboard": Dashboard,
-    "Deliveries": Deliveries,
     "DriverApplicationReview": DriverApplicationReview,
     "DriverDashboard": DriverDashboard,
     "DriverOnboarding": DriverOnboarding,
