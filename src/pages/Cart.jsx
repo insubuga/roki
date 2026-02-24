@@ -157,19 +157,20 @@ export default function Cart() {
         title="Scheduled Replenishment"
         icon={ShoppingCart}
         iconColor="text-amber-500"
+        showBack={true}
       />
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-4 border-[#7cfc00] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : cartItems.length === 0 ? (
-        <div className="bg-[#1a2332] rounded-xl p-12 text-center border border-gray-800">
-          <ShoppingCart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-          <h2 className="text-xl text-white font-semibold mb-2">No items scheduled</h2>
-          <p className="text-gray-400 mb-6">Configure your replenishment cycle</p>
+        <div className="bg-card rounded-xl p-12 text-center border border-border">
+          <ShoppingCart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+          <h2 className="text-xl text-foreground font-semibold mb-2">No items scheduled</h2>
+          <p className="text-muted-foreground mb-6">Configure your replenishment cycle</p>
           <Link to={createPageUrl('Shop')}>
-            <Button className="bg-[#7cfc00] text-black hover:bg-[#6be600]">
+            <Button className="bg-green-600 text-white hover:bg-green-700">
               Configure Supplies
             </Button>
           </Link>
@@ -185,25 +186,25 @@ export default function Cart() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -100 }}
-                  className="bg-[#1a2332] rounded-xl p-4 border border-gray-800 flex gap-4"
+                  className="bg-card rounded-xl p-4 border border-border flex gap-4"
                 >
-                  <div className="w-24 h-24 bg-[#0d1320] rounded-lg overflow-hidden flex-shrink-0">
+                  <div className="w-24 h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.product_name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <ShoppingCart className="w-8 h-8 text-gray-700" />
+                        <ShoppingCart className="w-8 h-8 text-muted-foreground" />
                       </div>
                     )}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-white font-semibold">{item.product_name}</h3>
-                    <p className="text-[#7cfc00] font-bold mt-1">${item.price?.toFixed(2)}</p>
+                    <h3 className="text-foreground font-semibold">{item.product_name}</h3>
+                    <p className="text-green-600 font-bold mt-1">${item.price?.toFixed(2)}</p>
                     <div className="flex items-center gap-3 mt-3">
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 border-gray-700 text-gray-400 select-none"
+                        className="h-8 w-8 border-border text-foreground select-none"
                         onClick={() => {
                           if ((item.quantity || 1) > 1) {
                             updateQuantityMutation.mutate({ id: item.id, quantity: (item.quantity || 1) - 1 });
@@ -212,11 +213,11 @@ export default function Cart() {
                       >
                         <Minus className="w-4 h-4 select-none" />
                       </Button>
-                      <span className="text-white font-medium w-8 text-center">{item.quantity || 1}</span>
+                      <span className="text-foreground font-medium w-8 text-center">{item.quantity || 1}</span>
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 border-gray-700 text-gray-400 select-none"
+                        className="h-8 w-8 border-border text-foreground select-none"
                         onClick={() => updateQuantityMutation.mutate({ id: item.id, quantity: (item.quantity || 1) + 1 })}
                       >
                         <Plus className="w-4 h-4 select-none" />
@@ -227,12 +228,12 @@ export default function Cart() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-gray-400 hover:text-red-500 select-none"
+                      className="text-muted-foreground hover:text-red-500 select-none"
                       onClick={() => removeItemMutation.mutate(item.id)}
                     >
                       <Trash2 className="w-5 h-5 select-none" />
                     </Button>
-                    <p className="text-white font-bold">${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</p>
+                    <p className="text-foreground font-bold">${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</p>
                   </div>
                 </motion.div>
               ))}
@@ -241,27 +242,27 @@ export default function Cart() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800 sticky top-24">
-              <h2 className="text-xl font-bold text-white mb-4">Cycle Summary</h2>
+            <div className="bg-card rounded-xl p-6 border border-border sticky top-24">
+              <h2 className="text-xl font-bold text-foreground mb-4">Cycle Summary</h2>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between text-gray-400">
+                <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-400">
+                <div className="flex justify-between text-muted-foreground">
                   <span>Delivery</span>
                   <span>{deliveryFee === 0 ? 'FREE' : `$${deliveryFee.toFixed(2)}`}</span>
                 </div>
                 {subtotal < 50 && (
-                  <p className="text-xs text-gray-500">Add ${(50 - subtotal).toFixed(2)} more for free delivery</p>
+                  <p className="text-xs text-muted-foreground">Add ${(50 - subtotal).toFixed(2)} more for free delivery</p>
                 )}
-                <div className="border-t border-gray-700 pt-3 flex justify-between text-white font-bold text-lg">
+                <div className="border-t border-border pt-3 flex justify-between text-foreground font-bold text-lg">
                   <span>Total</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
               </div>
               <Button 
-                className="w-full mt-6 bg-[#7cfc00] text-black hover:bg-[#6be600] font-semibold select-none"
+                className="w-full mt-6 bg-green-600 text-white hover:bg-green-700 font-semibold select-none"
                 onClick={() => handleCheckout('standard')}
                 disabled={isCheckingOut}
               >

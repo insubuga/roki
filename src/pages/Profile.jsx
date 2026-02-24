@@ -390,6 +390,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
         subtitle="Account settings"
         icon={Settings}
         iconColor="text-green-600"
+        showBack={true}
       />
 
       {/* Member History - Top Priority */}
@@ -397,9 +398,9 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Account Info */}
-        <Card className="bg-white border-gray-200 shadow-lg">
+        <Card className="bg-card border-border shadow-lg">
           <CardHeader>
-            <CardTitle className="text-gray-900 flex items-center gap-2">
+            <CardTitle className="text-foreground flex items-center gap-2">
               <User className="w-5 h-5 text-green-600" />
               Account Information
             </CardTitle>
@@ -475,9 +476,9 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
         </Card>
 
         {/* Gym & Locker */}
-        <Card className="bg-white border-gray-200 shadow-lg">
+        <Card className="bg-card border-border shadow-lg">
           <CardHeader>
-            <CardTitle className="text-gray-900 flex items-center gap-2">
+            <CardTitle className="text-foreground flex items-center gap-2">
               <Lock className="w-5 h-5 text-green-600" />
               Gym & Locker
             </CardTitle>

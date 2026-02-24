@@ -3,7 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PullToRefresh from '../components/mobile/PullToRefresh';
 import MobileHeader from '../components/mobile/MobileHeader';
-import { Search, Filter, ShoppingCart, Plus, Check, ArrowUpDown, Tag, Star } from 'lucide-react';
+import { Search, Filter, ShoppingCart, Plus, Check, ArrowUpDown, Tag, Star, Sparkles } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -252,23 +253,29 @@ export default function Shop() {
         subtitle="System-optimized recovery supplies"
         icon={ShoppingCart}
         iconColor="text-amber-500"
+        showBack={true}
       />
 
       {/* Personalized First */}
       {recommendedProducts.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-gray-900 font-bold text-xl">Auto-Optimized</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {recommendedProducts.map((product) => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                addedItems={addedItems}
-                addToCartMutation={addToCartMutation}
-              />
-            ))}
-          </div>
-        </div>
+        <Card className="bg-card border-border">
+          <CardContent className="p-4">
+            <h3 className="text-foreground font-semibold text-base mb-4 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-green-600" />
+              Auto-Optimized
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {recommendedProducts.map((product) => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  addedItems={addedItems}
+                  addToCartMutation={addToCartMutation}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Products Grid */}
@@ -283,9 +290,9 @@ export default function Shop() {
           ))}
         </div>
       ) : filteredAndSortedProducts.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-          <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">No products found</p>
+        <div className="text-center py-12 bg-card rounded-lg shadow-sm border border-border">
+          <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground">No products found</p>
         </div>
       ) : (
         <>

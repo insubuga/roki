@@ -15,7 +15,8 @@ import {
   Package,
   ChevronRight,
   Sparkles,
-  MessageCircle
+  MessageCircle,
+  Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -110,30 +111,38 @@ export default function Dashboard() {
         <SmartSuggestions user={user} />
 
         {/* Quick Access Modules */}
-        <div className="grid grid-cols-2 gap-3">
-          {quickActions.map((action) => {
-            const Icon = action.icon;
-            return (
-              <Link
-                key={action.title}
-                to={createPageUrl(action.page)}
-                className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all select-none"
-              >
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${action.color} flex items-center justify-center flex-shrink-0`}>
-                  <Icon className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-gray-900 text-sm font-semibold truncate">
-                    {action.title}
-                  </p>
-                  <p className="text-gray-500 text-xs truncate">
-                    {action.subtitle}
-                  </p>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+        <Card className="bg-card border-border">
+          <CardContent className="p-4">
+            <h3 className="text-foreground font-semibold text-sm mb-3 flex items-center gap-2">
+              <Zap className="w-4 h-4" />
+              Execute
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {quickActions.map((action) => {
+                const Icon = action.icon;
+                return (
+                  <Link
+                    key={action.title}
+                    to={createPageUrl(action.page)}
+                    className="flex flex-col items-center gap-2 p-3 bg-muted rounded-lg hover:bg-accent transition-all select-none"
+                  >
+                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${action.color} flex items-center justify-center flex-shrink-0`}>
+                      <Icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-foreground text-xs font-semibold">
+                        {action.title}
+                      </p>
+                      <p className="text-muted-foreground text-[10px]">
+                        {action.subtitle}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Services Menu - Compact List */}
         <div className="space-y-4">
