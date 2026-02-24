@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 const plans = [
   {
     id: 'basic',
-    name: 'Core',
+    name: 'Core Readiness',
     price: 39,
     laundryCredits: 5,
     laundryTurnaround: 48,
@@ -33,7 +33,7 @@ const plans = [
   },
   {
     id: 'pro',
-    name: 'Priority',
+    name: 'Priority Readiness',
     price: 59,
     popular: true,
     laundryCredits: 10,
@@ -204,46 +204,18 @@ export default function Subscription() {
               <Crown className="w-10 h-10 text-green-600" />
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
-              <Shirt className="w-5 h-5 text-cyan-500 mb-1" />
-              <p className="text-gray-900 font-bold text-lg">
-                {subscription.laundry_credits - subscription.laundry_credits_used}
-                <span className="text-gray-500 text-sm">/{subscription.laundry_credits === 999 ? '∞' : subscription.laundry_credits}</span>
-              </p>
-              <p className="text-gray-600 text-xs">Laundry Credits</p>
-              <div className="mt-2 bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                <div 
-                  className="bg-cyan-500 h-full transition-all"
-                  style={{ 
-                    width: subscription.laundry_credits === 999 ? '100%' : 
-                    `${((subscription.laundry_credits - subscription.laundry_credits_used) / subscription.laundry_credits * 100)}%` 
-                  }}
-                />
-              </div>
-            </div>
-            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
-              <Zap className="w-5 h-5 text-orange-500 mb-1" />
-              <p className="text-gray-900 font-bold text-lg">
-                {subscription.rush_deliveries_included - subscription.rush_deliveries_used}
-                <span className="text-gray-500 text-sm">/{subscription.rush_deliveries_included === 999 ? '∞' : subscription.rush_deliveries_included}</span>
-              </p>
-              <p className="text-gray-600 text-xs">Rush Deliveries</p>
-              <div className="mt-2 bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                <div 
-                  className="bg-orange-500 h-full transition-all"
-                  style={{ 
-                    width: subscription.rush_deliveries_included === 999 ? '100%' : 
-                    subscription.rush_deliveries_included === 0 ? '0%' :
-                    `${((subscription.rush_deliveries_included - subscription.rush_deliveries_used) / subscription.rush_deliveries_included * 100)}%` 
-                  }}
-                />
-              </div>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
             <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
               <Clock className="w-5 h-5 text-green-500 mb-1" />
               <p className="text-gray-900 font-bold text-lg">{subscription.laundry_turnaround_hours || 48}h</p>
               <p className="text-gray-600 text-xs">Laundry Turnaround</p>
+            </div>
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+              <Zap className="w-5 h-5 text-orange-500 mb-1" />
+              <p className="text-gray-900 font-bold text-lg">
+                {subscription.rush_deliveries_included === 999 ? 'Unlimited' : `${subscription.rush_deliveries_included}/mo`}
+              </p>
+              <p className="text-gray-600 text-xs">Rush Deliveries</p>
             </div>
             <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
               <Lock className="w-5 h-5 text-purple-500 mb-1" />
