@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Target, CheckCircle, Calendar, Zap, Clock } from 'lucide-react';
+import { TrendingUp, Target, CheckCircle, Calendar, Zap, Clock, Activity, DollarSign, Users, Percent } from 'lucide-react';
 import MobileHeader from '../components/mobile/MobileHeader';
 
 export default function Performance() {
@@ -52,6 +52,30 @@ export default function Performance() {
     enabled: !!user?.email,
   });
 
+  const { data: allPreferences = [] } = useQuery({
+    queryKey: ['allMemberPreferences'],
+    queryFn: () => base44.entities.MemberPreferences.list(),
+    enabled: !!user,
+  });
+
+  const { data: allGyms = [] } = useQuery({
+    queryKey: ['allGyms'],
+    queryFn: () => base44.entities.Gym.list(),
+    enabled: !!user,
+  });
+
+  const { data: allLockers = [] } = useQuery({
+    queryKey: ['allLockers'],
+    queryFn: () => base44.entities.Locker.list(),
+    enabled: !!user,
+  });
+
+  const { data: allOrders = [] } = useQuery({
+    queryKey: ['allOrders'],
+    queryFn: () => base44.entities.Order.list('-created_date', 200),
+    enabled: !!user,
+  });
+
   // Calculate metrics
   const totalCycles = preferences?.total_cycles_completed || 0;
   const avgCleanliness = preferences?.average_cleanliness_score || 0;
@@ -59,6 +83,42 @@ export default function Performance() {
   const onTimeStreak = Math.min(completedCycles.length, 12);
   const estimatedMinutesSaved = totalCycles * 45;
   const workoutsCovered = totalCycles * 3;
+
+  // Density Engine Calculations
+  const gymClusters = allGyms.reduce((clusters, gym) => {
+    const gymLockers = allLockers.filter(l => l.gym_id === gym.id);
+    const activeMembers = allPreferences.filter(p => p.assigned_locker_id && gymLockers.some(l => l.id === p.assigned_locker_id));
+    const utilization = gymLockers.length > 0 
+      ? (gymLockers.filter(l => l.status === 'claimed').length / gymLockers.length) * 100
+      : 0;
+    
+    clusters.push({
+      gym,
+      members: activeMembers.length,
+      lockers: gymLockers.length,
+      activeLockers: gymLockers.filter(l => l.status === 'claimed').length,
+      utilization: Math.round(utilization)
+    });
+    return clusters;
+  }, []);
+
+  // Network-wide density metrics
+  const totalMembers = allPreferences.filter(p => p.assigned_locker_id).length;
+  const totalActiveLockers = allLockers.filter(l => l.status === 'claimed').length;
+  const totalLockers = allLockers.length;
+  const networkUtilization = totalLockers > 0 ? Math.round((totalActiveLockers / totalLockers) * 100) : 0;
+  const avgMembersPerCluster = allGyms.length > 0 ? (totalMembers / allGyms.length).toFixed(1) : 0;
+
+  // Route overlap efficiency (mock calculation based on cluster density)
+  const routeOverlapEfficiency = Math.min(95, 60 + (networkUtilization * 0.35));
+
+  // Cost per pickup calculation
+  const baseCostPerPickup = 12.50;
+  const densityDiscount = (networkUtilization / 100) * 0.40; // Up to 40% discount at 100% density
+  const costPerPickup = (baseCostPerPickup * (1 - densityDiscount)).toFixed(2);
+
+  // Density health score
+  const densityHealthScore = Math.round((networkUtilization + routeOverlapEfficiency) / 2);
 
   if (!user) {
     return (
@@ -146,23 +206,130 @@ export default function Performance() {
         </CardContent>
       </Card>
 
+      {/* Density Engine */}
+      <Card className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 border-purple-200 dark:border-purple-900/50">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Activity className="w-4 h-4 text-purple-600" />
+            Density Engine
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Density Health Score */}
+            <div className="bg-card rounded-lg p-4 border border-border">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-muted-foreground text-sm font-medium">Cluster Density Health</span>
+                <Badge className={`${densityHealthScore >= 80 ? 'bg-green-600' : densityHealthScore >= 60 ? 'bg-yellow-600' : 'bg-orange-600'} text-white border-none`}>
+                  {densityHealthScore}%
+                </Badge>
+              </div>
+              <div className="bg-muted rounded-full h-2 overflow-hidden">
+                <div 
+                  className={`h-full transition-all ${densityHealthScore >= 80 ? 'bg-gradient-to-r from-green-500 to-green-600' : densityHealthScore >= 60 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' : 'bg-gradient-to-r from-orange-500 to-orange-600'}`}
+                  style={{ width: `${densityHealthScore}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Key Metrics Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-card rounded-lg p-3 border border-border">
+                <div className="flex items-center gap-2 mb-1">
+                  <Users className="w-3 h-3 text-purple-600" />
+                  <p className="text-muted-foreground text-xs uppercase">Members/Cluster</p>
+                </div>
+                <p className="text-foreground font-bold text-xl">{avgMembersPerCluster}</p>
+              </div>
+              <div className="bg-card rounded-lg p-3 border border-border">
+                <div className="flex items-center gap-2 mb-1">
+                  <Percent className="w-3 h-3 text-green-600" />
+                  <p className="text-muted-foreground text-xs uppercase">Utilization</p>
+                </div>
+                <p className="text-foreground font-bold text-xl">{networkUtilization}%</p>
+              </div>
+              <div className="bg-card rounded-lg p-3 border border-border">
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className="w-3 h-3 text-blue-600" />
+                  <p className="text-muted-foreground text-xs uppercase">Route Efficiency</p>
+                </div>
+                <p className="text-foreground font-bold text-xl">{routeOverlapEfficiency.toFixed(1)}%</p>
+              </div>
+              <div className="bg-card rounded-lg p-3 border border-border">
+                <div className="flex items-center gap-2 mb-1">
+                  <DollarSign className="w-3 h-3 text-green-600" />
+                  <p className="text-muted-foreground text-xs uppercase">Cost/Pickup</p>
+                </div>
+                <p className="text-foreground font-bold text-xl">${costPerPickup}</p>
+              </div>
+            </div>
+
+            {/* Density Insight */}
+            <div className="bg-gradient-to-r from-purple-100 to-violet-100 dark:from-purple-950/50 dark:to-violet-950/50 rounded-lg p-4 border border-purple-200 dark:border-purple-900/50">
+              <p className="text-foreground text-sm font-semibold mb-1">Infrastructure Scales with Density</p>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                At {networkUtilization}% network utilization, operational efficiency improves by {(densityDiscount * 100).toFixed(0)}%. 
+                Higher cluster density drives down per-unit costs and increases route optimization.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Cluster Breakdown */}
+      {gymClusters.length > 0 && (
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Target className="w-4 h-4 text-purple-600" />
+              Cluster Performance
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              {gymClusters
+                .sort((a, b) => b.utilization - a.utilization)
+                .map((cluster, idx) => (
+                  <div key={idx} className="bg-muted rounded-lg p-3">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-foreground font-semibold text-sm truncate">{cluster.gym.name}</p>
+                        <p className="text-muted-foreground text-xs">{cluster.members} members • {cluster.activeLockers}/{cluster.lockers} bays</p>
+                      </div>
+                      <Badge className={`${cluster.utilization >= 70 ? 'bg-green-600' : cluster.utilization >= 40 ? 'bg-yellow-600' : 'bg-gray-600'} text-white text-xs ml-2`}>
+                        {cluster.utilization}%
+                      </Badge>
+                    </div>
+                    <div className="bg-card rounded-full h-1.5 overflow-hidden">
+                      <div 
+                        className={`h-full transition-all ${cluster.utilization >= 70 ? 'bg-green-600' : cluster.utilization >= 40 ? 'bg-yellow-600' : 'bg-gray-600'}`}
+                        style={{ width: `${cluster.utilization}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* System Health */}
-      <Card>
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="text-base">System Health Indicators</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600 text-sm">Avg Quality Score</span>
+              <span className="text-muted-foreground text-sm">Avg Quality Score</span>
               <Badge className="bg-green-500 text-white border-none">{avgCleanliness.toFixed(1)}/5.0</Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-600 text-sm">Data Points Tracked</span>
-              <span className="text-gray-900 font-semibold">{history.length}</span>
+              <span className="text-muted-foreground text-sm">Data Points Tracked</span>
+              <span className="text-foreground font-semibold">{history.length}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-600 text-sm">Route Optimization</span>
+              <span className="text-muted-foreground text-sm">Route Optimization</span>
               <span className="text-green-600 font-semibold">+{preferences?.route_density_contribution || 0}%</span>
             </div>
           </div>
