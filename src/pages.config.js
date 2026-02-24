@@ -56,7 +56,6 @@ import DriverOnboarding from './pages/DriverOnboarding';
 import Feedback from './pages/Feedback';
 import LaundryOrder from './pages/LaundryOrder';
 import Network from './pages/Network';
-import Onboarding from './pages/Onboarding';
 import OperationsView from './pages/OperationsView';
 import OrderHistory from './pages/OrderHistory';
 import PaymentHistory from './pages/PaymentHistory';
@@ -67,6 +66,7 @@ import Schedule from './pages/Schedule';
 import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
+import Initialize from './pages/Initialize';
 import __Layout from './Layout.jsx';
 
 
@@ -80,7 +80,6 @@ export const PAGES = {
     "Feedback": Feedback,
     "LaundryOrder": LaundryOrder,
     "Network": Network,
-    "Onboarding": Onboarding,
     "OperationsView": OperationsView,
     "OrderHistory": OrderHistory,
     "PaymentHistory": PaymentHistory,
@@ -91,6 +90,7 @@ export const PAGES = {
     "Subscription": Subscription,
     "Support": Support,
     "SupportAdmin": SupportAdmin,
+    "Initialize": Initialize,
 }
 
 export const pagesConfig = {
