@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Activity, Clock, MapPin, AlertTriangle, TrendingUp, Database, Radio, BarChart3, ArrowLeft } from 'lucide-react';
+import DispatchAttachments from '@/components/cycle/DispatchAttachments';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -425,6 +426,14 @@ export default function LaundryOrder() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Dispatch Attachments - COLLAPSED BY DEFAULT, BELOW ALL CYCLE INFO */}
+          <DispatchAttachments 
+            user={user}
+            activeCycle={activeCycle}
+            routeLoad={routeEfficiency}
+            lockerCapacity={nodeUtilization}
+          />
 
           {/* Recovery Protocol */}
           {activeCycle && variance < -60 && (

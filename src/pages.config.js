@@ -49,6 +49,7 @@
  */
 import AdminDashboard from './pages/AdminDashboard';
 import Cart from './pages/Cart';
+import Configuration from './pages/Configuration';
 import Dashboard from './pages/Dashboard';
 import Deliveries from './pages/Deliveries';
 import DriverApplicationReview from './pages/DriverApplicationReview';
@@ -63,6 +64,7 @@ import OrderHistory from './pages/OrderHistory';
 import PaymentHistory from './pages/PaymentHistory';
 import Performance from './pages/Performance';
 import Profile from './pages/Profile';
+import RiskRecovery from './pages/RiskRecovery';
 import RokiBot from './pages/RokiBot';
 import RushMode from './pages/RushMode';
 import Schedule from './pages/Schedule';
@@ -71,14 +73,13 @@ import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
 import Wearables from './pages/Wearables';
-import RiskRecovery from './pages/RiskRecovery';
-import Configuration from './pages/Configuration';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminDashboard": AdminDashboard,
     "Cart": Cart,
+    "Configuration": Configuration,
     "Dashboard": Dashboard,
     "Deliveries": Deliveries,
     "DriverApplicationReview": DriverApplicationReview,
@@ -93,6 +94,7 @@ export const PAGES = {
     "PaymentHistory": PaymentHistory,
     "Performance": Performance,
     "Profile": Profile,
+    "RiskRecovery": RiskRecovery,
     "RokiBot": RokiBot,
     "RushMode": RushMode,
     "Schedule": Schedule,
@@ -101,8 +103,6 @@ export const PAGES = {
     "Support": Support,
     "SupportAdmin": SupportAdmin,
     "Wearables": Wearables,
-    "RiskRecovery": RiskRecovery,
-    "Configuration": Configuration,
 }
 
 export const pagesConfig = {
