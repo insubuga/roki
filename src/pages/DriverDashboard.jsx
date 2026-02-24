@@ -26,13 +26,11 @@ import PullToRefresh from '@/components/mobile/PullToRefresh';
 import { motion, AnimatePresence } from 'framer-motion';
 import RouteOptimizer from '@/components/driver/RouteOptimizer';
 import PerformanceStats from '@/components/driver/PerformanceStats';
-import RatingDialog from '@/components/driver/RatingDialog';
 import DriverSupportChat from '@/components/driver/SupportChat';
 
 export default function DriverDashboard() {
   const [user, setUser] = useState(null);
   const [selectedDelivery, setSelectedDelivery] = useState(null);
-  const [ratingDelivery, setRatingDelivery] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -124,12 +122,6 @@ export default function DriverDashboard() {
       }
       
       await base44.entities.Order.update(id, updateData);
-      
-      // If delivered, prompt for rating
-      if (status === 'delivered') {
-        const order = orders.find(o => o.id === id);
-        setTimeout(() => setRatingDelivery(order), 1000);
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
@@ -139,19 +131,7 @@ export default function DriverDashboard() {
     onError: () => toast.error('Failed to update'),
   });
 
-  const submitRatingMutation = useMutation({
-    mutationFn: async ({ delivery, rating, feedback }) => {
-      await base44.entities.Order.update(delivery.id, {
-        driver_rating: rating,
-        driver_feedback: feedback
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
-      toast.success('✓ Rating submitted');
-      setRatingDelivery(null);
-    },
-  });
+
 
   const updateLaundryMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.LaundryOrder.update(id, { status }),
@@ -329,22 +309,7 @@ export default function DriverDashboard() {
           )}
         </AnimatePresence>
 
-        {/* Rating Dialog */}
-        <AnimatePresence>
-          {ratingDelivery && (
-            <RatingDialog
-              delivery={ratingDelivery}
-              onSubmit={({ rating, feedback }) => {
-                submitRatingMutation.mutate({ 
-                  delivery: ratingDelivery, 
-                  rating, 
-                  feedback 
-                });
-              }}
-              onClose={() => setRatingDelivery(null)}
-            />
-          )}
-        </AnimatePresence>
+
 
         {/* Driver Support Chat */}
         <DriverSupportChat user={user} />
