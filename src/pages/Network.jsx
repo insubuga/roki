@@ -105,16 +105,16 @@ export default function Network() {
   return (
     <div className="space-y-6">
       <MobileHeader
-        title="Network Infrastructure"
-        subtitle="Physical node distribution map"
-        icon={Map}
+        title="NETWORK INFRASTRUCTURE"
+        subtitle="Physical node distribution and cluster topology"
+        icon={Activity}
         iconColor="text-purple-600"
       />
 
       {/* Network Map */}
       <Card className="bg-card border-border overflow-hidden">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base font-mono uppercase flex items-center gap-2">
             <Map className="w-4 h-4 text-purple-600" />
             Network Map
           </CardTitle>
@@ -202,22 +202,22 @@ export default function Network() {
         <Card className="bg-card border-border">
           <CardContent className="p-4 text-center">
             <Radio className="w-5 h-5 text-green-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-foreground">{totalActiveNodes}</p>
-            <p className="text-muted-foreground text-xs uppercase">Active Nodes</p>
+            <p className="text-2xl font-bold text-foreground font-mono">{totalActiveNodes}</p>
+            <p className="text-muted-foreground text-xs uppercase font-mono">Active Nodes</p>
           </CardContent>
         </Card>
         <Card className="bg-card border-border">
           <CardContent className="p-4 text-center">
             <Layers className="w-5 h-5 text-blue-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-foreground">{allGyms.length}</p>
-            <p className="text-muted-foreground text-xs uppercase">Locations</p>
+            <p className="text-2xl font-bold text-foreground font-mono">{allGyms.length}</p>
+            <p className="text-muted-foreground text-xs uppercase font-mono">Locations</p>
           </CardContent>
         </Card>
         <Card className="bg-card border-border">
           <CardContent className="p-4 text-center">
             <Activity className="w-5 h-5 text-purple-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-foreground">{networkUtilization}%</p>
-            <p className="text-muted-foreground text-xs uppercase">Network Load</p>
+            <p className="text-2xl font-bold text-foreground font-mono">{networkUtilization}%</p>
+            <p className="text-muted-foreground text-xs uppercase font-mono">Network Load</p>
           </CardContent>
         </Card>
       </div>
@@ -226,25 +226,25 @@ export default function Network() {
       {assignedLocker && gym ? (
         <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-200 dark:border-green-900/50">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base font-mono uppercase flex items-center gap-2">
               <Lock className="w-4 h-4 text-green-600" />
               Assigned Node
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <p className="text-muted-foreground text-xs uppercase mb-1">Location</p>
-              <p className="text-foreground font-bold">{gym.name}</p>
-              <p className="text-muted-foreground text-sm">{gym.address}</p>
+              <p className="text-muted-foreground text-xs uppercase font-mono mb-1">Location</p>
+              <p className="text-foreground font-bold font-mono">{gym.name}</p>
+              <p className="text-muted-foreground text-sm font-mono">{gym.address}</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-card rounded-lg p-3 border border-border">
-                <p className="text-muted-foreground text-xs uppercase mb-1">Node ID</p>
-                <p className="text-foreground font-mono font-bold">{assignedLocker.locker_number}</p>
+                <p className="text-muted-foreground text-xs uppercase font-mono mb-1">Node ID</p>
+                <p className="text-foreground font-mono font-bold text-lg">{assignedLocker.locker_number}</p>
               </div>
               <div className="bg-card rounded-lg p-3 border border-border">
-                <p className="text-muted-foreground text-xs uppercase mb-1">Access Code</p>
-                <p className="text-green-600 font-mono font-bold">{assignedLocker.access_code}</p>
+                <p className="text-muted-foreground text-xs uppercase font-mono mb-1">Access Code</p>
+                <p className="text-green-600 font-mono font-bold text-lg">{assignedLocker.access_code}</p>
               </div>
             </div>
           </CardContent>
@@ -253,8 +253,8 @@ export default function Network() {
         <Card className="bg-muted border-border">
           <CardContent className="p-6 text-center">
             <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-            <p className="text-muted-foreground">No node assigned</p>
-            <p className="text-muted-foreground text-sm mt-1">Configure in Profile</p>
+            <p className="text-muted-foreground font-mono uppercase text-sm">No node assigned</p>
+            <p className="text-muted-foreground text-xs mt-1 font-mono">Initialize system to provision</p>
           </CardContent>
         </Card>
       )}
@@ -263,7 +263,7 @@ export default function Network() {
       {nearbyNodes.length > 0 && (
         <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base font-mono uppercase flex items-center gap-2">
               <MapPin className="w-4 h-4 text-purple-600" />
               Nearby Nodes
             </CardTitle>
@@ -276,11 +276,11 @@ export default function Network() {
               return (
                 <div key={idx} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div className="flex-1 min-w-0">
-                    <p className="text-foreground font-medium text-sm truncate">{node.gym.name}</p>
-                    <p className="text-muted-foreground text-xs">{node.distance} mi away</p>
+                    <p className="text-foreground font-medium text-sm truncate font-mono">{node.gym.name}</p>
+                    <p className="text-muted-foreground text-xs font-mono">{node.distance} mi away</p>
                   </div>
                   <div className="text-right">
-                    <Badge className={`${utilization > 70 ? 'bg-blue-600' : utilization > 40 ? 'bg-purple-600' : 'bg-gray-600'} text-white text-xs`}>
+                    <Badge className={`${utilization > 70 ? 'bg-blue-600' : utilization > 40 ? 'bg-purple-600' : 'bg-gray-600'} text-white text-xs font-mono`}>
                       {utilization}%
                     </Badge>
                   </div>
@@ -295,7 +295,7 @@ export default function Network() {
       {clusterStats.total > 0 && (
         <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base font-mono uppercase flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-purple-600" />
               Cluster Density Level
             </CardTitle>
@@ -303,16 +303,16 @@ export default function Network() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 gap-3 text-center">
               <div>
-                <p className="text-2xl font-bold text-foreground">{clusterStats.claimed}</p>
-                <p className="text-muted-foreground text-xs uppercase">Active</p>
+                <p className="text-2xl font-bold text-foreground font-mono">{clusterStats.claimed}</p>
+                <p className="text-muted-foreground text-xs uppercase font-mono">Active</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{clusterStats.total}</p>
-                <p className="text-muted-foreground text-xs uppercase">Capacity</p>
+                <p className="text-2xl font-bold text-foreground font-mono">{clusterStats.total}</p>
+                <p className="text-muted-foreground text-xs uppercase font-mono">Capacity</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-green-600">{clusterStats.utilization}%</p>
-                <p className="text-muted-foreground text-xs uppercase">Density</p>
+                <p className="text-2xl font-bold text-green-600 font-mono">{clusterStats.utilization}%</p>
+                <p className="text-muted-foreground text-xs uppercase font-mono">Density</p>
               </div>
             </div>
             <div className="bg-muted rounded-full h-2 overflow-hidden">
@@ -333,8 +333,8 @@ export default function Network() {
               <Layers className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
-              <p className="text-foreground font-bold mb-1">Expansion Zones Identified</p>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-foreground font-bold mb-1 font-mono uppercase text-sm">Expansion Zones Identified</p>
+              <p className="text-muted-foreground text-xs leading-relaxed font-mono">
                 Network analysis shows {3 + Math.floor(Math.random() * 5)} high-density zones for strategic node placement. 
                 Coverage optimization targets {85 + Math.floor(Math.random() * 10)}% metropolitan reach.
               </p>
