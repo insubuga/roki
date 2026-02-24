@@ -147,6 +147,22 @@ export default function Dashboard() {
     { icon: Settings, title: 'Operations Dashboard', page: 'OperationsView' },
   ] : [];
 
+  // Calculate system metrics
+  const clusterLoad = Math.min(85, (preferences?.total_cycles_completed || 0) * 8);
+  const routeCapacity = 100 - 92; // 92% route efficiency = 8% capacity remaining
+  const slaTarget = 48;
+  
+  // System status logic
+  const getSystemStatus = () => {
+    const load = clusterLoad;
+    if (load > 90) return { state: 'SLA RISK', color: 'bg-red-600', textColor: 'text-red-600' };
+    if (load > 70) return { state: 'HIGH LOAD', color: 'bg-orange-600', textColor: 'text-orange-600' };
+    return { state: 'STABLE', color: 'bg-green-600', textColor: 'text-green-600' };
+  };
+
+  const systemStatus = getSystemStatus();
+  const activeAlerts = incidentFreeStreak === 0 || rushCreditsRemaining === 0 ? 1 : 0;
+
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-4">
@@ -154,7 +170,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-foreground text-xl font-bold font-mono">CONTROL CENTER</h1>
-            <p className="text-muted-foreground text-xs font-mono">{user.full_name}</p>
+            <p className="text-muted-foreground text-xs font-mono">System State Overview</p>
           </div>
           {adminActions.length > 0 && (
             <Link to={createPageUrl('OperationsView')}>
@@ -165,34 +181,33 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Readiness Status - PRIMARY CARD */}
-        <Card className={`border-2 ${readinessStatus.color.replace('bg-', 'border-')} bg-card`}>
+        {/* System Status - PRIMARY MONITOR */}
+        <Card className={`border-2 ${systemStatus.color.replace('bg-', 'border-')} bg-card`}>
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Radio className={`w-5 h-5 ${readinessStatus.textColor} animate-pulse`} />
-                <span className="text-muted-foreground text-xs font-mono uppercase">Readiness Status</span>
+                <Radio className={`w-5 h-5 ${systemStatus.textColor} animate-pulse`} />
+                <span className="text-muted-foreground text-xs font-mono uppercase">System Status</span>
               </div>
-              <Badge className={`${readinessStatus.color} text-white font-mono text-sm px-3 py-1`}>
-                {readinessStatus.state}
+              <Badge className={`${systemStatus.color} text-white font-mono text-sm px-3 py-1`}>
+                {systemStatus.state}
               </Badge>
             </div>
-            <p className="text-muted-foreground text-xs font-mono">{readinessStatus.description}</p>
             
-            {activeCycle && (
-              <div className="mt-3 pt-3 border-t border-border">
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <p className="text-muted-foreground font-mono uppercase">Cycle ID</p>
-                    <p className="text-foreground font-mono font-bold">{activeCycle.order_number}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground font-mono uppercase">ETA</p>
-                    <p className="text-foreground font-mono font-bold">48h</p>
-                  </div>
-                </div>
+            <div className="grid grid-cols-3 gap-3 text-xs">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-foreground font-mono">{clusterLoad}%</p>
+                <p className="text-muted-foreground font-mono uppercase mt-1">Cluster Load</p>
               </div>
-            )}
+              <div className="text-center">
+                <p className="text-2xl font-bold text-foreground font-mono">{routeCapacity}%</p>
+                <p className="text-muted-foreground font-mono uppercase mt-1">Route Cap</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-foreground font-mono">{slaTarget}h</p>
+                <p className="text-muted-foreground font-mono uppercase mt-1">SLA Target</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -234,9 +249,14 @@ export default function Dashboard() {
         {/* Reliability Score */}
         <Card className="bg-card border-border">
           <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="w-4 h-4 text-green-600" />
-              <h3 className="text-foreground font-mono font-semibold text-sm uppercase">Reliability Score</h3>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-green-600" />
+                <h3 className="text-foreground font-mono font-semibold text-sm uppercase">Reliability Score</h3>
+              </div>
+              <Badge className={`${onTimeDeliveryRate >= 95 ? 'bg-green-600' : 'bg-orange-600'} text-white font-mono`}>
+                {onTimeDeliveryRate >= 95 ? 'EXCELLENT' : 'GOOD'}
+              </Badge>
             </div>
             <div className="grid grid-cols-3 gap-3 text-xs text-center">
               <div>
@@ -255,89 +275,119 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Backup Coverage */}
+        {/* Predictive Readiness Forecast */}
         <Card className="bg-card border-border">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Shield className="w-4 h-4 text-orange-600" />
-              <h3 className="text-foreground font-mono font-semibold text-sm uppercase">Backup Coverage</h3>
+              <Sparkles className="w-4 h-4 text-purple-600" />
+              <h3 className="text-foreground font-mono font-semibold text-sm uppercase">Readiness Forecast</h3>
             </div>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground font-mono">Emergency Credits</span>
-                <Badge className={`${rushCreditsRemaining > 0 ? 'bg-orange-600' : 'bg-gray-600'} text-white font-mono`}>
-                  {rushCreditsRemaining} REMAINING
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground font-mono">Coverage Level</span>
-                <Badge className="bg-purple-600 text-white font-mono">
-                  {coverageLevel.toUpperCase()}
-                </Badge>
-              </div>
-            </div>
-            <Link to={createPageUrl('Subscription')}>
-              <Button variant="outline" className="w-full mt-3 border-border text-foreground font-mono text-xs">
-                UPGRADE COVERAGE
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        {/* Gear Rotation Health */}
-        <Card className="bg-card border-border">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <BarChart3 className="w-4 h-4 text-blue-600" />
-              <h3 className="text-foreground font-mono font-semibold text-sm uppercase">Gear Rotation Health</h3>
-            </div>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground font-mono">Weekly Usage</span>
-                <span className="text-foreground font-mono font-bold">{weeklyCycles} cycles/wk</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground font-mono">Clean Cycle Frequency</span>
-                <span className="text-foreground font-mono font-bold">{cleanCycleFrequency}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground font-mono">Supply Status</span>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground font-mono text-xs">Next 7 Days</span>
                 <Badge className="bg-green-600 text-white font-mono text-xs">
                   OPTIMAL
                 </Badge>
               </div>
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground font-mono">Predicted Load</span>
+                  <span className="text-foreground font-mono font-bold">{Math.min(75, clusterLoad + 10)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground font-mono">SLA Adherence Risk</span>
+                  <span className="text-green-600 font-mono font-bold">LOW</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground font-mono">Capacity Buffer</span>
+                  <span className="text-green-600 font-mono font-bold">{100 - Math.min(75, clusterLoad + 10)}%</span>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* System Navigation */}
+        {/* Active Alerts */}
+        <Card className={`border-2 ${activeAlerts > 0 ? 'border-orange-600' : 'border-border'} bg-card`}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className={`w-4 h-4 ${activeAlerts > 0 ? 'text-orange-600' : 'text-muted-foreground'}`} />
+                <h3 className="text-foreground font-mono font-semibold text-sm uppercase">Active Alerts</h3>
+              </div>
+              <Badge className={`${activeAlerts > 0 ? 'bg-orange-600' : 'bg-green-600'} text-white font-mono`}>
+                {activeAlerts} ACTIVE
+              </Badge>
+            </div>
+            {activeAlerts > 0 ? (
+              <div className="space-y-2">
+                {rushCreditsRemaining === 0 && (
+                  <div className="bg-orange-600/10 border border-orange-600/30 rounded p-2">
+                    <p className="text-orange-600 font-mono text-xs font-bold">LOW BACKUP COVERAGE</p>
+                    <p className="text-muted-foreground font-mono text-xs mt-1">
+                      No emergency credits remaining
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-2">
+                <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                <p className="text-muted-foreground font-mono text-xs">All systems operational</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* System Navigation - View Only */}
         <Card className="bg-card border-border">
           <CardContent className="p-4">
-            <h3 className="text-foreground font-mono font-semibold text-sm uppercase mb-3">Lifecycle Controls</h3>
-            <div className="grid grid-cols-2 gap-2">
-              <Link to={createPageUrl('LaundryOrder')}>
-                <Button variant="outline" className="w-full border-border font-mono text-xs h-12 flex-col gap-1">
-                  <Activity className="w-4 h-4" />
-                  <span>Active Cycle</span>
-                </Button>
+            <h3 className="text-foreground font-mono font-semibold text-sm uppercase mb-3">System Modules</h3>
+            <div className="space-y-2">
+              <Link to={createPageUrl('LaundryOrder')} className="block">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Activity className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-foreground font-mono text-xs">Active Cycle</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
               </Link>
-              <Link to={createPageUrl('Network')}>
-                <Button variant="outline" className="w-full border-border font-mono text-xs h-12 flex-col gap-1">
-                  <MapPin className="w-4 h-4" />
-                  <span>Network</span>
-                </Button>
+              <Link to={createPageUrl('Network')} className="block">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted transition-colors">
+                  <div className="flex items-center gap-3">
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-foreground font-mono text-xs">Network</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
               </Link>
-              <Link to={createPageUrl('RiskRecovery')}>
-                <Button variant="outline" className="w-full border-orange-600 text-orange-600 font-mono text-xs h-12 flex-col gap-1">
-                  <Shield className="w-4 h-4" />
-                  <span>Risk & Recovery</span>
-                </Button>
+              <Link to={createPageUrl('RiskRecovery')} className="block">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Shield className="w-4 h-4 text-orange-600" />
+                    <span className="text-foreground font-mono text-xs">Risk & Recovery</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
               </Link>
-              <Link to={createPageUrl('Performance')}>
-                <Button variant="outline" className="w-full border-border font-mono text-xs h-12 flex-col gap-1">
-                  <BarChart3 className="w-4 h-4" />
-                  <span>Performance</span>
-                </Button>
+              <Link to={createPageUrl('Performance')} className="block">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted transition-colors">
+                  <div className="flex items-center gap-3">
+                    <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-foreground font-mono text-xs">Performance</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </Link>
+              <Link to={createPageUrl('Configuration')} className="block">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Settings className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-foreground font-mono text-xs">Configuration</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
               </Link>
             </div>
           </CardContent>
