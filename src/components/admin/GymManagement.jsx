@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { MapPin, Plus, Lock, Package, Building2 } from 'lucide-react';
+import { MapPin, Plus, Lock, Package, Building2, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,10 +10,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function GymManagement() {
   const [showAddGym, setShowAddGym] = useState(false);
   const [selectedGym, setSelectedGym] = useState(null);
+  const [gymToDelete, setGymToDelete] = useState(null);
   const [newGym, setNewGym] = useState({ name: '', address: '', city: '', total_lockers: 50 });
   const queryClient = useQueryClient();
 
@@ -60,6 +71,26 @@ export default function GymManagement() {
     }
   });
 
+  const deleteGymMutation = useMutation({
+    mutationFn: async (gymId) => {
+      // First, delete all lockers associated with this gym
+      const lockers = await base44.entities.Locker.filter({ gym_id: gymId });
+      await Promise.all(lockers.map(locker => base44.entities.Locker.delete(locker.id)));
+      
+      // Then delete the gym
+      await base44.entities.Gym.delete(gymId);
+    },
+    onSuccess: () => {
+      toast.success('Gym and associated lockers deleted');
+      queryClient.invalidateQueries({ queryKey: ['allGyms'] });
+      setGymToDelete(null);
+      setSelectedGym(null);
+    },
+    onError: () => {
+      toast.error('Failed to delete gym');
+    }
+  });
+
   const lockerStats = gymLockers.reduce((acc, locker) => {
     acc[locker.status] = (acc[locker.status] || 0) + 1;
     return acc;
@@ -102,19 +133,34 @@ export default function GymManagement() {
               transition={{ delay: index * 0.1 }}
             >
               <Card
-                className="bg-white border-gray-200 cursor-pointer hover:shadow-2xl transition-all duration-300 group overflow-hidden"
-                onClick={() => setSelectedGym(gym)}
+                className="bg-white border-gray-200 hover:shadow-2xl transition-all duration-300 group overflow-hidden relative"
               >
                 <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
                 <CardHeader className="bg-gradient-to-r from-green-50 to-transparent">
-                  <CardTitle className="text-gray-900 flex items-center gap-2 group-hover:text-green-700 transition-colors">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                      <MapPin className="w-5 h-5 text-white" />
-                    </div>
-                    {gym.name}
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle 
+                      className="text-gray-900 flex items-center gap-2 group-hover:text-green-700 transition-colors cursor-pointer flex-1"
+                      onClick={() => setSelectedGym(gym)}
+                    >
+                      <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                        <MapPin className="w-5 h-5 text-white" />
+                      </div>
+                      {gym.name}
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setGymToDelete(gym);
+                      }}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3" onClick={() => setSelectedGym(gym)} className="cursor-pointer">
                   <div>
                     <p className="text-gray-700 text-sm font-medium">{gym.address}</p>
                     <p className="text-gray-500 text-xs mt-1">{gym.city}</p>
@@ -264,6 +310,29 @@ export default function GymManagement() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!gymToDelete} onOpenChange={() => setGymToDelete(null)}>
+        <AlertDialogContent className="bg-white border-gray-200">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-gray-900">Delete Gym Location?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600">
+              This will permanently delete <span className="font-semibold text-gray-900">{gymToDelete?.name}</span> and all associated lockers ({gymLockers.length} lockers). 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-gray-300">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteGymMutation.mutate(gymToDelete?.id)}
+              disabled={deleteGymMutation.isPending}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleteGymMutation.isPending ? 'Deleting...' : 'Delete Gym'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
