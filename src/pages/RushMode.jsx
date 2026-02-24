@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Zap, MapPin, Clock, AlertTriangle, Package, Bot, Search, ShoppingBag, Plus, Minus, X } from 'lucide-react';
+import { Zap, MapPin, Clock, AlertTriangle, Package, Bot, Search, ShoppingBag, Plus, Minus, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MobileHeader from '../components/mobile/MobileHeader';
 import { Input } from '@/components/ui/input';
