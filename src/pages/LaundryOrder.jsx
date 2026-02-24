@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '../utils';
 import { Activity, Clock, MapPin, AlertTriangle, TrendingUp, Database, Radio, BarChart3, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -199,14 +201,15 @@ export default function LaundryOrder() {
         {/* System State Band */}
         <div className="bg-gray-900 border-b border-gray-800 px-4 py-3 mb-6">
           <div className="flex items-center gap-3 mb-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => window.history.back()}
-              className="text-gray-400 hover:text-white -ml-2"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
+            <Link to={createPageUrl('Dashboard')}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-gray-400 hover:text-white -ml-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
             <h1 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Logistics Control Console</h1>
             {user.role === 'admin' && (
               <Button

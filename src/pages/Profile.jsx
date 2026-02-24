@@ -390,7 +390,6 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
         subtitle="Account settings"
         icon={Settings}
         iconColor="text-green-600"
-        showBack={true}
       />
 
       {/* Member History - Top Priority */}

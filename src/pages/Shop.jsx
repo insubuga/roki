@@ -253,7 +253,6 @@ export default function Shop() {
         subtitle="System-optimized recovery supplies"
         icon={ShoppingCart}
         iconColor="text-amber-500"
-        showBack={true}
       />
 
       {/* Personalized First */}

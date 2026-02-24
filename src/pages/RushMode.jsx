@@ -226,7 +226,6 @@ export default function RushMode() {
         subtitle="Get what you need delivered within 30 minutes"
         icon={Zap}
         iconColor="text-orange-500"
-        showBack={true}
       />
 
       {/* Premium Rush Banner */}

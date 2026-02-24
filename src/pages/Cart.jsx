@@ -157,7 +157,6 @@ export default function Cart() {
         title="Scheduled Replenishment"
         icon={ShoppingCart}
         iconColor="text-amber-500"
-        showBack={true}
       />
 
       {isLoading ? (
