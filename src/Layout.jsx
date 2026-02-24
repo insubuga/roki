@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import NotificationDropdown from './components/notifications/NotificationDropdown';
 import FloatingAssistant from './components/assistant/FloatingAssistant';
+import AlertCenter from './components/alerts/AlertCenter';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -131,6 +132,9 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Right Side */}
             <div className="flex items-center gap-3">
+              {/* Alert Center */}
+              {user && <AlertCenter user={user} />}
+              
               {/* Notifications */}
               {user && <NotificationDropdown user={user} />}
 
