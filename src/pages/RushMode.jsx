@@ -222,38 +222,37 @@ export default function RushMode() {
     <div className="space-y-6">
       {/* Header */}
       <MobileHeader
-        title="Rush Mode Delivery"
-        subtitle="Get what you need delivered within 30 minutes"
+        title="Recovery Protocol"
+        subtitle="Activate emergency redundancy systems"
         icon={Zap}
         iconColor="text-orange-500"
       />
 
-      {/* Premium Rush Banner */}
+      {/* Recovery Protocol Banner */}
       <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-xl p-6 border border-orange-200 dark:border-orange-900/50 shadow-lg">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
             <Zap className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
-            <h2 className="text-foreground font-bold text-lg">Emergency Fulfillment</h2>
-            <p className="text-muted-foreground text-sm">Select what you need. A courier will deliver to your gym within minutes.</p>
+            <h2 className="text-foreground font-bold text-lg">Recovery Mode</h2>
+            <p className="text-muted-foreground text-sm">When standard protocols fail, backup systems engage automatically.</p>
           </div>
         </div>
         
-        {/* RokiBot Assistant */}
-        <div className="mt-4 bg-card rounded-lg p-3 flex items-start gap-3 border border-orange-200 dark:border-orange-900/50 shadow-sm">
-          <div className="w-8 h-8 bg-gradient-to-br from-[#7cfc00] to-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Bot className="w-4 h-4 text-black" />
+        {/* System Redundancy Notice */}
+        <div className="mt-4 bg-card rounded-lg p-4 border border-orange-200 dark:border-orange-900/50 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Check className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-foreground text-sm font-semibold mb-1">Built-in Redundancy</p>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                Recovery protocols automatically allocate backup resources and re-prioritize dispatch queues when standard logistics encounter disruptions.
+              </p>
+            </div>
           </div>
-          <div className="flex-1">
-            <p className="text-foreground text-sm font-semibold">Need help?</p>
-            <p className="text-muted-foreground text-xs">RokiBot can handle Rush Mode for you via chat.</p>
-          </div>
-          <Link to={createPageUrl('RokiBot')}>
-            <Button size="sm" className="bg-[#FFD814] hover:bg-[#F7CA00] text-black font-semibold">
-              Chat
-            </Button>
-          </Link>
         </div>
       </div>
 
@@ -491,29 +490,39 @@ export default function RushMode() {
             </div>
           </div>
 
-          {/* Delivery Time */}
+          {/* Recovery Protocol Status */}
           <div className="bg-card rounded-xl p-6 border border-border shadow-md">
             <div className="flex items-center gap-2 mb-4">
-              <Clock className="w-5 h-5 text-orange-500" />
-              <h3 className="text-foreground font-semibold">Delivery Time</h3>
+              <AlertTriangle className="w-5 h-5 text-orange-500" />
+              <h3 className="text-foreground font-semibold">Recovery Protocol Status</h3>
             </div>
-            <div className="flex items-center justify-between bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-lg p-4 border border-orange-200 dark:border-orange-900/50">
-              <div>
-                <p className="text-foreground font-semibold">Rush Delivery</p>
-                <p className="text-muted-foreground text-sm">Within 30 minutes</p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-lg p-3 border border-orange-200 dark:border-orange-900/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                  <span className="text-foreground text-sm font-medium">Priority Dispatch</span>
+                </div>
+                <span className="text-orange-600 font-bold text-xs uppercase">Engaged</span>
               </div>
-              <span className="text-orange-600 font-bold text-lg">Now</span>
+              <div className="flex items-center justify-between bg-muted rounded-lg p-3">
+                <span className="text-muted-foreground text-sm">Revised ETA</span>
+                <span className="text-foreground font-mono font-bold">30 min</span>
+              </div>
+              <div className="flex items-center justify-between bg-muted rounded-lg p-3">
+                <span className="text-muted-foreground text-sm">Backup Allocation</span>
+                <span className="text-green-600 font-mono font-bold">Available</span>
+              </div>
             </div>
           </div>
 
-        {/* Submit Button */}
+        {/* Activate Recovery Protocol */}
         <Button 
           className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-7 text-lg hover:from-orange-600 hover:to-orange-700 shadow-lg"
           onClick={() => createRushOrderMutation.mutate()}
           disabled={(!selectedItem && selectedProducts.length === 0) || !deliveryLocation || createRushOrderMutation.isPending}
         >
           <Zap className="w-5 h-5 mr-2" />
-          {createRushOrderMutation.isPending ? 'Processing...' : 
+          {createRushOrderMutation.isPending ? 'Activating Protocol...' : 
             (() => {
               const rushFee = subscription?.rush_delivery_fee || 15;
               const freeRushesRemaining = (subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0);
@@ -523,11 +532,11 @@ export default function RushMode() {
               
               if (selectedProducts.length > 0) {
                 return actualRushFee === 0 
-                  ? `Confirm ${getTotalItems()} Items - $${total.toFixed(2)} (Rush Free)` 
-                  : `Confirm ${getTotalItems()} Items - $${total.toFixed(2)}`;
+                  ? `Activate Recovery Mode - $${total.toFixed(2)}` 
+                  : `Activate Recovery Mode - $${total.toFixed(2)}`;
               }
               
-              return actualRushFee === 0 ? 'Confirm Rush - Free (Included)' : `Confirm Rush - $${actualRushFee.toFixed(2)}`;
+              return actualRushFee === 0 ? 'Activate Recovery Mode - Included' : `Activate Recovery Mode - $${actualRushFee.toFixed(2)}`;
             })()
           }
         </Button>
