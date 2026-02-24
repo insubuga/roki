@@ -131,76 +131,76 @@ export default function Performance() {
   return (
     <div className="space-y-6">
       <MobileHeader
-        title="System Performance"
-        subtitle="Reliability metrics and insights"
-        icon={TrendingUp}
+        title="SYSTEM PERFORMANCE"
+        subtitle="Reliability metrics and operational insights"
+        icon={Activity}
         iconColor="text-green-600"
       />
 
       {/* Primary Metrics */}
-      <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+      <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-200 dark:border-green-900/50">
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
+          <CardTitle className="text-base font-mono uppercase flex items-center gap-2">
             <Target className="w-5 h-5 text-green-600" />
             30-Day Performance
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white rounded-lg p-4 border border-green-200">
+            <div className="bg-card rounded-lg p-4 border border-border">
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
-                <p className="text-gray-500 text-xs uppercase">Reliability</p>
+                <p className="text-muted-foreground text-xs uppercase font-mono">Reliability</p>
               </div>
-              <p className="text-3xl font-bold text-green-600">{reliabilityScore}%</p>
+              <p className="text-3xl font-bold text-green-600 font-mono">{reliabilityScore}%</p>
             </div>
-            <div className="bg-white rounded-lg p-4 border border-green-200">
+            <div className="bg-card rounded-lg p-4 border border-border">
               <div className="flex items-center gap-2 mb-2">
                 <Zap className="w-4 h-4 text-orange-500" />
-                <p className="text-gray-500 text-xs uppercase">On-Time Streak</p>
+                <p className="text-muted-foreground text-xs uppercase font-mono">On-Time Streak</p>
               </div>
-              <p className="text-3xl font-bold text-gray-900">{onTimeStreak}</p>
+              <p className="text-3xl font-bold text-foreground font-mono">{onTimeStreak}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Coverage Stats */}
-      <Card>
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
+          <CardTitle className="text-base font-mono uppercase flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-purple-600" />
             Coverage Analysis
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Total Cycles Completed</span>
-              <span className="text-gray-900 font-bold text-lg">{totalCycles}</span>
+              <span className="text-muted-foreground font-mono text-sm">Total Cycles Completed</span>
+              <span className="text-foreground font-bold text-lg font-mono">{totalCycles}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Workouts Covered</span>
-              <span className="text-green-600 font-bold text-lg">{workoutsCovered}</span>
+              <span className="text-muted-foreground font-mono text-sm">Workouts Covered</span>
+              <span className="text-green-600 font-bold text-lg font-mono">{workoutsCovered}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Total Deliveries</span>
-              <span className="text-gray-900 font-bold text-lg">{preferences?.total_deliveries_received || 0}</span>
+              <span className="text-muted-foreground font-mono text-sm">Total Deliveries</span>
+              <span className="text-foreground font-bold text-lg font-mono">{preferences?.total_deliveries_received || 0}</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Time Savings */}
-      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-200 dark:border-blue-900/50">
         <CardContent className="p-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
               <Clock className="w-6 h-6 text-white" />
             </div>
             <div>
-              <p className="text-gray-900 font-bold text-lg">{Math.floor(estimatedMinutesSaved / 60)} Hours Saved</p>
-              <p className="text-gray-600 text-sm">Time recovered from laundry automation</p>
+              <p className="text-foreground font-bold text-lg font-mono">{Math.floor(estimatedMinutesSaved / 60)} HOURS SAVED</p>
+              <p className="text-muted-foreground text-xs font-mono">Time recovered from cycle automation</p>
             </div>
           </div>
         </CardContent>
@@ -209,7 +209,7 @@ export default function Performance() {
       {/* Density Engine */}
       <Card className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 border-purple-200 dark:border-purple-900/50">
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base font-mono uppercase flex items-center gap-2">
             <Activity className="w-4 h-4 text-purple-600" />
             Density Engine
           </CardTitle>
@@ -219,8 +219,8 @@ export default function Performance() {
             {/* Density Health Score */}
             <div className="bg-card rounded-lg p-4 border border-border">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-muted-foreground text-sm font-medium">Cluster Density Health</span>
-                <Badge className={`${densityHealthScore >= 80 ? 'bg-green-600' : densityHealthScore >= 60 ? 'bg-yellow-600' : 'bg-orange-600'} text-white border-none`}>
+                <span className="text-muted-foreground text-sm font-mono uppercase">Cluster Density Health</span>
+                <Badge className={`${densityHealthScore >= 80 ? 'bg-green-600' : densityHealthScore >= 60 ? 'bg-yellow-600' : 'bg-orange-600'} text-white border-none font-mono`}>
                   {densityHealthScore}%
                 </Badge>
               </div>
@@ -237,37 +237,37 @@ export default function Performance() {
               <div className="bg-card rounded-lg p-3 border border-border">
                 <div className="flex items-center gap-2 mb-1">
                   <Users className="w-3 h-3 text-purple-600" />
-                  <p className="text-muted-foreground text-xs uppercase">Members/Cluster</p>
+                  <p className="text-muted-foreground text-xs uppercase font-mono">Members/Cluster</p>
                 </div>
-                <p className="text-foreground font-bold text-xl">{avgMembersPerCluster}</p>
+                <p className="text-foreground font-bold text-xl font-mono">{avgMembersPerCluster}</p>
               </div>
               <div className="bg-card rounded-lg p-3 border border-border">
                 <div className="flex items-center gap-2 mb-1">
                   <Percent className="w-3 h-3 text-green-600" />
-                  <p className="text-muted-foreground text-xs uppercase">Utilization</p>
+                  <p className="text-muted-foreground text-xs uppercase font-mono">Utilization</p>
                 </div>
-                <p className="text-foreground font-bold text-xl">{networkUtilization}%</p>
+                <p className="text-foreground font-bold text-xl font-mono">{networkUtilization}%</p>
               </div>
               <div className="bg-card rounded-lg p-3 border border-border">
                 <div className="flex items-center gap-2 mb-1">
                   <TrendingUp className="w-3 h-3 text-blue-600" />
-                  <p className="text-muted-foreground text-xs uppercase">Route Efficiency</p>
+                  <p className="text-muted-foreground text-xs uppercase font-mono">Route Efficiency</p>
                 </div>
-                <p className="text-foreground font-bold text-xl">{routeOverlapEfficiency.toFixed(1)}%</p>
+                <p className="text-foreground font-bold text-xl font-mono">{routeOverlapEfficiency.toFixed(1)}%</p>
               </div>
               <div className="bg-card rounded-lg p-3 border border-border">
                 <div className="flex items-center gap-2 mb-1">
                   <DollarSign className="w-3 h-3 text-green-600" />
-                  <p className="text-muted-foreground text-xs uppercase">Cost/Pickup</p>
+                  <p className="text-muted-foreground text-xs uppercase font-mono">Cost/Pickup</p>
                 </div>
-                <p className="text-foreground font-bold text-xl">${costPerPickup}</p>
+                <p className="text-foreground font-bold text-xl font-mono">${costPerPickup}</p>
               </div>
             </div>
 
             {/* Density Insight */}
             <div className="bg-gradient-to-r from-purple-100 to-violet-100 dark:from-purple-950/50 dark:to-violet-950/50 rounded-lg p-4 border border-purple-200 dark:border-purple-900/50">
-              <p className="text-foreground text-sm font-semibold mb-1">Infrastructure Scales with Density</p>
-              <p className="text-muted-foreground text-xs leading-relaxed">
+              <p className="text-foreground text-sm font-bold font-mono mb-1">INFRASTRUCTURE SCALES WITH DENSITY</p>
+              <p className="text-muted-foreground text-xs leading-relaxed font-mono">
                 At {networkUtilization}% network utilization, operational efficiency improves by {(densityDiscount * 100).toFixed(0)}%. 
                 Higher cluster density drives down per-unit costs and increases route optimization.
               </p>
@@ -280,7 +280,7 @@ export default function Performance() {
       {gymClusters.length > 0 && (
         <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base font-mono uppercase flex items-center gap-2">
               <Target className="w-4 h-4 text-purple-600" />
               Cluster Performance
             </CardTitle>
@@ -293,10 +293,10 @@ export default function Performance() {
                   <div key={idx} className="bg-muted rounded-lg p-3">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 min-w-0">
-                        <p className="text-foreground font-semibold text-sm truncate">{cluster.gym.name}</p>
-                        <p className="text-muted-foreground text-xs">{cluster.members} members • {cluster.activeLockers}/{cluster.lockers} bays</p>
+                        <p className="text-foreground font-semibold text-sm truncate font-mono">{cluster.gym.name}</p>
+                        <p className="text-muted-foreground text-xs font-mono">{cluster.members} members • {cluster.activeLockers}/{cluster.lockers} bays</p>
                       </div>
-                      <Badge className={`${cluster.utilization >= 70 ? 'bg-green-600' : cluster.utilization >= 40 ? 'bg-yellow-600' : 'bg-gray-600'} text-white text-xs ml-2`}>
+                      <Badge className={`${cluster.utilization >= 70 ? 'bg-green-600' : cluster.utilization >= 40 ? 'bg-yellow-600' : 'bg-gray-600'} text-white text-xs ml-2 font-mono`}>
                         {cluster.utilization}%
                       </Badge>
                     </div>
@@ -316,21 +316,21 @@ export default function Performance() {
       {/* System Health */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-base">System Health Indicators</CardTitle>
+          <CardTitle className="text-base font-mono uppercase">System Health Indicators</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-sm">Avg Quality Score</span>
-              <Badge className="bg-green-500 text-white border-none">{avgCleanliness.toFixed(1)}/5.0</Badge>
+              <span className="text-muted-foreground text-sm font-mono">Avg Quality Score</span>
+              <Badge className="bg-green-600 text-white border-none font-mono">{avgCleanliness.toFixed(1)}/5.0</Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-sm">Data Points Tracked</span>
-              <span className="text-foreground font-semibold">{history.length}</span>
+              <span className="text-muted-foreground text-sm font-mono">Data Points Tracked</span>
+              <span className="text-foreground font-semibold font-mono">{history.length}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-sm">Route Optimization</span>
-              <span className="text-green-600 font-semibold">+{preferences?.route_density_contribution || 0}%</span>
+              <span className="text-muted-foreground text-sm font-mono">Route Optimization</span>
+              <span className="text-green-600 font-semibold font-mono">+{preferences?.route_density_contribution || 0}%</span>
             </div>
           </div>
         </CardContent>
