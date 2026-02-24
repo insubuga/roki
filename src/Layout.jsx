@@ -18,7 +18,6 @@ import {
   Settings
 } from 'lucide-react';
 import NotificationDropdown from './components/notifications/NotificationDropdown';
-import FloatingAssistant from './components/assistant/FloatingAssistant';
 import AlertCenter from './components/alerts/AlertCenter';
 import { Button } from '@/components/ui/button';
 import {
@@ -52,13 +51,7 @@ export default function Layout({ children, currentPageName }) {
     loadUser();
   }, []);
 
-  const { data: cartItems = [] } = useQuery({
-    queryKey: ['cartItems', user?.email],
-    queryFn: () => base44.entities.CartItem.filter({ user_email: user?.email }),
-    enabled: !!user?.email,
-  });
 
-  const cartCount = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
 
   const navItems = [
     { name: 'Control Center', page: 'Dashboard' },
@@ -211,8 +204,7 @@ export default function Layout({ children, currentPageName }) {
         </PageTransition>
       </main>
 
-      {/* Floating Assistant */}
-      <FloatingAssistant user={user} />
+
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border z-50 select-none shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>

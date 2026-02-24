@@ -24,11 +24,10 @@ export default function DispatchAttachments({ user, activeCycle, routeLoad, lock
     queryKey: ['cycleAttachments', activeCycle?.id],
     queryFn: async () => {
       if (!activeCycle?.id) return [];
-      const items = await base44.entities.CartItem.filter({
-        user_email: user?.email,
-        // Store cycle_id in metadata when creating attachments
+      const logs = await base44.entities.AttachmentLog.filter({
+        cycle_id: activeCycle.id,
       });
-      return items;
+      return logs;
     },
     enabled: !!activeCycle?.id && !!user?.email,
   });
@@ -47,14 +46,17 @@ export default function DispatchAttachments({ user, activeCycle, routeLoad, lock
         throw new Error('Locker Node Capacity exceeded');
       }
 
-      // Create attachment linked to cycle
-      await base44.entities.CartItem.create({
+      // Create attachment log linked to cycle
+      await base44.entities.AttachmentLog.create({
+        cycle_id: activeCycle.id,
         user_email: user.email,
-        product_name: attachment.name,
-        price: 0, // Internal tracking only
+        attachment_name: attachment.name,
         quantity: quantity,
-        // Metadata to link to cycle
-        product_id: `${activeCycle.id}_${attachment.id}`,
+        weight_impact_kg: totalWeight,
+        route_load_impact: newRouteLoad - routeLoad,
+        locker_load_impact: newLockerLoad - lockerCapacity,
+        dispatch_route_id: `RT${Math.floor(Math.random() * 899) + 100}B`,
+        status: 'scheduled',
       });
 
       return { attachment, quantity, newRouteLoad, newLockerLoad };
