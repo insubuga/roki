@@ -54,6 +54,7 @@ import DriverApplicationReview from './pages/DriverApplicationReview';
 import DriverDashboard from './pages/DriverDashboard';
 import DriverOnboarding from './pages/DriverOnboarding';
 import Feedback from './pages/Feedback';
+import Initialize from './pages/Initialize';
 import LaundryOrder from './pages/LaundryOrder';
 import Network from './pages/Network';
 import OperationsView from './pages/OperationsView';
@@ -66,7 +67,6 @@ import Schedule from './pages/Schedule';
 import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
-import Initialize from './pages/Initialize';
 import __Layout from './Layout.jsx';
 
 
@@ -78,6 +78,7 @@ export const PAGES = {
     "DriverDashboard": DriverDashboard,
     "DriverOnboarding": DriverOnboarding,
     "Feedback": Feedback,
+    "Initialize": Initialize,
     "LaundryOrder": LaundryOrder,
     "Network": Network,
     "OperationsView": OperationsView,
@@ -90,7 +91,6 @@ export const PAGES = {
     "Subscription": Subscription,
     "Support": Support,
     "SupportAdmin": SupportAdmin,
-    "Initialize": Initialize,
 }
 
 export const pagesConfig = {
