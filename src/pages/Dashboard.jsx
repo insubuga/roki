@@ -150,10 +150,10 @@ export default function Dashboard() {
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-4">
-        {/* System Console Header */}
+        {/* Control Center Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-foreground text-xl font-bold font-mono">SYSTEM CONSOLE</h1>
+            <h1 className="text-foreground text-xl font-bold font-mono">CONTROL CENTER</h1>
             <p className="text-muted-foreground text-xs font-mono">{user.full_name}</p>
           </div>
           {adminActions.length > 0 && (
@@ -310,54 +310,34 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Quick Access */}
+        {/* System Navigation */}
         <Card className="bg-card border-border">
           <CardContent className="p-4">
-            <h3 className="text-foreground font-mono font-semibold text-sm uppercase mb-3">Quick Access</h3>
+            <h3 className="text-foreground font-mono font-semibold text-sm uppercase mb-3">Lifecycle Controls</h3>
             <div className="grid grid-cols-2 gap-2">
               <Link to={createPageUrl('LaundryOrder')}>
-                <Button variant="outline" className="w-full border-border font-mono text-xs h-12">
-                  <Shirt className="w-4 h-4 mr-2" />
-                  Execute Cycle
+                <Button variant="outline" className="w-full border-border font-mono text-xs h-12 flex-col gap-1">
+                  <Activity className="w-4 h-4" />
+                  <span>Active Cycle</span>
                 </Button>
               </Link>
-              <Link to={createPageUrl('RushMode')}>
-                <Button variant="outline" className="w-full border-orange-600 text-orange-600 font-mono text-xs h-12">
-                  <Zap className="w-4 h-4 mr-2" />
-                  Recovery
+              <Link to={createPageUrl('Network')}>
+                <Button variant="outline" className="w-full border-border font-mono text-xs h-12 flex-col gap-1">
+                  <MapPin className="w-4 h-4" />
+                  <span>Network</span>
                 </Button>
               </Link>
-              <Link to={createPageUrl('Shop')}>
-                <Button variant="outline" className="w-full border-border font-mono text-xs h-12">
-                  <Package className="w-4 h-4 mr-2" />
-                  Enhancements
+              <Link to={createPageUrl('RiskRecovery')}>
+                <Button variant="outline" className="w-full border-orange-600 text-orange-600 font-mono text-xs h-12 flex-col gap-1">
+                  <Shield className="w-4 h-4" />
+                  <span>Risk & Recovery</span>
                 </Button>
               </Link>
-              <Link to={createPageUrl('Support')}>
-                <Button variant="outline" className="w-full border-border font-mono text-xs h-12">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Support
+              <Link to={createPageUrl('Performance')}>
+                <Button variant="outline" className="w-full border-border font-mono text-xs h-12 flex-col gap-1">
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Performance</span>
                 </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* System Settings */}
-        <Card className="bg-card border-border">
-          <CardContent className="p-3">
-            <div className="space-y-1">
-              <Link to={createPageUrl('Profile')} className="flex items-center justify-between p-2 rounded hover:bg-muted transition-colors">
-                <span className="text-foreground text-xs font-mono">Profile & Node Config</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </Link>
-              <Link to={createPageUrl('Subscription')} className="flex items-center justify-between p-2 rounded hover:bg-muted transition-colors">
-                <span className="text-foreground text-xs font-mono">Subscription Settings</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </Link>
-              <Link to={createPageUrl('Schedule')} className="flex items-center justify-between p-2 rounded hover:bg-muted transition-colors">
-                <span className="text-foreground text-xs font-mono">Schedule Management</span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </Link>
             </div>
           </CardContent>

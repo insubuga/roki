@@ -57,6 +57,7 @@ import DriverOnboarding from './pages/DriverOnboarding';
 import Feedback from './pages/Feedback';
 import LaundryOrder from './pages/LaundryOrder';
 import Network from './pages/Network';
+import Onboarding from './pages/Onboarding';
 import OperationsView from './pages/OperationsView';
 import OrderHistory from './pages/OrderHistory';
 import PaymentHistory from './pages/PaymentHistory';
@@ -70,7 +71,8 @@ import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
 import Wearables from './pages/Wearables';
-import Onboarding from './pages/Onboarding';
+import RiskRecovery from './pages/RiskRecovery';
+import Configuration from './pages/Configuration';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +87,7 @@ export const PAGES = {
     "Feedback": Feedback,
     "LaundryOrder": LaundryOrder,
     "Network": Network,
+    "Onboarding": Onboarding,
     "OperationsView": OperationsView,
     "OrderHistory": OrderHistory,
     "PaymentHistory": PaymentHistory,
@@ -98,7 +101,8 @@ export const PAGES = {
     "Support": Support,
     "SupportAdmin": SupportAdmin,
     "Wearables": Wearables,
-    "Onboarding": Onboarding,
+    "RiskRecovery": RiskRecovery,
+    "Configuration": Configuration,
 }
 
 export const pagesConfig = {

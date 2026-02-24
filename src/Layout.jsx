@@ -13,9 +13,9 @@ import {
   Home,
   Lock,
   Zap,
-  Shirt,
-  Calendar,
-  MessageCircle
+  Activity,
+  Shield,
+  Settings
 } from 'lucide-react';
 import NotificationDropdown from './components/notifications/NotificationDropdown';
 import FloatingAssistant from './components/assistant/FloatingAssistant';
@@ -60,11 +60,12 @@ export default function Layout({ children, currentPageName }) {
   const cartCount = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
 
   const navItems = [
-    { name: 'Dashboard', page: 'Dashboard' },
-    { name: 'Schedule', page: 'Schedule' },
+    { name: 'Control Center', page: 'Dashboard' },
+    { name: 'Active Cycle', page: 'LaundryOrder' },
     { name: 'Network', page: 'Network' },
+    { name: 'Risk & Recovery', page: 'RiskRecovery' },
     { name: 'Performance', page: 'Performance' },
-    { name: 'Support', page: 'Support' },
+    { name: 'Configuration', page: 'Configuration' },
     ...(user?.role === 'admin' ? [{ name: 'Operations', page: 'OperationsView' }] : []),
     ...(user?.role === 'driver' ? [{ name: 'Driver', page: 'DriverDashboard' }] : []),
   ];
@@ -79,11 +80,11 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const bottomNavItems = [
-    { name: 'Status', page: 'Dashboard', icon: Home },
-    { name: 'Schedule', page: 'Schedule', icon: Calendar },
+    { name: 'Control', page: 'Dashboard', icon: Home },
+    { name: 'Cycle', page: 'LaundryOrder', icon: Activity },
     { name: 'Network', page: 'Network', icon: Lock },
-    { name: 'Execute', page: 'LaundryOrder', icon: Shirt },
-    { name: 'Support', page: 'Support', icon: MessageCircle, key: 'support' },
+    { name: 'Risk', page: 'RiskRecovery', icon: Shield },
+    { name: 'Config', page: 'Configuration', icon: Settings, key: 'config' },
   ];
 
   const handleTabClick = (page) => {
