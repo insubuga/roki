@@ -327,7 +327,7 @@ function ProductCard({ product, addedItems, addToCartMutation }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all group border border-gray-200 relative"
+      className="bg-card rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all group border border-border relative"
     >
       {/* Badges */}
       <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
@@ -345,7 +345,7 @@ function ProductCard({ product, addedItems, addToCartMutation }) {
         )}
       </div>
 
-      <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+      <div className="aspect-square bg-gradient-to-br from-muted to-accent overflow-hidden">
         {product.image_url ? (
           <img 
             src={product.image_url} 
@@ -354,31 +354,31 @@ function ProductCard({ product, addedItems, addToCartMutation }) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <ShoppingCart className="w-12 h-12 text-gray-300" />
+            <ShoppingCart className="w-12 h-12 text-muted-foreground" />
           </div>
         )}
       </div>
       <div className="p-4">
-        <Badge className="bg-[#7cfc00]/20 text-[#059669] border-none mb-2 font-medium">
+        <Badge className="bg-green-600/20 text-green-700 border-none mb-2 font-medium">
           {product.category?.replace('-', ' ')}
         </Badge>
-        <h3 className="text-gray-900 font-semibold text-base line-clamp-2 mb-2 min-h-[48px]">{product.name}</h3>
-        <p className="text-gray-600 text-sm line-clamp-2 mb-3 min-h-[40px]">{product.description}</p>
+        <h3 className="text-foreground font-semibold text-base line-clamp-2 mb-2 min-h-[48px]">{product.name}</h3>
+        <p className="text-muted-foreground text-sm line-clamp-2 mb-3 min-h-[40px]">{product.description}</p>
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-gray-500 text-xs">Price</span>
+            <span className="text-muted-foreground text-xs">Price</span>
             <div className="flex items-center gap-2">
               {hasDiscount && (
-                <span className="text-gray-400 line-through text-sm">${product.price?.toFixed(2)}</span>
+                <span className="text-muted-foreground line-through text-sm">${product.price?.toFixed(2)}</span>
               )}
-              <div className={`${hasDiscount ? 'text-red-600' : 'text-[#059669]'} font-bold text-xl`}>
+              <div className={`${hasDiscount ? 'text-red-600' : 'text-green-600'} font-bold text-xl`}>
                 ${displayPrice?.toFixed(2)}
               </div>
             </div>
           </div>
           <Button 
             size="sm"
-            className={`${addedItems[product.id] ? 'bg-green-600' : 'bg-[#FFD814] hover:bg-[#F7CA00]'} text-black font-semibold shadow-sm px-4`}
+            className={`${addedItems[product.id] ? 'bg-green-600 text-white' : 'bg-green-600 hover:bg-green-700 text-white'} font-semibold shadow-sm px-4`}
             onClick={() => addToCartMutation.mutate(product)}
             disabled={addToCartMutation.isPending}
           >

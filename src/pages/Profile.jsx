@@ -407,7 +407,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Profile Photo */}
-            <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
+            <div className="flex items-center gap-4 pb-4 border-b border-border">
               <div className="relative">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center overflow-hidden border-2 border-green-300 shadow-md">
                   {user.profile_photo ? (
@@ -423,7 +423,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
                 )}
               </div>
               <div>
-                <p className="text-gray-900 font-semibold mb-1">Profile Photo</p>
+                <p className="text-foreground font-semibold mb-1">Profile Photo</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -440,36 +440,36 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
                   <Upload className="w-3 h-3 mr-2" />
                   {uploadingPhoto ? 'Uploading...' : 'Upload Photo'}
                 </Button>
-                <p className="text-gray-500 text-xs mt-1">JPG, PNG or WebP. Max 5MB.</p>
+                <p className="text-muted-foreground text-xs mt-1">JPG, PNG or WebP. Max 5MB.</p>
               </div>
             </div>
 
             <div>
-              <Label className="text-gray-700 font-medium">Full Name</Label>
+              <Label className="text-foreground font-medium">Full Name</Label>
               <Input
                 value={user.full_name || ''}
                 disabled
-                className="bg-gray-100 border-gray-300 text-gray-600 mt-1"
+                className="bg-muted border-border text-muted-foreground mt-1"
               />
             </div>
             <div>
-              <Label className="text-gray-700 font-medium">Email</Label>
+              <Label className="text-foreground font-medium">Email</Label>
               <div className="flex items-center gap-2 mt-1">
-                <Mail className="w-5 h-5 text-gray-500" />
+                <Mail className="w-5 h-5 text-muted-foreground" />
                 <Input
                   value={user.email || ''}
                   disabled
-                  className="bg-gray-100 border-gray-300 text-gray-600"
+                  className="bg-muted border-border text-muted-foreground"
                 />
               </div>
             </div>
             <div>
-              <Label className="text-gray-700 font-medium">Phone</Label>
+              <Label className="text-foreground font-medium">Phone</Label>
               <Input
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="Enter your phone number"
-                className="bg-gray-50 border-gray-300 text-gray-900 mt-1 focus:ring-2 focus:ring-green-500"
+                className="bg-muted border-border text-foreground mt-1 focus:ring-2 focus:ring-green-500"
               />
             </div>
           </CardContent>
@@ -486,7 +486,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
           <CardContent className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label className="text-gray-700 font-medium">Preferred Gym</Label>
+                <Label className="text-foreground font-medium">Preferred Gym</Label>
                 <Button
                   size="sm"
                   className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 h-7 text-xs shadow-md"
@@ -502,9 +502,9 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
                 </Button>
               </div>
               {!userLocation ? (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200 text-center shadow-sm">
-                  <Navigation className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600 text-sm">Enable location to find gyms near you</p>
+                <div className="bg-gradient-to-br from-muted to-accent rounded-lg p-6 border border-border text-center shadow-sm">
+                  <Navigation className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-muted-foreground text-sm">Enable location to find gyms near you</p>
                   <Button
                     size="sm"
                     className="mt-3 bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
@@ -516,13 +516,13 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
                   </Button>
                 </div>
               ) : loadingGyms ? (
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border border-green-200 text-center shadow-sm">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg p-6 border border-green-200 dark:border-green-900/50 text-center shadow-sm">
                   <Loader2 className="w-8 h-8 text-green-600 mx-auto mb-2 animate-spin" />
-                  <p className="text-gray-600 text-sm">Finding gyms near you...</p>
+                  <p className="text-muted-foreground text-sm">Finding gyms near you...</p>
                 </div>
               ) : gymsWithDistance.length === 0 ? (
-                <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 text-center shadow-sm">
-                  <p className="text-gray-600 text-sm">No gyms found nearby</p>
+                <div className="bg-muted rounded-lg p-6 border border-border text-center shadow-sm">
+                  <p className="text-muted-foreground text-sm">No gyms found nearby</p>
                   <Button
                     size="sm"
                     className="mt-3 bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
@@ -537,18 +537,18 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
                     value={formData.preferred_gym}
                     onValueChange={handleGymSelection}
                   >
-                    <SelectTrigger className="bg-gray-50 border-gray-300 text-gray-900 focus:ring-2 focus:ring-green-500">
+                    <SelectTrigger className="bg-muted border-border text-foreground focus:ring-2 focus:ring-green-500">
                       <SelectValue placeholder="Select a gym" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-200 max-h-72">
+                    <SelectContent className="bg-card border-border max-h-72">
                       {gymsWithDistance.map((gym, index) => (
-                        <SelectItem key={index} value={gym.gymKey} className="text-gray-900 h-auto py-3">
+                        <SelectItem key={index} value={gym.gymKey} className="text-foreground h-auto py-3">
                           <div className="flex items-start justify-between gap-3 w-full">
                             <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-gray-900 truncate">{gym.name}</div>
-                              <div className="text-gray-600 text-xs mt-1">{gym.address}</div>
+                              <div className="font-semibold text-foreground truncate">{gym.name}</div>
+                              <div className="text-muted-foreground text-xs mt-1">{gym.address}</div>
                               {lockerAvailability[gym.gymKey] !== undefined && (
-                                <div className={`text-xs mt-1 ${lockerAvailability[gym.gymKey] > 0 ? 'text-green-600' : 'text-gray-500'}`}>
+                                <div className={`text-xs mt-1 ${lockerAvailability[gym.gymKey] > 0 ? 'text-green-600' : 'text-muted-foreground'}`}>
                                   {lockerAvailability[gym.gymKey] > 0 ? `${lockerAvailability[gym.gymKey]} lockers available` : 'Setup required'}
                                 </div>
                               )}
@@ -564,7 +564,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
                   </Select>
                   <div className="flex items-center justify-between mt-1">
                     {gymsWithDistance[0] && (
-                      <p className="text-gray-500 text-xs flex items-center gap-1">
+                      <p className="text-muted-foreground text-xs flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         Nearest: {gymsWithDistance[0].name} ({gymsWithDistance[0].distance} mi away)
                       </p>
@@ -572,7 +572,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-[#7cfc00] hover:text-[#6be600] h-7 text-xs"
+                      className="text-green-600 hover:text-green-700 h-7 text-xs"
                       onClick={() => setShowMap(!showMap)}
                     >
                       <Map className="w-3 h-3 mr-1" />
@@ -614,7 +614,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
                 />
               </div>
             ) : (
-              <div>
+              <div className="pt-4">
                 <Button
                   className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-md"
                   onClick={() => setShowCheckout(true)}
@@ -658,15 +658,15 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
               Delete Account
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="bg-white border-red-300">
+          <AlertDialogContent className="bg-card border-red-300">
             <AlertDialogHeader>
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
                   <AlertTriangle className="w-6 h-6 text-red-600 select-none" />
                 </div>
-                <AlertDialogTitle className="text-gray-900 text-xl">Delete Account</AlertDialogTitle>
+                <AlertDialogTitle className="text-foreground text-xl">Delete Account</AlertDialogTitle>
               </div>
-              <AlertDialogDescription className="text-gray-600">
+              <AlertDialogDescription className="text-muted-foreground">
                 This action cannot be undone. This will permanently delete your account and remove all your data including:
                 <ul className="list-disc list-inside mt-2 space-y-1">
                   <li>Profile information and photos</li>
@@ -678,7 +678,7 @@ Return up to 15 gyms, sorted by distance (closest first). Return ONLY a JSON obj
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 select-none">
+              <AlertDialogCancel className="bg-muted text-foreground border-border hover:bg-accent select-none">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
