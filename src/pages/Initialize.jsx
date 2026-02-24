@@ -9,8 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import MobileSelect from '@/components/mobile/MobileSelect';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckCircle, MapPin, Calendar, Shirt, Lock, Zap, Radio, Activity, Server } from 'lucide-react';
+import { CheckCircle, MapPin, Calendar, Shirt, Lock, Zap, Radio, Activity, Server, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 export default function Initialize() {
   const navigate = useNavigate();
@@ -24,6 +26,9 @@ export default function Initialize() {
   const [preferredPickupDay, setPreferredPickupDay] = useState('');
   const [assignedLockerId, setAssignedLockerId] = useState(null);
   const [subscriptionTier, setSubscriptionTier] = useState('core');
+  const [showExpansionRequest, setShowExpansionRequest] = useState(false);
+  const [expansionGymName, setExpansionGymName] = useState('');
+  const [expansionGymAddress, setExpansionGymAddress] = useState('');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -43,10 +48,23 @@ export default function Initialize() {
     loadUser();
   }, [navigate]);
 
-  const { data: gyms = [] } = useQuery({
+  const { data: allGyms = [] } = useQuery({
     queryKey: ['gyms'],
     queryFn: () => base44.entities.Gym.list(),
     enabled: !!user,
+  });
+
+  const { data: allLockers = [] } = useQuery({
+    queryKey: ['allLockers'],
+    queryFn: () => base44.entities.Locker.list(),
+    enabled: !!user,
+  });
+
+  // Filter to only enabled gyms with active lockers
+  const enabledGyms = allGyms.filter(gym => {
+    const gymLockers = allLockers.filter(l => l.gym_id === gym.id);
+    const hasAvailableLockers = gymLockers.some(l => l.status === 'available');
+    return gymLockers.length > 0 && hasAvailableLockers;
   });
 
   const { data: availableLockers = [] } = useQuery({
@@ -74,8 +92,30 @@ export default function Initialize() {
     onError: () => toast.error('Node assignment failed'),
   });
 
+  const requestExpansionMutation = useMutation({
+    mutationFn: async () => {
+      await base44.entities.ExpansionInterest.create({
+        user_email: user.email,
+        requested_gym_name: expansionGymName,
+        requested_gym_address: expansionGymAddress,
+        status: 'pending',
+        density_score: 0,
+      });
+    },
+    onSuccess: () => {
+      toast.success('Activation request submitted');
+      setShowExpansionRequest(false);
+    },
+    onError: () => toast.error('Request failed'),
+  });
+
   const provisionSystemMutation = useMutation({
     mutationFn: async () => {
+      // Validate gym is enabled
+      const isEnabled = enabledGyms.some(g => g.id === selectedGymId);
+      if (!isEnabled) {
+        throw new Error('Selected facility is not enabled for provisioning');
+      }
       // Create MemberPreferences
       await base44.entities.MemberPreferences.create({
         user_email: user.email,
@@ -241,34 +281,67 @@ export default function Initialize() {
             {/* Step 1: Gym Location */}
             {currentStep === 1 && (
               <div className="space-y-4">
-                <Label className="text-foreground font-mono text-sm uppercase">Primary Node Location</Label>
-                <MobileSelect
-                  options={gyms.map(gym => ({
-                    value: gym.id,
-                    label: gym.name,
-                    subtitle: gym.address
-                  }))}
-                  value={selectedGymId}
-                  onValueChange={setSelectedGymId}
-                  placeholder="Select facility"
-                  trigger={
-                    <Select value={selectedGymId} onValueChange={setSelectedGymId}>
-                      <SelectTrigger className="bg-muted border-border font-mono">
-                        <SelectValue placeholder="Select facility" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card border-border">
-                        {gyms.map((gym) => (
-                          <SelectItem key={gym.id} value={gym.id}>
-                            <div>
-                              <p className="font-medium font-mono">{gym.name}</p>
-                              <p className="text-xs text-muted-foreground">{gym.address}</p>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  }
-                />
+                <Label className="text-foreground font-mono text-sm uppercase">Select an Enabled Facility</Label>
+                
+                {enabledGyms.length > 0 ? (
+                  <MobileSelect
+                    options={enabledGyms.map(gym => ({
+                      value: gym.id,
+                      label: gym.name,
+                      subtitle: gym.address
+                    }))}
+                    value={selectedGymId}
+                    onValueChange={setSelectedGymId}
+                    placeholder="Select enabled facility"
+                    trigger={
+                      <Select value={selectedGymId} onValueChange={setSelectedGymId}>
+                        <SelectTrigger className="bg-muted border-border font-mono">
+                          <SelectValue placeholder="Select enabled facility" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border">
+                          {enabledGyms.map((gym) => {
+                            const gymLockers = allLockers.filter(l => l.gym_id === gym.id);
+                            const availableCount = gymLockers.filter(l => l.status === 'available').length;
+                            return (
+                              <SelectItem key={gym.id} value={gym.id}>
+                                <div>
+                                  <p className="font-medium font-mono">{gym.name}</p>
+                                  <p className="text-xs text-muted-foreground">{gym.address}</p>
+                                  <p className="text-xs text-green-600 font-mono">{availableCount} nodes available</p>
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    }
+                  />
+                ) : (
+                  <div className="bg-muted rounded-lg p-4 border border-border">
+                    <p className="text-muted-foreground text-sm font-mono">Loading enabled facilities...</p>
+                  </div>
+                )}
+
+                {/* Facility Not Listed */}
+                <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 rounded-lg p-4 border border-orange-200 dark:border-orange-900/50">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-foreground font-bold text-sm font-mono mb-1">FACILITY NOT LISTED?</p>
+                      <p className="text-muted-foreground text-xs font-mono mb-3">
+                        Roki infrastructure is not yet active at your facility.
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowExpansionRequest(true)}
+                        className="font-mono text-xs"
+                      >
+                        REQUEST ACTIVATION
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -479,6 +552,57 @@ export default function Initialize() {
             )}
           </CardContent>
         </Card>
+
+        {/* Expansion Request Dialog */}
+        <Dialog open={showExpansionRequest} onOpenChange={setShowExpansionRequest}>
+          <DialogContent className="bg-card border-border font-mono">
+            <DialogHeader>
+              <DialogTitle className="uppercase text-base">Request Facility Activation</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div>
+                <Label className="text-xs uppercase mb-2 block">Facility Name</Label>
+                <Input
+                  value={expansionGymName}
+                  onChange={(e) => setExpansionGymName(e.target.value)}
+                  placeholder="e.g., Planet Fitness - Downtown"
+                  className="font-mono"
+                />
+              </div>
+              <div>
+                <Label className="text-xs uppercase mb-2 block">Facility Address</Label>
+                <Input
+                  value={expansionGymAddress}
+                  onChange={(e) => setExpansionGymAddress(e.target.value)}
+                  placeholder="e.g., 123 Main St, Dallas, TX"
+                  className="font-mono"
+                />
+              </div>
+              <div className="bg-muted rounded-lg p-3 border border-border">
+                <p className="text-xs text-muted-foreground font-mono leading-relaxed">
+                  Your request will be evaluated based on geographic density potential and cluster optimization. 
+                  Activation requests inform future node installation.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowExpansionRequest(false)}
+                  className="flex-1 font-mono"
+                >
+                  CANCEL
+                </Button>
+                <Button
+                  onClick={() => requestExpansionMutation.mutate()}
+                  disabled={!expansionGymName || !expansionGymAddress || requestExpansionMutation.isPending}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 font-mono"
+                >
+                  {requestExpansionMutation.isPending ? 'SUBMITTING...' : 'SUBMIT REQUEST'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
