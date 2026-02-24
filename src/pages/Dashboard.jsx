@@ -237,9 +237,9 @@ export default function Dashboard() {
               </div>
             </div>
             {!assignedLocker && (
-              <Link to={createPageUrl('Onboarding')}>
+              <Link to={createPageUrl('Initialize')}>
                 <Button className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white font-mono text-xs">
-                  COMPLETE SETUP
+                  INITIALIZE SYSTEM
                 </Button>
               </Link>
             )}
