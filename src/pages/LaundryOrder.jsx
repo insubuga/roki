@@ -197,9 +197,9 @@ export default function LaundryOrder() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
-      <div className="min-h-screen bg-gray-950 text-white pb-6">
+      <div className="min-h-screen bg-background pb-6">
         {/* System State Band */}
-        <div className="bg-gray-900 border-b border-gray-800 px-4 py-3 mb-6">
+        <div className="bg-card border-b border-border px-4 py-3 mb-6">
           <div className="flex items-center gap-3 mb-3">
             <Link to={createPageUrl('Dashboard')}>
               <Button
@@ -210,7 +210,7 @@ export default function LaundryOrder() {
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
-            <h1 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Logistics Control Console</h1>
+            <h1 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Weekly Cycle Flow</h1>
             {user.role === 'admin' && (
               <Button
                 variant="ghost"
@@ -222,26 +222,22 @@ export default function LaundryOrder() {
               </Button>
             )}
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
             <div>
-              <p className="text-gray-500 uppercase">System Status</p>
-              <p className="text-green-400 font-mono font-bold">STABLE</p>
+              <p className="text-muted-foreground uppercase">Status</p>
+              <p className="text-green-600 font-mono font-bold">{activeCycle ? 'PROCESSING' : 'READY'}</p>
             </div>
             <div>
-              <p className="text-gray-500 uppercase">Cluster Load</p>
-              <p className="text-white font-mono font-bold">{clusterLoad}%</p>
+              <p className="text-muted-foreground uppercase">Route ID</p>
+              <p className="text-foreground font-mono font-bold">{activeCycle ? `RT${Math.floor(Math.random() * 899) + 100}` : '—'}</p>
             </div>
             <div>
-              <p className="text-gray-500 uppercase">Route Capacity</p>
-              <p className="text-white font-mono font-bold">{100 - routeEfficiency}%</p>
+              <p className="text-muted-foreground uppercase">Turnaround ETA</p>
+              <p className="text-foreground font-mono font-bold">{activeCycle ? `${(avgTurnaround / 60).toFixed(0)}h` : '—'}</p>
             </div>
             <div>
-              <p className="text-gray-500 uppercase">SLA Turnaround</p>
-              <p className="text-white font-mono font-bold">{avgTurnaround / 60}h</p>
-            </div>
-            <div>
-              <p className="text-gray-500 uppercase">Incident Rate</p>
-              <p className="text-white font-mono font-bold">{((incidentCount / (totalCycles || 1)) * 100).toFixed(1)}%</p>
+              <p className="text-muted-foreground uppercase">SLA Status</p>
+              <p className="text-green-600 font-mono font-bold">{activeCycle ? 'ON TRACK' : 'READY'}</p>
             </div>
           </div>
         </div>
@@ -249,7 +245,7 @@ export default function LaundryOrder() {
         <div className="px-4 space-y-4">
           {/* Active Cycle Monitor */}
           {activeCycle ? (
-            <Card className={`bg-gray-900 border-2 ${currentState?.color.replace('bg-', 'border-')}`}>
+            <Card className={`bg-card border-2 ${currentState?.color.replace('bg-', 'border-')}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center justify-between">
                   <span className="flex items-center gap-2">
@@ -263,40 +259,40 @@ export default function LaundryOrder() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-gray-800 p-2 rounded">
-                    <p className="text-gray-500 uppercase mb-1">Cycle ID</p>
-                    <p className="text-white font-mono">{activeCycle.order_number}</p>
+                  <div className="bg-muted p-2 rounded">
+                    <p className="text-muted-foreground uppercase mb-1">Cycle ID</p>
+                    <p className="text-foreground font-mono">{activeCycle.order_number}</p>
                   </div>
-                  <div className="bg-gray-800 p-2 rounded">
-                    <p className="text-gray-500 uppercase mb-1">Route ID</p>
-                    <p className="text-white font-mono">RT{Math.floor(Math.random() * 899) + 100}</p>
+                  <div className="bg-muted p-2 rounded">
+                    <p className="text-muted-foreground uppercase mb-1">Route ID</p>
+                    <p className="text-foreground font-mono">RT{Math.floor(Math.random() * 899) + 100}</p>
                   </div>
-                  <div className="bg-gray-800 p-2 rounded">
-                    <p className="text-gray-500 uppercase mb-1">Node</p>
-                    <p className="text-white font-mono">{assignedLocker?.locker_number || 'N/A'}</p>
+                  <div className="bg-muted p-2 rounded">
+                    <p className="text-muted-foreground uppercase mb-1">Node</p>
+                    <p className="text-foreground font-mono">{assignedLocker?.locker_number || 'N/A'}</p>
                   </div>
-                  <div className="bg-gray-800 p-2 rounded">
-                    <p className="text-gray-500 uppercase mb-1">Batch Volume</p>
-                    <p className="text-white font-mono">{activeCycle.items?.length || 0} units</p>
+                  <div className="bg-muted p-2 rounded">
+                    <p className="text-muted-foreground uppercase mb-1">Batch Volume</p>
+                    <p className="text-foreground font-mono">{activeCycle.items?.length || 0} units</p>
                   </div>
                 </div>
                 
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Pickup Timestamp</span>
-                    <span className="text-white font-mono">{pickupTime?.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="text-muted-foreground">Pickup Timestamp</span>
+                    <span className="text-foreground font-mono">{pickupTime?.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Expected Delivery</span>
-                    <span className="text-white font-mono">{expectedDelivery?.toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="text-muted-foreground">Expected Delivery</span>
+                    <span className="text-foreground font-mono">{expectedDelivery?.toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">SLA Commitment</span>
-                    <span className="text-green-400 font-mono font-bold">48h</span>
+                    <span className="text-muted-foreground">SLA Commitment</span>
+                    <span className="text-green-600 font-mono font-bold">48h</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Variance</span>
-                    <span className={`font-mono font-bold ${variance > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    <span className="text-muted-foreground">Variance</span>
+                    <span className={`font-mono font-bold ${variance > 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {variance > 0 ? '+' : ''}{variance}min
                     </span>
                   </div>
@@ -304,10 +300,10 @@ export default function LaundryOrder() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-card border-border">
               <CardContent className="p-6 text-center">
-                <Database className="w-12 h-12 text-gray-700 mx-auto mb-3" />
-                <p className="text-gray-500 text-sm mb-4">No active cycle</p>
+                <Database className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm mb-4">No active cycle</p>
                 <Button
                   onClick={() => setShowActivateDialog(true)}
                   className="bg-green-600 hover:bg-green-700 text-white font-mono text-sm"
@@ -315,12 +311,15 @@ export default function LaundryOrder() {
                 >
                   ACTIVATE NEW CYCLE
                 </Button>
+                {!assignedLocker && (
+                  <p className="text-xs text-muted-foreground mt-2">Complete onboarding to activate</p>
+                )}
               </CardContent>
             </Card>
           )}
 
           {/* Route & Node Allocation */}
-          <Card className="bg-gray-900 border-gray-800">
+          <Card className="bg-card border-border">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
@@ -330,20 +329,20 @@ export default function LaundryOrder() {
             <CardContent className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <p className="text-gray-500 uppercase mb-1">Route Window</p>
-                  <p className="text-white font-mono">{preferences?.preferred_pickup_window?.replace('_', ' ').toUpperCase() || 'NOT SET'}</p>
+                  <p className="text-muted-foreground uppercase mb-1">Route Window</p>
+                  <p className="text-foreground font-mono">{preferences?.preferred_pickup_window?.replace('_', ' ').toUpperCase() || 'NOT SET'}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 uppercase mb-1">Route Code</p>
-                  <p className="text-white font-mono">RT{Math.floor(Math.random() * 899) + 100}</p>
+                  <p className="text-muted-foreground uppercase mb-1">Route Code</p>
+                  <p className="text-foreground font-mono">RT{Math.floor(Math.random() * 899) + 100}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 uppercase mb-1">Route Load</p>
-                  <p className="text-white font-mono font-bold">{routeEfficiency}%</p>
+                  <p className="text-muted-foreground uppercase mb-1">Route Load</p>
+                  <p className="text-foreground font-mono font-bold">{routeEfficiency}%</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 uppercase mb-1">Cluster Density</p>
-                  <p className="text-green-400 font-mono font-bold">{preferences?.route_density_contribution || 0}%</p>
+                  <p className="text-muted-foreground uppercase mb-1">Cluster Density</p>
+                  <p className="text-green-600 font-mono font-bold">{preferences?.route_density_contribution || 0}%</p>
                 </div>
               </div>
             </CardContent>
@@ -351,7 +350,7 @@ export default function LaundryOrder() {
 
           {/* Locker Node Status */}
           {assignedLocker && gym && (
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-card border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Database className="w-4 h-4" />
@@ -361,20 +360,20 @@ export default function LaundryOrder() {
               <CardContent className="space-y-2 text-xs">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <p className="text-gray-500 uppercase">Node ID</p>
-                    <p className="text-white font-mono">{assignedLocker.locker_number}</p>
+                    <p className="text-muted-foreground uppercase">Node ID</p>
+                    <p className="text-foreground font-mono">{assignedLocker.locker_number}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 uppercase">Location</p>
-                    <p className="text-white">{gym.name}</p>
+                    <p className="text-muted-foreground uppercase">Location</p>
+                    <p className="text-foreground">{gym.name}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 uppercase">Bay Number</p>
-                    <p className="text-green-400 font-mono font-bold">{assignedLocker.locker_number}</p>
+                    <p className="text-muted-foreground uppercase">Bay Number</p>
+                    <p className="text-green-600 font-mono font-bold">{assignedLocker.locker_number}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 uppercase">Utilization</p>
-                    <p className="text-white font-mono">{nodeUtilization}%</p>
+                    <p className="text-muted-foreground uppercase">Utilization</p>
+                    <p className="text-foreground font-mono">{nodeUtilization}%</p>
                   </div>
                 </div>
               </CardContent>
@@ -382,7 +381,7 @@ export default function LaundryOrder() {
           )}
 
           {/* Reliability & Performance Metrics */}
-          <Card className="bg-gray-900 border-gray-800">
+          <Card className="bg-card border-border">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
@@ -392,32 +391,32 @@ export default function LaundryOrder() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-3 text-xs">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-green-400 font-mono">{reliabilityScore}%</p>
-                  <p className="text-gray-500 uppercase mt-1">On-Time</p>
+                  <p className="text-2xl font-bold text-green-600 font-mono">{reliabilityScore}%</p>
+                  <p className="text-muted-foreground uppercase mt-1">On-Time</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-white font-mono">{totalCycles}</p>
-                  <p className="text-gray-500 uppercase mt-1">Cycles</p>
+                  <p className="text-2xl font-bold text-foreground font-mono">{totalCycles}</p>
+                  <p className="text-muted-foreground uppercase mt-1">Cycles</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-white font-mono">{incidentCount}</p>
-                  <p className="text-gray-500 uppercase mt-1">Incidents</p>
+                  <p className="text-2xl font-bold text-foreground font-mono">{incidentCount}</p>
+                  <p className="text-muted-foreground uppercase mt-1">Incidents</p>
                 </div>
               </div>
               
               <div className="space-y-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">Avg Turnaround</span>
-                  <span className="text-white font-mono">{avgTurnaround / 60}h</span>
+                  <span className="text-muted-foreground">Avg Turnaround</span>
+                  <span className="text-foreground font-mono">{avgTurnaround / 60}h</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">SLA Adherence</span>
-                  <span className="text-green-400 font-mono font-bold">{slaAdherence}%</span>
+                  <span className="text-muted-foreground">SLA Adherence</span>
+                  <span className="text-green-600 font-mono font-bold">{slaAdherence}%</span>
                 </div>
               </div>
 
               <div>
-                <p className="text-gray-500 text-xs uppercase mb-2">Turnaround Trend</p>
+                <p className="text-muted-foreground text-xs uppercase mb-2">Turnaround Trend</p>
                 <ResponsiveContainer width="100%" height={40}>
                   <LineChart data={turnaroundTrend}>
                     <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={2} dot={false} />
@@ -460,7 +459,7 @@ export default function LaundryOrder() {
 
           {/* Operations View */}
           {operationsView && (
-            <Card className="bg-gray-950 border-yellow-600/50">
+            <Card className="bg-card border-yellow-600/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm text-yellow-400 flex items-center gap-2">
                   <Activity className="w-4 h-4" />
@@ -470,20 +469,20 @@ export default function LaundryOrder() {
               <CardContent>
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <p className="text-gray-500 uppercase mb-1">Active Cycles</p>
-                    <p className="text-white text-xl font-bold font-mono">{allActiveCycles.length}</p>
+                    <p className="text-muted-foreground uppercase mb-1">Active Cycles</p>
+                    <p className="text-foreground text-xl font-bold font-mono">{allActiveCycles.length}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 uppercase mb-1">Node Utilization</p>
-                    <p className="text-white text-xl font-bold font-mono">{nodeUtilization}%</p>
+                    <p className="text-muted-foreground uppercase mb-1">Node Utilization</p>
+                    <p className="text-foreground text-xl font-bold font-mono">{nodeUtilization}%</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 uppercase mb-1">Route Efficiency</p>
-                    <p className="text-green-400 text-xl font-bold font-mono">{routeEfficiency}%</p>
+                    <p className="text-muted-foreground uppercase mb-1">Route Efficiency</p>
+                    <p className="text-green-600 text-xl font-bold font-mono">{routeEfficiency}%</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 uppercase mb-1">Cost/Cluster</p>
-                    <p className="text-white text-xl font-bold font-mono">$210</p>
+                    <p className="text-muted-foreground uppercase mb-1">Cost/Cluster</p>
+                    <p className="text-foreground text-xl font-bold font-mono">$210</p>
                   </div>
                 </div>
               </CardContent>
