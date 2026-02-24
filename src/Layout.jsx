@@ -125,9 +125,6 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Right Side */}
             <div className="flex items-center gap-3">
-              {/* Alert Center */}
-              {user && <AlertCenter user={user} />}
-              
               {/* Notifications */}
               {user && <NotificationDropdown user={user} />}
 
