@@ -177,7 +177,7 @@ export default function Shop() {
     },
     onSuccess: (_, product) => {
       queryClient.invalidateQueries({ queryKey: ['cartItems'] });
-      toast.success('Scheduled for replenishment');
+      toast.success('Added to supply queue');
       setTimeout(() => {
         setAddedItems(prev => ({ ...prev, [product.id]: false }));
       }, 2000);
@@ -188,7 +188,7 @@ export default function Shop() {
         queryClient.setQueryData(['cartItems', user?.email], context.previousCart);
       }
       setAddedItems(prev => ({ ...prev, [product.id]: false }));
-      toast.error('Failed to schedule');
+      toast.error('Failed to add');
     },
   });
 
@@ -238,8 +238,8 @@ export default function Shop() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin" />
-        <p className="text-[var(--color-text-secondary)] text-sm">Loading shop...</p>
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-muted-foreground text-sm">Loading modules...</p>
       </div>
     );
   }
@@ -249,10 +249,10 @@ export default function Shop() {
     <div className="space-y-6">
       {/* Header */}
       <MobileHeader 
-        title="Replenishment Automation" 
-        subtitle="System-optimized recovery supplies"
-        icon={ShoppingCart}
-        iconColor="text-amber-500"
+        title="Optimization Modules" 
+        subtitle="Performance enhancement catalog"
+        icon={Sparkles}
+        iconColor="text-purple-500"
       />
 
       {/* Personalized First */}
@@ -382,9 +382,9 @@ function ProductCard({ product, addedItems, addToCartMutation }) {
             disabled={addToCartMutation.isPending}
           >
             {addedItems[product.id] ? (
-              <><Check className="w-4 h-4 mr-1" /> Scheduled</>
+              <><Check className="w-4 h-4 mr-1" /> Added</>
             ) : (
-              <>Schedule</>
+              <>Add</>
             )}
           </Button>
         </div>
