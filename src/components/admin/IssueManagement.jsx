@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import MobileSelect from '@/components/mobile/MobileSelect';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
@@ -50,13 +51,13 @@ export default function IssueManagement() {
       {/* Stats */}
       <div className="grid md:grid-cols-3 gap-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
-          <Card className="border-gray-200 overflow-hidden">
+          <Card className="border-border overflow-hidden">
             <div className="h-1 bg-gradient-to-r from-red-500 to-red-600"></div>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm font-medium mb-2">Open Issues</p>
-                  <p className="text-gray-900 text-3xl font-bold">{openIssues}</p>
+                  <p className="text-muted-foreground text-sm font-medium mb-2">Open Issues</p>
+                  <p className="text-foreground text-3xl font-bold">{openIssues}</p>
                 </div>
                 <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
                   <AlertTriangle className="w-7 h-7 text-white" />
@@ -67,13 +68,13 @@ export default function IssueManagement() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <Card className="border-gray-200 overflow-hidden">
+          <Card className="border-border overflow-hidden">
             <div className="h-1 bg-gradient-to-r from-yellow-500 to-orange-600"></div>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm font-medium mb-2">In Progress</p>
-                  <p className="text-gray-900 text-3xl font-bold">{inProgressIssues}</p>
+                  <p className="text-muted-foreground text-sm font-medium mb-2">In Progress</p>
+                  <p className="text-foreground text-3xl font-bold">{inProgressIssues}</p>
                 </div>
                 <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
                   <Wrench className="w-7 h-7 text-white" />
@@ -84,13 +85,13 @@ export default function IssueManagement() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="border-gray-200 overflow-hidden">
+          <Card className="border-border overflow-hidden">
             <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm font-medium mb-2">Resolved</p>
-                  <p className="text-gray-900 text-3xl font-bold">{resolvedIssues}</p>
+                  <p className="text-muted-foreground text-sm font-medium mb-2">Resolved</p>
+                  <p className="text-foreground text-3xl font-bold">{resolvedIssues}</p>
                 </div>
                 <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
                   <CheckCircle className="w-7 h-7 text-white" />
@@ -102,9 +103,9 @@ export default function IssueManagement() {
       </div>
 
       {/* Issues List */}
-      <Card className="bg-white border-gray-200 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-transparent border-b border-gray-200">
-          <CardTitle className="text-gray-900">All Issues</CardTitle>
+      <Card className="bg-card border-border shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-muted to-transparent border-b border-border">
+          <CardTitle className="text-foreground">All Issues</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           {issues.length === 0 ? (
@@ -112,8 +113,8 @@ export default function IssueManagement() {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
-              <p className="text-gray-500 text-lg">No issues reported</p>
-              <p className="text-gray-400 text-sm mt-1">All systems are running smoothly</p>
+              <p className="text-muted-foreground text-lg">No issues reported</p>
+              <p className="text-muted-foreground text-sm mt-1">All systems are running smoothly</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -125,7 +126,7 @@ export default function IssueManagement() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:shadow-md transition-all"
+                    className="bg-gradient-to-r from-muted to-card rounded-xl p-5 border border-border hover:shadow-md transition-all"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-4 flex-1">
@@ -156,30 +157,42 @@ export default function IssueManagement() {
                               {issue.priority} priority
                             </Badge>
                           </div>
-                          <p className="text-gray-900 font-semibold mb-1">Locker: {issue.locker_id}</p>
-                          <p className="text-gray-600 text-sm mb-1">Reported by: {issue.user_email}</p>
+                          <p className="text-foreground font-semibold mb-1">Locker: {issue.locker_id}</p>
+                          <p className="text-muted-foreground text-sm mb-1">Reported by: {issue.user_email}</p>
                           {issue.description && (
-                            <p className="text-gray-700 text-sm mt-2 bg-white p-3 rounded-lg border border-gray-200">{issue.description}</p>
+                            <p className="text-foreground text-sm mt-2 bg-card p-3 rounded-lg border border-border">{issue.description}</p>
                           )}
-                          <p className="text-gray-500 text-xs mt-2">
+                          <p className="text-muted-foreground text-xs mt-2">
                             {format(new Date(issue.created_date), 'MMM d, yyyy h:mm a')}
                           </p>
                         </div>
                       </div>
                       <div className="w-44">
-                        <Select
+                        <MobileSelect
+                          options={[
+                            { value: 'open', label: 'Open' },
+                            { value: 'in_progress', label: 'In Progress' },
+                            { value: 'resolved', label: 'Resolved' }
+                          ]}
                           value={issue.status}
                           onValueChange={(status) => updateIssueMutation.mutate({ issueId: issue.id, status })}
-                        >
-                          <SelectTrigger className="border-gray-300 bg-white">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white border-gray-200">
-                            <SelectItem value="open">Open</SelectItem>
-                            <SelectItem value="in_progress">In Progress</SelectItem>
-                            <SelectItem value="resolved">Resolved</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          placeholder="Update Status"
+                          trigger={
+                            <Select
+                              value={issue.status}
+                              onValueChange={(status) => updateIssueMutation.mutate({ issueId: issue.id, status })}
+                            >
+                              <SelectTrigger className="border-border bg-card">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-card border-border">
+                                <SelectItem value="open">Open</SelectItem>
+                                <SelectItem value="in_progress">In Progress</SelectItem>
+                                <SelectItem value="resolved">Resolved</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          }
+                        />
                       </div>
                     </div>
                   </motion.div>

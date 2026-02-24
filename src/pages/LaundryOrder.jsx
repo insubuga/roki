@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import MobileSelect from '@/components/mobile/MobileSelect';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 
 const cycleStates = {
@@ -481,38 +482,49 @@ export default function LaundryOrder() {
 
         {/* Activate Cycle Dialog */}
         <Dialog open={showActivateDialog} onOpenChange={setShowActivateDialog}>
-          <DialogContent className="bg-gray-900 border-gray-700">
+          <DialogContent className="bg-card border-border">
             <DialogHeader>
-              <DialogTitle className="text-white font-mono text-sm">ACTIVATE NEW CYCLE</DialogTitle>
+              <DialogTitle className="text-foreground font-mono text-sm">ACTIVATE NEW CYCLE</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
-                <p className="text-gray-400 text-xs uppercase mb-2">Batch Volume</p>
-                <Select value={gearVolume} onValueChange={setGearVolume}>
-                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white font-mono text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700">
-                    {gearVolumeOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white font-mono text-sm">
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <p className="text-muted-foreground text-xs uppercase mb-2">Batch Volume</p>
+                <MobileSelect
+                  options={gearVolumeOptions.map(opt => ({
+                    value: opt.value,
+                    label: opt.label
+                  }))}
+                  value={gearVolume}
+                  onValueChange={setGearVolume}
+                  placeholder="Select Batch Volume"
+                  trigger={
+                    <Select value={gearVolume} onValueChange={setGearVolume}>
+                      <SelectTrigger className="bg-muted border-border text-foreground font-mono text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card border-border">
+                        {gearVolumeOptions.map(opt => (
+                          <SelectItem key={opt.value} value={opt.value} className="text-foreground font-mono text-sm">
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  }
+                />
               </div>
 
-              <div className="bg-gray-800 rounded p-3 text-xs space-y-2">
+              <div className="bg-muted rounded p-3 text-xs space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Node Assignment</span>
-                  <span className="text-white font-mono">{assignedLocker?.locker_number || 'N/A'}</span>
+                  <span className="text-muted-foreground">Node Assignment</span>
+                  <span className="text-foreground font-mono">{assignedLocker?.locker_number || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Route Capacity</span>
+                  <span className="text-muted-foreground">Route Capacity</span>
                   <span className="text-green-400 font-mono">Available</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">SLA Impact</span>
+                  <span className="text-muted-foreground">SLA Impact</span>
                   <span className="text-green-400 font-mono">+0h</span>
                 </div>
               </div>
@@ -520,7 +532,7 @@ export default function LaundryOrder() {
               <div className="flex gap-3">
                 <Button
                   variant="outline"
-                  className="flex-1 border-gray-700 text-gray-400 text-xs"
+                  className="flex-1 border-border text-muted-foreground text-xs"
                   onClick={() => setShowActivateDialog(false)}
                 >
                   CANCEL
@@ -539,7 +551,7 @@ export default function LaundryOrder() {
 
         {/* Recovery Protocol Dialog */}
         <Dialog open={showRecoveryDialog} onOpenChange={setShowRecoveryDialog}>
-          <DialogContent className="bg-gray-900 border-red-700/50">
+          <DialogContent className="bg-card border-red-700/50">
             <DialogHeader>
               <DialogTitle className="text-red-400 font-mono text-sm flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4" />
@@ -547,7 +559,7 @@ export default function LaundryOrder() {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="bg-red-950/30 border border-red-800 rounded p-3">
+              <div className="bg-red-950/30 dark:bg-red-950/50 border border-red-800 rounded p-3">
                 <p className="text-red-400 font-bold text-xs mb-2">PRIORITY DISPATCH ENGAGED</p>
                 <p className="text-gray-400 text-xs">
                   Route queue reprioritized. Backup allocation assigned.
@@ -556,15 +568,15 @@ export default function LaundryOrder() {
 
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Revised ETA</span>
-                  <span className="text-white font-mono">12h</span>
+                  <span className="text-muted-foreground">Revised ETA</span>
+                  <span className="text-foreground font-mono">12h</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Recovery Cost</span>
-                  <span className="text-white font-mono">1 credit</span>
+                  <span className="text-muted-foreground">Recovery Cost</span>
+                  <span className="text-foreground font-mono">1 credit</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Reliability Impact</span>
+                  <span className="text-muted-foreground">Reliability Impact</span>
                   <span className="text-yellow-400 font-mono">-2%</span>
                 </div>
               </div>
@@ -572,7 +584,7 @@ export default function LaundryOrder() {
               <div className="flex gap-3">
                 <Button
                   variant="outline"
-                  className="flex-1 border-gray-700 text-gray-400 text-xs"
+                  className="flex-1 border-border text-muted-foreground text-xs"
                   onClick={() => setShowRecoveryDialog(false)}
                 >
                   CANCEL

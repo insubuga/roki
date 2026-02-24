@@ -56,20 +56,20 @@ import DriverDashboard from './pages/DriverDashboard';
 import DriverOnboarding from './pages/DriverOnboarding';
 import Feedback from './pages/Feedback';
 import LaundryOrder from './pages/LaundryOrder';
+import Network from './pages/Network';
+import OperationsView from './pages/OperationsView';
 import OrderHistory from './pages/OrderHistory';
 import PaymentHistory from './pages/PaymentHistory';
+import Performance from './pages/Performance';
 import Profile from './pages/Profile';
 import RokiBot from './pages/RokiBot';
 import RushMode from './pages/RushMode';
+import Schedule from './pages/Schedule';
 import Shop from './pages/Shop';
 import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
 import Wearables from './pages/Wearables';
-import Schedule from './pages/Schedule';
-import Network from './pages/Network';
-import Performance from './pages/Performance';
-import OperationsView from './pages/OperationsView';
 import __Layout from './Layout.jsx';
 
 
@@ -83,20 +83,20 @@ export const PAGES = {
     "DriverOnboarding": DriverOnboarding,
     "Feedback": Feedback,
     "LaundryOrder": LaundryOrder,
+    "Network": Network,
+    "OperationsView": OperationsView,
     "OrderHistory": OrderHistory,
     "PaymentHistory": PaymentHistory,
+    "Performance": Performance,
     "Profile": Profile,
     "RokiBot": RokiBot,
     "RushMode": RushMode,
+    "Schedule": Schedule,
     "Shop": Shop,
     "Subscription": Subscription,
     "Support": Support,
     "SupportAdmin": SupportAdmin,
     "Wearables": Wearables,
-    "Schedule": Schedule,
-    "Network": Network,
-    "Performance": Performance,
-    "OperationsView": OperationsView,
 }
 
 export const pagesConfig = {
