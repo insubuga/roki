@@ -70,6 +70,7 @@ import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
 import Wearables from './pages/Wearables';
+import Onboarding from './pages/Onboarding';
 import __Layout from './Layout.jsx';
 
 
@@ -97,6 +98,7 @@ export const PAGES = {
     "Support": Support,
     "SupportAdmin": SupportAdmin,
     "Wearables": Wearables,
+    "Onboarding": Onboarding,
 }
 
 export const pagesConfig = {
