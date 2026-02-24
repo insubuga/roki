@@ -5,7 +5,6 @@ import PageTransition from './components/mobile/PageTransition';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  ShoppingCart, 
   LogOut, 
   User,
   ChevronDown,
@@ -15,7 +14,8 @@ import {
   Lock,
   Zap,
   Shirt,
-  Calendar
+  Calendar,
+  MessageCircle
 } from 'lucide-react';
 import NotificationDropdown from './components/notifications/NotificationDropdown';
 import FloatingAssistant from './components/assistant/FloatingAssistant';
@@ -64,6 +64,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Schedule', page: 'Schedule' },
     { name: 'Network', page: 'Network' },
     { name: 'Performance', page: 'Performance' },
+    { name: 'Support', page: 'Support' },
     ...(user?.role === 'admin' ? [{ name: 'Operations', page: 'OperationsView' }] : []),
     ...(user?.role === 'driver' ? [{ name: 'Driver', page: 'DriverDashboard' }] : []),
   ];
@@ -82,7 +83,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Schedule', page: 'Schedule', icon: Calendar },
     { name: 'Network', page: 'Network', icon: Lock },
     { name: 'Execute', page: 'LaundryOrder', icon: Shirt },
-    { name: 'Profile', page: 'Profile', icon: User, key: 'profile' },
+    { name: 'Support', page: 'Support', icon: MessageCircle, key: 'support' },
   ];
 
   const handleTabClick = (page) => {
@@ -101,7 +102,7 @@ export default function Layout({ children, currentPageName }) {
             {/* Logo */}
             <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md">
-                <ShoppingCart className="w-5 h-5 text-white" />
+                <Zap className="w-5 h-5 text-white" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-bold text-foreground leading-none">ROKI</span>
@@ -131,18 +132,6 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex items-center gap-3">
               {/* Notifications */}
               {user && <NotificationDropdown user={user} />}
-
-              {/* Cart */}
-              <Link to={createPageUrl('Cart')} className="relative">
-                <Button variant="outline" size="icon" className="bg-background border-border hover:bg-muted">
-                  <ShoppingCart className="w-5 h-5 text-foreground" />
-                </Button>
-                {cartCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 bg-gradient-to-br from-green-500 to-green-600 text-white text-xs h-5 w-5 flex items-center justify-center p-0 shadow-md border-2 border-background">
-                    {cartCount}
-                  </Badge>
-                )}
-              </Link>
 
               {/* User Menu */}
               {user ? (

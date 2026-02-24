@@ -327,16 +327,16 @@ export default function Dashboard() {
                   Recovery
                 </Button>
               </Link>
-              <Link to={createPageUrl('Network')}>
+              <Link to={createPageUrl('Shop')}>
                 <Button variant="outline" className="w-full border-border font-mono text-xs h-12">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Network
+                  <Package className="w-4 h-4 mr-2" />
+                  Enhancements
                 </Button>
               </Link>
-              <Link to={createPageUrl('Performance')}>
+              <Link to={createPageUrl('Support')}>
                 <Button variant="outline" className="w-full border-border font-mono text-xs h-12">
-                  <Activity className="w-4 h-4 mr-2" />
-                  Metrics
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Support
                 </Button>
               </Link>
             </div>
