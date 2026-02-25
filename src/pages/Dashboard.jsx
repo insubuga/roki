@@ -237,7 +237,7 @@ export default function Dashboard() {
                 </span>
               </div>
             </div>
-            {!assignedLocker && (
+            {!assignedLocker && !preferences && (
               <Link to={createPageUrl('Initialize')}>
                 <Button className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white font-mono text-xs">
                   INITIALIZE SYSTEM
