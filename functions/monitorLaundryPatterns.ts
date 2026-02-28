@@ -3,11 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    
-    if (user?.role !== 'admin') {
-      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-    }
+    // This is a scheduled automation — no user auth context, use service role directly
 
     const results = [];
     
@@ -32,24 +28,9 @@ Deno.serve(async (req) => {
         (Date.now() - new Date(lastOrder.created_date).getTime()) / (1000 * 60 * 60 * 24)
       );
       
-      // Get wearable data for activity level
-      const wearableData = await base44.asServiceRole.entities.WearableData.filter(
-        { user_email: userEmail },
-        '-created_date',
-        7
-      );
-      
-      const avgSteps = wearableData.length > 0
-        ? wearableData.reduce((sum, d) => sum + (d.steps || 0), 0) / wearableData.length
-        : 0;
-      
-      const highIntensityDays = wearableData.filter(
-        d => d.workout_intensity === 'high' || d.workout_intensity === 'extreme'
-      ).length;
-      
-      // Determine if user needs laundry pickup
+      // Determine if user needs laundry pickup (based on laundry history only)
       const hasCredits = subscription.laundry_credits > subscription.laundry_credits_used;
-      const needsPickup = daysSinceLastPickup >= 7 || (daysSinceLastPickup >= 5 && highIntensityDays >= 3);
+      const needsPickup = daysSinceLastPickup >= 7;
       
       if (needsPickup) {
         if (hasCredits) {
