@@ -211,7 +211,7 @@ export default function RiskRecovery() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Link to={createPageUrl('RushMode')}>
+            <Link to={createPageUrl('LaundryOrder')}>
               <Button 
                 variant="outline" 
                 className="w-full border-orange-600 text-orange-600 hover:bg-orange-600/10 font-mono text-xs h-12"
