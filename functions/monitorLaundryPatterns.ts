@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
           results.push({
             user: userEmail,
             action: 'auto_scheduled',
-            reason: `${daysSinceLastPickup} days, ${highIntensityDays} high-intensity workouts`,
+            reason: `${daysSinceLastPickup} days since last pickup`,
             credits: `${subscription.laundry_credits_used}/${subscription.laundry_credits}`
           });
           
@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
             user_email: userEmail,
             type: 'vantabot',
             title: 'Laundry Pickup Needed',
-            message: `It's been ${daysSinceLastPickup} days since your last pickup. ${highIntensityDays} high-intensity workouts detected. Time to schedule laundry.`,
+            message: `It's been ${daysSinceLastPickup} days since your last pickup. Time to schedule laundry.`,
             priority: 'high'
           });
         } else {
