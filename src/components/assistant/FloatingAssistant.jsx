@@ -100,10 +100,20 @@ export default function FloatingAssistant({ user }) {
               <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
                 <Bot className="w-4 h-4 text-white" />
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-white font-bold text-sm font-mono">ROKIBOT</p>
                 <p className="text-green-100 text-xs">Operations Assistant</p>
               </div>
+              <button
+                onClick={() => {
+                  setConversation(null);
+                  setMessages([]);
+                }}
+                className="text-white/70 hover:text-white transition-colors p-1 rounded"
+                title="Clear chat"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
 
             {/* Messages */}
