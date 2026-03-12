@@ -201,6 +201,7 @@ export default function RiskRecovery() {
               <Activity className="w-4 h-4 text-blue-600" />
               RECOVERY PERFORMANCE
             </CardTitle>
+            <p className="text-muted-foreground text-xs font-mono">How fast the system resolves incidents affecting your cycles or supply dispatches.</p>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
