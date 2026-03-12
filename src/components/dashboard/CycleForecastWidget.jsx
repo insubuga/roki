@@ -134,7 +134,7 @@ export default function CycleForecastWidget({ user, preferences, preferredGym })
         user_email: user.email,
         order_number: batchId,
         drop_off_date: new Date().toISOString(),
-        status: 'awaiting_pickup',
+        status: 'prepared',
         items: Array(8).fill('Unit'),
         gym_location: preferredGym?.name || 'Node Assigned',
       });

@@ -60,6 +60,7 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
       });
       await base44.entities.Locker.update(locker.id, { status: 'dropped' });
       await base44.entities.Cycle.update(assignment.cycle_id, { status: 'awaiting_pickup' });
+      // Cycle enters active logistics on drop confirmation
     },
     onSuccess: () => {
       toast.success('Drop confirmed · Driver notified for pickup');
