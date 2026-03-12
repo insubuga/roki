@@ -256,8 +256,8 @@ export default function Network() {
         <Card className="bg-muted border-border">
           <CardContent className="p-6 text-center">
             <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-            <p className="text-muted-foreground font-mono uppercase text-sm">No node assigned</p>
-            <p className="text-muted-foreground text-xs mt-1 font-mono">Initialize system to provision</p>
+            <p className="text-muted-foreground font-mono uppercase text-sm">No Active Cycle Assignment</p>
+            <p className="text-muted-foreground text-xs mt-1 font-mono">Start a laundry cycle to see your assigned locker</p>
           </CardContent>
         </Card>
       )}
