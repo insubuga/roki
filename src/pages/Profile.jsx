@@ -309,17 +309,7 @@ export default function Profile() {
                 </Button>
               </div>
 
-              {!userLocation ? (
-                <div className="bg-muted/50 border border-border rounded-lg p-5 text-center">
-                  <Navigation className="w-7 h-7 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-muted-foreground font-mono text-xs mb-3">Enable location to find gyms near you</p>
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white font-mono text-xs"
-                    onClick={requestLocation} disabled={loadingLocation}>
-                    {loadingLocation ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Navigation className="w-3 h-3 mr-1" />}
-                    Find Gyms Near Me
-                  </Button>
-                </div>
-              ) : loadingGyms ? (
+              {loadingGyms ? (
                 <div className="bg-muted/50 border border-border rounded-lg p-5 text-center">
                   <Loader2 className="w-7 h-7 text-green-600 mx-auto mb-2 animate-spin" />
                   <p className="text-muted-foreground font-mono text-xs">Scanning nearby gyms...</p>
