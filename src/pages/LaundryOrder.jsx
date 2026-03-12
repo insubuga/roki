@@ -431,8 +431,6 @@ export default function LaundryOrder() {
           <DispatchAttachments 
             user={user}
             activeCycle={activeCycle}
-            routeLoad={routeEfficiency}
-            lockerCapacity={nodeUtilization}
           />
 
           {/* Recovery Protocol */}
