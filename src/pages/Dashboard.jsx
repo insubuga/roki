@@ -56,7 +56,7 @@ export default function Dashboard() {
   const { data: activeCycle } = useQuery({
     queryKey: ['activeCycle', user?.email],
     queryFn: async () => {
-      const cycles = await base44.entities.LaundryOrder.filter({ 
+      const cycles = await base44.entities.Cycle.filter({ 
         user_email: user?.email,
         status: { $in: ['awaiting_pickup', 'washing', 'drying', 'ready'] }
       }, '-created_date', 1);

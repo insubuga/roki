@@ -82,7 +82,7 @@ export default function CycleForecastWidget({ user, preferences, preferredGym })
   const { data: activeCycle } = useQuery({
     queryKey: ['activeCycle', user?.email],
     queryFn: async () => {
-      const cycles = await base44.entities.LaundryOrder.filter({
+      const cycles = await base44.entities.Cycle.filter({
         user_email: user.email,
         status: { $in: ['awaiting_pickup', 'washing', 'drying', 'ready'] }
       }, '-created_date', 1);
@@ -130,7 +130,7 @@ export default function CycleForecastWidget({ user, preferences, preferredGym })
       const code = String(Math.floor(1000 + Math.random() * 9000));
       const batchId = `B${Date.now().toString(36).toUpperCase()}`;
 
-      const cycle = await base44.entities.LaundryOrder.create({
+      const cycle = await base44.entities.Cycle.create({
         user_email: user.email,
         order_number: batchId,
         drop_off_date: new Date().toISOString(),
