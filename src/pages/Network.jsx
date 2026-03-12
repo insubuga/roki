@@ -24,22 +24,24 @@ export default function Network() {
     loadUser();
   }, []);
 
-  const { data: preferences } = useQuery({
-    queryKey: ['memberPreferences', user?.email],
+  // Fetch active CycleLockerAssignment for this user
+  const { data: activeCycleAssignment } = useQuery({
+    queryKey: ['activeCycleAssignment', user?.email],
     queryFn: async () => {
-      const prefs = await base44.entities.MemberPreferences.filter({ user_email: user?.email });
-      return prefs[0] || null;
+      const assignments = await base44.entities.CycleLockerAssignment.filter({ user_id: user?.email });
+      const active = assignments.find(a => ['softReserved', 'activated', 'dropped'].includes(a.status));
+      return active || null;
     },
     enabled: !!user?.email,
   });
 
   const { data: assignedLocker } = useQuery({
-    queryKey: ['assignedLocker', preferences?.assigned_locker_id],
+    queryKey: ['assignedLocker', activeCycleAssignment?.locker_id],
     queryFn: async () => {
-      if (!preferences?.assigned_locker_id) return null;
-      return await base44.entities.Locker.get(preferences.assigned_locker_id);
+      if (!activeCycleAssignment?.locker_id) return null;
+      return await base44.entities.Locker.get(activeCycleAssignment.locker_id);
     },
-    enabled: !!preferences?.assigned_locker_id,
+    enabled: !!activeCycleAssignment?.locker_id,
   });
 
   const { data: gym } = useQuery({
