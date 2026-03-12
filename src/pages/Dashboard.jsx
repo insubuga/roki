@@ -29,6 +29,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import CycleForecastWidget from '../components/dashboard/CycleForecastWidget';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -94,16 +95,10 @@ export default function Dashboard() {
     enabled: !!user?.email,
   });
 
-  const { data: assignedLocker } = useQuery({
-    queryKey: ['assignedLocker', preferences?.assigned_locker_id],
-    queryFn: () => base44.entities.Locker.get(preferences?.assigned_locker_id),
-    enabled: !!preferences?.assigned_locker_id,
-  });
-
-  const { data: gym } = useQuery({
-    queryKey: ['lockerGym', assignedLocker?.gym_id],
-    queryFn: () => base44.entities.Gym.get(assignedLocker?.gym_id),
-    enabled: !!assignedLocker?.gym_id,
+  const { data: preferredGym } = useQuery({
+    queryKey: ['preferredGym', user?.preferred_gym],
+    queryFn: () => base44.entities.Gym.get(user.preferred_gym),
+    enabled: !!user?.preferred_gym,
   });
 
   if (!user) {
@@ -233,11 +228,11 @@ export default function Dashboard() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground font-mono">Node Location</span>
                 <span className="text-foreground font-mono font-bold">
-                  {assignedLocker?.locker_number || 'NOT ASSIGNED'}
+                  {preferredGym?.name || 'NOT SET'}
                 </span>
               </div>
             </div>
-            {!assignedLocker && !preferences && (
+            {!user?.preferred_gym && !preferences && (
               <Link to={createPageUrl('Initialize')}>
                 <Button className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white font-mono text-xs">
                   INITIALIZE SYSTEM
@@ -276,37 +271,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Predictive Readiness Forecast */}
-        <Card className="bg-card border-border">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="w-4 h-4 text-purple-600" />
-              <h3 className="text-foreground font-mono font-semibold text-sm uppercase">Readiness Forecast</h3>
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground font-mono text-xs">Next 7 Days</span>
-                <Badge className="bg-green-600 text-white font-mono text-xs">
-                  OPTIMAL
-                </Badge>
-              </div>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground font-mono">Predicted Load</span>
-                  <span className="text-foreground font-mono font-bold">{Math.min(75, clusterLoad + 10)}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground font-mono">SLA Adherence Risk</span>
-                  <span className="text-green-600 font-mono font-bold">LOW</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground font-mono">Capacity Buffer</span>
-                  <span className="text-green-600 font-mono font-bold">{100 - Math.min(75, clusterLoad + 10)}%</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Predictive Cycle Forecast */}
+        <CycleForecastWidget user={user} preferences={preferences} preferredGym={preferredGym} />
 
         {/* Active Alerts */}
         <Card className={`border-2 ${activeAlerts > 0 ? 'border-orange-600' : 'border-border'} bg-card`}>
