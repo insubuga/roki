@@ -146,7 +146,7 @@ export default function CycleForecastWidget({ user, preferences, preferredGym })
         access_code: code,
         status: 'softReserved',
         assigned_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+        expires_at: forecast.predicted_drop_window_end,
       });
 
       await base44.entities.Locker.update(locker.id, { status: 'softReserved' });

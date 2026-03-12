@@ -145,7 +145,7 @@ export default function LaundryOrder() {
         access_code: code,
         status: 'softReserved',
         assigned_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2-hour soft reserve window
+        expires_at: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // default 2hr — overridden by forecast drop_window_end when confirmed via forecast
       });
 
       await base44.entities.Locker.update(locker.id, { status: 'softReserved' });

@@ -1,91 +1,58 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    
-    // This function should be called by scheduled automation
-    // Check for lockers expiring soon (within 2 hours)
     const now = new Date();
-    const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
 
-    const claimedLockers = await base44.asServiceRole.entities.Locker.filter({
-      status: 'claimed'
+    // Find soft-reserved or activated assignments that have passed their drop window end
+    const softReserved = await base44.asServiceRole.entities.CycleLockerAssignment.filter({
+      status: { $in: ['softReserved', 'activated'] }
     });
 
-    let notificationsSent = 0;
+    let expired = 0;
 
-    for (const locker of claimedLockers) {
-      if (!locker.booking_end || !locker.user_email) continue;
+    for (const assignment of softReserved) {
+      if (!assignment.expires_at) continue;
+      const windowEnd = new Date(assignment.expires_at);
+      if (now < windowEnd) continue;
 
-      const bookingEnd = new Date(locker.booking_end);
-      
-      // Check if expiring within 2 hours
-      if (bookingEnd > now && bookingEnd <= twoHoursFromNow) {
-        const timeLeft = Math.round((bookingEnd.getTime() - now.getTime()) / (60 * 1000));
-        
-        // Check if notification already sent recently
-        const recentNotifications = await base44.asServiceRole.entities.Notification.filter({
-          user_email: locker.user_email,
-          type: 'system',
+      console.log(`Expiring assignment ${assignment.id} — window ended at ${assignment.expires_at}`);
+
+      // Mark assignment expired
+      await base44.asServiceRole.entities.CycleLockerAssignment.update(assignment.id, {
+        status: 'expired',
+      });
+
+      // Release locker back to available
+      await base44.asServiceRole.entities.Locker.update(assignment.locker_id, {
+        status: 'available',
+      });
+
+      // Cancel the cycle
+      if (assignment.cycle_id) {
+        await base44.asServiceRole.entities.Cycle.update(assignment.cycle_id, {
+          status: 'cancelled',
         });
-
-        const alreadyNotified = recentNotifications.some(n => 
-          n.message.includes('Locker booking expires') && 
-          new Date(n.created_date) > new Date(now.getTime() - 60 * 60 * 1000) // Within last hour
-        );
-
-        if (!alreadyNotified) {
-          await base44.asServiceRole.entities.Notification.create({
-            user_email: locker.user_email,
-            type: 'system',
-            title: '⏰ Locker Expiring Soon',
-            message: `Locker booking expires in ${timeLeft} minutes. Extend now to avoid losing access.`,
-            action_url: 'Profile',
-            priority: 'high',
-            read: false,
-          });
-
-          notificationsSent++;
-          console.log('Expiry notification sent to:', locker.user_email);
-        }
       }
 
-      // Auto-release expired lockers
-      if (bookingEnd <= now) {
-        await base44.asServiceRole.entities.Locker.update(locker.id, {
-          status: 'available',
-          user_email: null,
-          booking_start: null,
-          booking_end: null,
-          is_locked: true,
-        });
+      // Notify the member
+      await base44.asServiceRole.entities.Notification.create({
+        user_email: assignment.user_id,
+        type: 'laundry',
+        title: 'Locker Reservation Expired',
+        message: 'Your drop window has passed. Locker released — start a new cycle when ready.',
+        priority: 'high',
+        read: false,
+      });
 
-        await base44.asServiceRole.entities.Notification.create({
-          user_email: locker.user_email,
-          type: 'system',
-          title: '🔒 Locker Released',
-          message: `Your locker booking has expired and been released.`,
-          action_url: 'Profile',
-          priority: 'normal',
-          read: false,
-        });
-
-        notificationsSent++;
-        console.log('Locker released and notification sent:', locker.id);
-      }
+      expired++;
     }
 
-    return Response.json({ 
-      success: true,
-      notifications_sent: notificationsSent,
-      checked_lockers: claimedLockers.length
-    });
+    console.log(`Expiry check complete — ${expired} assignment(s) expired`);
+    return Response.json({ success: true, expired });
   } catch (error) {
-    console.error('Check locker expiry error:', error);
-    return Response.json({ 
-      error: 'Failed to check locker expiry',
-      details: error.message 
-    }, { status: 500 });
+    console.error('checkLockerExpiry error:', error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });

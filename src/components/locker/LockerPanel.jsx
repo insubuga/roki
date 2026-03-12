@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
-const GEO_RADIUS_METERS = 300;
+const GEO_RADIUS_METERS = 100;
 
 function haversineMeters(lat1, lng1, lat2, lng2) {
   const R = 6371000;
