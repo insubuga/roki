@@ -247,7 +247,7 @@ export default function Network() {
               </div>
               <div className="bg-card rounded-lg p-3 border border-border">
                 <p className="text-muted-foreground text-xs uppercase font-mono mb-1">Access Code</p>
-                <p className="text-green-600 font-mono font-bold text-lg">{assignedLocker.access_code}</p>
+                <p className="text-green-600 font-mono font-bold text-lg">{activeCycleAssignment.access_code || '—'}</p>
               </div>
             </div>
           </CardContent>
