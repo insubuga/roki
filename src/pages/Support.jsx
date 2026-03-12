@@ -192,7 +192,7 @@ export default function Support() {
           )}
         </CardContent>
 
-        <div className="border-t border-[var(--color-border)] p-4 flex-shrink-0">
+        <div className="border-t border-border p-4 flex-shrink-0">
           <div className="flex items-center gap-2">
             <input
               ref={fileInputRef}
@@ -206,12 +206,11 @@ export default function Support() {
               size="icon"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingFile}
-              className="border-[var(--color-border)] select-none"
             >
               {uploadingFile ? (
-                <div className="w-4 h-4 border-2 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
               ) : (
-                <Paperclip className="w-4 h-4 select-none" />
+                <Paperclip className="w-4 h-4" />
               )}
             </Button>
             <Input
@@ -219,12 +218,11 @@ export default function Support() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              className="flex-1 bg-[var(--color-bg-secondary)] border-[var(--color-border)] text-[var(--color-text-primary)]"
+              className="flex-1"
             />
             <Button
               onClick={handleSend}
               disabled={!message.trim() || sendMessageMutation.isPending}
-              className="bg-[var(--color-primary)] text-black hover:bg-[var(--color-primary-hover)] select-none"
             >
               <Send className="w-4 h-4 select-none" />
             </Button>
