@@ -18,9 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { addHours } from 'date-fns';
 import LockerControls from '../components/locker/LockerControls';
-import ReportIssueDialog from '../components/locker/ReportIssueDialog';
 import GymMapView from '../components/locker/GymMapView';
-import LockerCheckout from '../components/payment/LockerCheckout';
 import MemberDataHistory from '../components/profile/MemberDataHistory';
 
 // Helper: claim a locker after successful Stripe payment
