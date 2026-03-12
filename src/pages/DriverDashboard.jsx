@@ -242,6 +242,9 @@ export default function DriverDashboard() {
           </div>
         )}
 
+        {/* Locker Pickups */}
+        <LockerPickups user={user} />
+
         {/* Active Deliveries */}
         <div className="px-4">
           <div className="flex items-center justify-between mb-4">
