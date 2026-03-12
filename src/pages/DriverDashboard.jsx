@@ -28,6 +28,8 @@ import RouteOptimizer from '@/components/driver/RouteOptimizer';
 import PerformanceStats from '@/components/driver/PerformanceStats';
 import DriverSupportChat from '@/components/driver/SupportChat';
 import LockerPickups from '@/components/driver/LockerPickups';
+import ConfirmRouteDeparture from '@/components/driver/ConfirmRouteDeparture';
+import ReturnDeliveries from '@/components/driver/ReturnDeliveries';
 
 export default function DriverDashboard() {
   const [user, setUser] = useState(null);
@@ -244,6 +246,12 @@ export default function DriverDashboard() {
 
         {/* Locker Pickups */}
         <LockerPickups user={user} />
+
+        {/* Confirm Route Departure — releases resetPending lockers */}
+        <ConfirmRouteDeparture user={user} />
+
+        {/* Return Deliveries — clean gear back to members */}
+        <ReturnDeliveries user={user} />
 
         {/* Active Deliveries */}
         <div className="px-4">
