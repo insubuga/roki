@@ -56,7 +56,7 @@ export default function LaundryOrder() {
     queryFn: async () => {
       const cycles = await base44.entities.Cycle.filter({ 
         user_email: user?.email,
-        status: { $in: ['awaiting_pickup', 'washing', 'drying', 'ready'] }
+        status: { $in: ['prepared', 'awaiting_pickup', 'washing', 'drying', 'ready'] }
       }, '-created_date', 1);
       return cycles[0] || null;
     },
