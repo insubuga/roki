@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Clock, Star, TrendingUp, Package, Shirt } from 'lucide-react';
+import { Calendar, MapPin, Clock, Star, TrendingUp } from 'lucide-react';
 
 export default function MemberDataHistory({ user }) {
   const { data: preferences } = useQuery({
@@ -23,10 +23,7 @@ export default function MemberDataHistory({ user }) {
 
   const { data: assignedLocker } = useQuery({
     queryKey: ['assignedLocker', preferences?.assigned_locker_id],
-    queryFn: async () => {
-      if (!preferences?.assigned_locker_id) return null;
-      return await base44.entities.Locker.get(preferences.assigned_locker_id);
-    },
+    queryFn: () => base44.entities.Locker.get(preferences.assigned_locker_id),
     enabled: !!preferences?.assigned_locker_id,
   });
 
@@ -37,22 +34,14 @@ export default function MemberDataHistory({ user }) {
   });
 
   const pickupWindowLabels = {
-    early_morning: '5-8 AM',
-    morning: '8-11 AM',
-    midday: '11 AM-2 PM',
-    afternoon: '2-5 PM',
-    evening: '5-8 PM',
-    night: '8-11 PM',
+    early_morning: '5–8 AM', morning: '8–11 AM', midday: '11 AM–2 PM',
+    afternoon: '2–5 PM', evening: '5–8 PM', night: '8–11 PM',
   };
 
   const scheduleLabels = {
-    weekly_monday: 'Every Monday',
-    weekly_tuesday: 'Every Tuesday',
-    weekly_wednesday: 'Every Wednesday',
-    weekly_thursday: 'Every Thursday',
-    weekly_friday: 'Every Friday',
-    biweekly: 'Every 2 Weeks',
-    custom: 'Custom Schedule',
+    weekly_monday: 'Every Monday', weekly_tuesday: 'Every Tuesday',
+    weekly_wednesday: 'Every Wednesday', weekly_thursday: 'Every Thursday',
+    weekly_friday: 'Every Friday', biweekly: 'Every 2 Weeks', custom: 'Custom',
   };
 
   const cleanlinessHistory = history.filter(h => h.event_type === 'cleanliness_rated');
@@ -60,35 +49,38 @@ export default function MemberDataHistory({ user }) {
     ? (cleanlinessHistory.reduce((sum, h) => sum + (h.cleanliness_rating || 0), 0) / cleanlinessHistory.length).toFixed(1)
     : preferences?.average_cleanliness_score || 0;
 
+  const memberSince = preferences?.member_since_formatted
+    || new Date(user.created_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
   return (
     <div className="space-y-4">
-      {/* Member ID Card */}
-      <Card className="bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700 text-white">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Star className="w-5 h-5 text-yellow-400" />
+      {/* Member Stats Card */}
+      <Card className="bg-card border-border">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-foreground flex items-center gap-2 font-mono text-sm uppercase">
+            <Star className="w-4 h-4 text-green-600" />
             Member Profile
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <CardContent>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
             <div>
-              <p className="text-gray-400 text-xs uppercase mb-1">Member Since</p>
-              <p className="text-white font-semibold">{preferences?.member_since_formatted || new Date(user.created_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</p>
+              <p className="text-muted-foreground font-mono text-xs uppercase tracking-wider mb-1">Member Since</p>
+              <p className="text-foreground font-mono font-semibold">{memberSince}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase mb-1">Total Cycles</p>
-              <p className="text-white font-semibold">{preferences?.total_cycles_completed || 0} completed</p>
+              <p className="text-muted-foreground font-mono text-xs uppercase tracking-wider mb-1">Total Cycles</p>
+              <p className="text-foreground font-mono font-semibold">{preferences?.total_cycles_completed || 0} completed</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase mb-1">Deliveries</p>
-              <p className="text-white font-semibold">{preferences?.total_deliveries_received || 0} received</p>
+              <p className="text-muted-foreground font-mono text-xs uppercase tracking-wider mb-1">Deliveries</p>
+              <p className="text-foreground font-mono font-semibold">{preferences?.total_deliveries_received || 0} received</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase mb-1">Avg Rating</p>
-              <div className="flex items-center gap-2">
-                <p className="text-yellow-400 font-semibold text-lg">{avgCleanliness}</p>
-                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+              <p className="text-muted-foreground font-mono text-xs uppercase tracking-wider mb-1">Avg Rating</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-foreground font-mono font-semibold">{avgCleanliness}</p>
+                <Star className="w-3.5 h-3.5 text-green-600 fill-green-600" />
               </div>
             </div>
           </div>
@@ -96,80 +88,63 @@ export default function MemberDataHistory({ user }) {
       </Card>
 
       {/* Assigned Infrastructure */}
-      <Card className="border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <MapPin className="w-4 h-4" />
+      <Card className="bg-card border-border">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-foreground flex items-center gap-2 font-mono text-sm uppercase">
+            <MapPin className="w-4 h-4 text-green-600" />
             Assigned Infrastructure
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-2">
+          {/* Locker */}
           {assignedLocker && gym ? (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-gray-600 text-xs uppercase">Locker Node</p>
-                <Badge className="bg-green-500 text-white border-none text-xs">Active</Badge>
+            <div className="flex items-center justify-between p-3 bg-green-600/10 border border-green-600/30 rounded-lg">
+              <div>
+                <p className="text-foreground font-mono text-sm font-semibold">{gym.name}</p>
+                <p className="text-muted-foreground font-mono text-xs">Bay {assignedLocker.locker_number} · {gym.city}</p>
               </div>
-              <p className="text-gray-900 font-bold">{gym.name}</p>
-              <p className="text-gray-600 text-sm">Bay {assignedLocker.locker_number} • {gym.city}</p>
+              <Badge className="bg-green-600/20 text-green-600 border border-green-600/40 font-mono text-xs">Active</Badge>
             </div>
           ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-              <p className="text-gray-500 text-sm">No assigned locker</p>
+            <div className="p-3 bg-muted/50 border border-border rounded-lg">
+              <p className="text-muted-foreground font-mono text-xs">No assigned locker</p>
             </div>
           )}
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-blue-600" />
-              <p className="text-gray-600 text-xs uppercase">Pickup Window</p>
+          {/* Pickup Window */}
+          <div className="flex items-center justify-between p-3 bg-muted/30 border border-border rounded-lg">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-green-600" />
+              <p className="text-muted-foreground font-mono text-xs uppercase tracking-wider">Pickup Window</p>
             </div>
-            <p className="text-gray-900 font-semibold">
-              {pickupWindowLabels[preferences?.preferred_pickup_window] || 'Not set'}
+            <p className="text-foreground font-mono text-sm font-semibold">
+              {pickupWindowLabels[preferences?.preferred_pickup_window] || '—'}
             </p>
           </div>
 
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <Calendar className="w-4 h-4 text-purple-600" />
-              <p className="text-gray-600 text-xs uppercase">Laundry Schedule</p>
+          {/* Laundry Schedule */}
+          <div className="flex items-center justify-between p-3 bg-muted/30 border border-border rounded-lg">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-green-600" />
+              <p className="text-muted-foreground font-mono text-xs uppercase tracking-wider">Laundry Schedule</p>
             </div>
-            <p className="text-gray-900 font-semibold">
-              {scheduleLabels[preferences?.laundry_schedule] || 'Not configured'}
+            <p className="text-foreground font-mono text-sm font-semibold">
+              {scheduleLabels[preferences?.laundry_schedule] || '—'}
             </p>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Historical Performance */}
-      <Card className="border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" />
-            Historical Data
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {history.length > 0 ? (
-              <>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Data points tracked</span>
-                  <span className="font-semibold text-gray-900">{history.length}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Cleanliness ratings</span>
-                  <span className="font-semibold text-gray-900">{cleanlinessHistory.length}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Route optimization</span>
-                  <span className="font-semibold text-green-600">+{preferences?.route_density_contribution || 0}%</span>
-                </div>
-              </>
-            ) : (
-              <p className="text-gray-500 text-sm">Building your history...</p>
-            )}
-          </div>
+          {/* Historical Data inline */}
+          {history.length > 0 && (
+            <div className="flex items-center justify-between p-3 bg-muted/30 border border-border rounded-lg">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-green-600" />
+                <p className="text-muted-foreground font-mono text-xs uppercase tracking-wider">Route Contribution</p>
+              </div>
+              <p className="text-green-600 font-mono text-sm font-semibold">
+                +{preferences?.route_density_contribution || 0}%
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
