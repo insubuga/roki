@@ -41,21 +41,19 @@ export default function GymManagement() {
 
   const addGymMutation = useMutation({
     mutationFn: async () => {
-      // Geocode the address to get lat/lng
-      let lat = null, lng = null;
-      try {
-        const geocodeResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `Return the latitude and longitude for this address: "${newGym.address}, ${newGym.city}". Return only JSON.`,
-          response_json_schema: {
-            type: 'object',
-            properties: { latitude: { type: 'number' }, longitude: { type: 'number' } }
-          }
-        });
-        lat = geocodeResult.latitude;
-        lng = geocodeResult.longitude;
-      } catch (e) { /* geocoding failed, continue without coords */ }
+      // Use manually entered coords or geocode via Nominatim
+      let lat = newGym.latitude ? parseFloat(newGym.latitude) : null;
+      let lng = newGym.longitude ? parseFloat(newGym.longitude) : null;
+      if (!lat || !lng) {
+        try {
+          const q = encodeURIComponent(`${newGym.address}, ${newGym.city}`);
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`);
+          const data = await res.json();
+          if (data?.[0]) { lat = parseFloat(data[0].lat); lng = parseFloat(data[0].lon); }
+        } catch (e) { /* geocoding failed */ }
+      }
 
-      const gym = await base44.entities.Gym.create({ ...newGym, latitude: lat, longitude: lng });
+      const gym = await base44.entities.Gym.create({ ...newGym, latitude: lat || null, longitude: lng || null });
       
       // Create lockers for the gym
       const lockerPromises = [];
