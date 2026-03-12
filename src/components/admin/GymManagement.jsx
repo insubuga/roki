@@ -241,6 +241,31 @@ export default function GymManagement() {
                 max="200"
               />
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-gray-700 font-medium text-xs">Latitude (optional)</Label>
+                <Input
+                  type="number"
+                  step="any"
+                  value={newGym.latitude}
+                  onChange={(e) => setNewGym({ ...newGym, latitude: e.target.value })}
+                  className="border-gray-300 mt-1"
+                  placeholder="Auto-detected"
+                />
+              </div>
+              <div>
+                <Label className="text-gray-700 font-medium text-xs">Longitude (optional)</Label>
+                <Input
+                  type="number"
+                  step="any"
+                  value={newGym.longitude}
+                  onChange={(e) => setNewGym({ ...newGym, longitude: e.target.value })}
+                  className="border-gray-300 mt-1"
+                  placeholder="Auto-detected"
+                />
+              </div>
+            </div>
+            <p className="text-gray-500 text-xs">Coordinates auto-detected from address via OpenStreetMap. Override manually if needed.</p>
             <Button
               onClick={() => addGymMutation.mutate()}
               disabled={!newGym.name || !newGym.address || addGymMutation.isPending}
