@@ -54,12 +54,6 @@ export default function DriverDashboard() {
     loadUser();
   }, []);
 
-  const { data: orders = [], isLoading: ordersLoading } = useQuery({
-    queryKey: ['driver-orders'],
-    queryFn: () => base44.entities.Order.list('-created_date'),
-    enabled: !!user,
-  });
-
   const { data: laundryOrders = [], isLoading: laundryLoading } = useQuery({
     queryKey: ['driver-laundry-orders'],
     queryFn: () => base44.entities.Cycle.list('-created_date'),
@@ -88,15 +82,6 @@ export default function DriverDashboard() {
   useEffect(() => {
     if (!user) return;
 
-    const unsubOrders = base44.entities.Order.subscribe((event) => {
-      queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
-      if (event.type === 'create') {
-        toast.success('🚨 New delivery available!', {
-          description: 'Check your dashboard for details',
-        });
-      }
-    });
-
     const unsubLaundry = base44.entities.Cycle.subscribe((event) => {
       queryClient.invalidateQueries({ queryKey: ['driver-laundry-orders'] });
       if (event.type === 'create') {
@@ -105,36 +90,9 @@ export default function DriverDashboard() {
     });
 
     return () => {
-      unsubOrders();
       unsubLaundry();
     };
   }, [user, queryClient]);
-
-  const updateOrderMutation = useMutation({
-    mutationFn: async ({ id, status, location }) => {
-      const updateData = { 
-        status,
-        driver_email: user.email,
-      };
-      
-      // Add driver location for real-time tracking
-      if (location) {
-        updateData.driver_latitude = location.latitude;
-        updateData.driver_longitude = location.longitude;
-        updateData.driver_last_update = new Date().toISOString();
-      }
-      
-      await base44.entities.Order.update(id, updateData);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
-      queryClient.invalidateQueries({ queryKey: ['driver-stats'] });
-      toast.success('✓ Status updated');
-    },
-    onError: () => toast.error('Failed to update'),
-  });
-
-
 
   const updateLaundryMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.Cycle.update(id, { status }),
@@ -152,27 +110,14 @@ export default function DriverDashboard() {
     ]);
   };
 
-  const activeOrders = orders.filter(o => o.status !== 'delivered');
-  const activeLaundry = laundryOrders.filter(o => o.status !== 'picked_up');
-  const completedToday = orders.filter(o => o.status === 'delivered').length + 
-                         laundryOrders.filter(o => o.status === 'picked_up').length;
+  const activeLaundry = laundryOrders.filter(o => o.status !== 'picked_up' && o.status !== 'cancelled');
+  const completedToday = laundryOrders.filter(o => o.status === 'picked_up').length;
 
-  // Calculate earnings (mock calculation)
-  const todayEarnings = orders
-    .filter(o => o.status === 'delivered')
-    .reduce((sum, o) => sum + (o.total * 0.15), 0) + 
-    laundryOrders
+  const todayEarnings = laundryOrders
     .filter(o => o.status === 'picked_up')
     .reduce((sum, o) => sum + (o.total_cost * 0.20 || 15), 0);
 
-  const allActiveDeliveries = [
-    ...activeOrders.map(o => ({ ...o, type: 'order' })),
-    ...activeLaundry.map(o => ({ ...o, type: 'laundry' }))
-  ].sort((a, b) => {
-    const rushA = a.delivery_type === 'rush' ? 0 : 1;
-    const rushB = b.delivery_type === 'rush' ? 0 : 1;
-    return rushA - rushB;
-  });
+  const allActiveDeliveries = activeLaundry.map(o => ({ ...o, type: 'laundry' }));
 
   if (!user) {
     return (
@@ -264,7 +209,7 @@ export default function DriverDashboard() {
             )}
           </div>
 
-          {ordersLoading || laundryLoading ? (
+          {laundryLoading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto" />
               <p className="text-gray-500 mt-4">Loading deliveries...</p>
@@ -287,12 +232,8 @@ export default function DriverDashboard() {
                     key={delivery.id}
                     delivery={delivery}
                     index={index}
-                    onUpdate={(status, location) => {
-                      if (delivery.type === 'order') {
-                        updateOrderMutation.mutate({ id: delivery.id, status, location });
-                      } else {
-                        updateLaundryMutation.mutate({ id: delivery.id, status });
-                      }
+                    onUpdate={(status) => {
+                      updateLaundryMutation.mutate({ id: delivery.id, status });
                     }}
                     onSelect={() => setSelectedDelivery(delivery)}
                   />
@@ -310,11 +251,7 @@ export default function DriverDashboard() {
               driverStats={driverStats}
               onClose={() => setSelectedDelivery(null)}
               onUpdate={(status) => {
-                if (selectedDelivery.type === 'order') {
-                  updateOrderMutation.mutate({ id: selectedDelivery.id, status });
-                } else {
-                  updateLaundryMutation.mutate({ id: selectedDelivery.id, status });
-                }
+                updateLaundryMutation.mutate({ id: selectedDelivery.id, status });
                 setSelectedDelivery(null);
               }}
             />
@@ -334,34 +271,13 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
   const isRush = delivery.delivery_type === 'rush';
   const isOrder = delivery.type === 'order';
 
-  const updateWithLocation = async (status) => {
-    try {
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
-        });
-      });
-      
-      onUpdate(status, {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude
-      });
-    } catch (error) {
-      console.log('Location unavailable, updating without it');
-      onUpdate(status);
-    }
+  const updateWithLocation = (status) => {
+    onUpdate(status);
   };
 
   const getNextAction = () => {
-    if (isOrder) {
-      if (delivery.status === 'pending' || delivery.status === 'confirmed') return { label: 'En Route', status: 'in_transit' };
-      if (delivery.status === 'in_transit') return { label: 'Delivered', status: 'delivered' };
-    } else {
-      if (delivery.status === 'awaiting_pickup' || delivery.status === 'washing') return { label: 'En Route', status: 'in_transit' };
-      if (delivery.status === 'ready') return { label: 'Delivered', status: 'picked_up' };
-    }
+    if (delivery.status === 'awaiting_pickup') return { label: 'Confirm Pickup', status: 'washing' };
+    if (delivery.status === 'ready') return { label: 'Confirm Delivery', status: 'picked_up' };
     return null;
   };
 
