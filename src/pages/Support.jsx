@@ -165,7 +165,7 @@ export default function Support() {
                           <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                             <MessageCircle className="w-3 h-3 text-white" />
                           </div>
-                          <span className="text-xs font-semibold">VANTA Support</span>
+                          <span className="text-xs font-semibold text-foreground">Roki Support</span>
                         </div>
                       )}
                       <p className="text-sm">{msg.message}</p>
