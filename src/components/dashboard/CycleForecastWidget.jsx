@@ -152,6 +152,16 @@ export default function CycleForecastWidget({ user, preferences, preferredGym })
       await base44.entities.Locker.update(locker.id, { status: 'softReserved' });
       await base44.entities.CycleForecast.update(forecast.id, { status: 'confirmed' });
 
+      // Notify member with access code and reservation window
+      await base44.entities.Notification.create({
+        user_email: user.email,
+        type: 'cycle_activated',
+        title: 'Locker Reserved — Drop Off Ready',
+        message: `Cycle confirmed for ${forecast.predicted_drop_window}. Locker reserved at ${preferredGym?.name || 'your gym'}. Access code: ${code}. Drop gear before your window ends.`,
+        priority: 'high',
+        read: false,
+      });
+
       await base44.entities.ReliabilityLog.create({
         user_email: user.email,
         event_type: 'on_time_delivery',

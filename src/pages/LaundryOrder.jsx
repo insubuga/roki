@@ -155,6 +155,16 @@ export default function LaundryOrder() {
         event_type: 'on_time_delivery',
         promised_time: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
       });
+
+      // Notify member with access code
+      await base44.entities.Notification.create({
+        user_email: user.email,
+        type: 'cycle_activated',
+        title: 'Locker Reserved — Drop Off Ready',
+        message: `Cycle activated. Locker reserved at ${preferredGym?.name || 'your gym'}. Access code: ${code}. Drop your gear within 2 hours.`,
+        priority: 'high',
+        read: false,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['activeCycle']);
