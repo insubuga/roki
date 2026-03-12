@@ -48,7 +48,12 @@ export default function FloatingAssistant({ user }) {
     if (!conversation) {
       const conv = await base44.agents.createConversation({
         agent_name: 'rokibot',
-        metadata: { name: `${user.full_name || user.email} — Roki Session` },
+        metadata: {
+          name: `${user.full_name || user.email} — Roki Session`,
+          user_email: user.email,
+          user_name: user.full_name || '',
+          user_role: user.role || 'user',
+        },
       });
       setConversation(conv);
       setMessages(conv.messages || []);
