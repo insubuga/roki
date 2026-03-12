@@ -41,7 +41,21 @@ export default function GymManagement() {
 
   const addGymMutation = useMutation({
     mutationFn: async () => {
-      const gym = await base44.entities.Gym.create(newGym);
+      // Geocode the address to get lat/lng
+      let lat = null, lng = null;
+      try {
+        const geocodeResult = await base44.integrations.Core.InvokeLLM({
+          prompt: `Return the latitude and longitude for this address: "${newGym.address}, ${newGym.city}". Return only JSON.`,
+          response_json_schema: {
+            type: 'object',
+            properties: { latitude: { type: 'number' }, longitude: { type: 'number' } }
+          }
+        });
+        lat = geocodeResult.latitude;
+        lng = geocodeResult.longitude;
+      } catch (e) { /* geocoding failed, continue without coords */ }
+
+      const gym = await base44.entities.Gym.create({ ...newGym, latitude: lat, longitude: lng });
       
       // Create lockers for the gym
       const lockerPromises = [];
