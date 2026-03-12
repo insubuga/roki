@@ -49,6 +49,8 @@ export default function FloatingAssistant({ user }) {
     }
   }, [messages, isOpen]);
 
+  if (shouldHide) return null;
+
   return (
     <>
       {/* Floating Button */}
