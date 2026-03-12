@@ -13,9 +13,35 @@ export default function FloatingAssistant({ user }) {
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef(null);
+  const unsubscribeRef = useRef(null);
   const location = useLocation();
 
   const shouldHide = !user || location.pathname.includes('DriverDashboard') || user?.role === 'driver';
+
+  // Subscribe whenever conversation is set
+  useEffect(() => {
+    if (!conversation) return;
+    unsubscribeRef.current = base44.agents.subscribeToConversation(conversation.id, (data) => {
+      setMessages([...data.messages]);
+      // Stop spinner once agent has replied
+      const lastMsg = data.messages[data.messages.length - 1];
+      if (lastMsg?.role === 'assistant') {
+        setIsSending(false);
+      }
+    });
+    return () => {
+      if (unsubscribeRef.current) unsubscribeRef.current();
+    };
+  }, [conversation?.id]);
+
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+    }
+  }, [messages, isOpen]);
+
+  if (shouldHide) return null;
 
   const openChat = async () => {
     setIsOpen(true);
@@ -26,11 +52,6 @@ export default function FloatingAssistant({ user }) {
       });
       setConversation(conv);
       setMessages(conv.messages || []);
-
-      // Subscribe to streaming updates
-      base44.agents.subscribeToConversation(conv.id, (data) => {
-        setMessages([...data.messages]);
-      });
     }
   };
 
@@ -39,17 +60,10 @@ export default function FloatingAssistant({ user }) {
     const text = input.trim();
     setInput('');
     setIsSending(true);
+    // Optimistically show user message
+    setMessages(prev => [...prev, { role: 'user', content: text }]);
     await base44.agents.addMessage(conversation, { role: 'user', content: text });
-    setIsSending(false);
   };
-
-  useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
-    }
-  }, [messages, isOpen]);
-
-  if (shouldHide) return null;
 
   return (
     <>
@@ -89,7 +103,7 @@ export default function FloatingAssistant({ user }) {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-background">
-              {messages.length === 0 && (
+              {messages.length === 0 && !isSending && (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">
                   <Bot className="w-10 h-10 text-muted-foreground mb-3" />
                   <p className="text-muted-foreground text-sm font-mono">Ready. Ask about your cycle, locker, or subscription.</p>
@@ -101,9 +115,7 @@ export default function FloatingAssistant({ user }) {
                 return (
                   <div key={i} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
-                      isUser
-                        ? 'bg-green-600 text-white'
-                        : 'bg-muted text-foreground'
+                      isUser ? 'bg-green-600 text-white' : 'bg-muted text-foreground'
                     }`}>
                       {isUser ? (
                         <p>{msg.content}</p>
@@ -134,7 +146,7 @@ export default function FloatingAssistant({ user }) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                disabled={!conversation}
+                disabled={!conversation || isSending}
               />
               <Button
                 size="icon"
