@@ -1,143 +1,191 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Lock, Unlock, Calendar, AlertCircle, Sparkles } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Lock, KeyRound, RefreshCw, CheckCircle, MapPin, Info, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { addHours, format } from 'date-fns';
+
+function generateCode() {
+  // 4-digit, never starts with 0
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
 
 export default function LockerControls({ locker, gym }) {
-  const [isToggling, setIsToggling] = useState(false);
   const queryClient = useQueryClient();
 
-  const toggleLockMutation = useMutation({
-    mutationFn: async (action) => {
-      setIsToggling(true);
-      // Simulate lock control delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      return base44.entities.Locker.update(locker.id, {
-        is_locked: action === 'lock',
-        last_unlocked: action === 'unlock' ? new Date().toISOString() : locker.last_unlocked
-      });
-    },
-    onMutate: async (action) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['userLocker'] });
-
-      // Snapshot the previous value
-      const previousLocker = queryClient.getQueryData(['userLocker', locker.user_email]);
-
-      // Optimistically update to the new value
-      queryClient.setQueryData(['userLocker', locker.user_email], (old) => {
-        if (!old) return old;
-        return [{
-          ...old[0],
-          is_locked: action === 'lock',
-          last_unlocked: action === 'unlock' ? new Date().toISOString() : old[0].last_unlocked
-        }];
-      });
-
-      return { previousLocker };
-    },
-    onSuccess: (data, action) => {
-      setIsToggling(false);
-      queryClient.invalidateQueries({ queryKey: ['userLocker'] });
-      toast.success(action === 'lock' ? 'Locker secured' : 'Locker unlocked');
-    },
-    onError: (err, action, context) => {
-      setIsToggling(false);
-      // Rollback to the previous value
-      queryClient.setQueryData(['userLocker', locker.user_email], context.previousLocker);
-      toast.error('Failed to control locker');
-    }
+  // Fetch active access code for this locker
+  const { data: accessCode, isLoading } = useQuery({
+    queryKey: ['lockerAccessCode', locker?.id],
+    queryFn: () =>
+      base44.entities.LockerAccessCode.filter({ locker_id: locker.id, status: 'active' })
+        .then(r => r[0] || null),
+    enabled: !!locker?.id,
   });
 
-  const isExpiringSoon = locker.booking_end && 
+  // Fetch the active cycle for this user
+  const { data: activeCycle } = useQuery({
+    queryKey: ['activeCycle', locker?.user_email],
+    queryFn: () =>
+      base44.entities.Cycle.filter({ user_email: locker.user_email })
+        .then(r => r.find(c => !['completed', 'delivered'].includes(c.status)) || null),
+    enabled: !!locker?.user_email,
+  });
+
+  const generateCodeMutation = useMutation({
+    mutationFn: async () => {
+      // Expire any existing active codes for this locker
+      if (accessCode) {
+        await base44.entities.LockerAccessCode.update(accessCode.id, { status: 'expired' });
+      }
+      const code = generateCode();
+      return base44.entities.LockerAccessCode.create({
+        locker_id: locker.id,
+        cycle_id: activeCycle?.id || null,
+        user_email: locker.user_email,
+        code,
+        expires_at: addHours(new Date(), 48).toISOString(),
+        status: 'active',
+      });
+    },
+    onSuccess: () => {
+      toast.success('New access code generated');
+      queryClient.invalidateQueries({ queryKey: ['lockerAccessCode', locker.id] });
+    },
+    onError: () => toast.error('Failed to generate code'),
+  });
+
+  const confirmDropOffMutation = useMutation({
+    mutationFn: async () => {
+      if (!activeCycle) throw new Error('No active cycle found');
+      await base44.entities.Cycle.update(activeCycle.id, { status: 'pickup_pending' });
+    },
+    onSuccess: () => {
+      toast.success('Drop-off confirmed! Driver notified for pickup.');
+      queryClient.invalidateQueries({ queryKey: ['activeCycle'] });
+    },
+    onError: (err) => toast.error(err.message || 'Failed to confirm drop-off'),
+  });
+
+  const displayCode = accessCode?.code || locker?.access_code || '----';
+  const isExpiringSoon = locker?.booking_end &&
     new Date(locker.booking_end) - new Date() < 24 * 60 * 60 * 1000;
 
+  const cycleStatus = activeCycle?.status;
+  const isDropped = cycleStatus === 'pickup_pending' || cycleStatus === 'in_processing';
+
   return (
-    <div className="space-y-4">
-      {/* Lock Status */}
-      <div className={`bg-gradient-to-br rounded-lg p-4 border ${
-        locker.is_locked 
-          ? 'from-[#7cfc00]/10 to-teal-500/10 border-[#7cfc00]/30' 
-          : 'from-orange-500/10 to-amber-500/10 border-orange-500/30'
-      }`}>
-        <div className="flex items-center justify-between mb-3">
+    <div className="space-y-3">
+      {/* MVP Onboarding Notice */}
+      <div className="bg-muted/50 border border-border rounded-lg p-3 flex gap-2">
+        <Info className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+        <p className="text-muted-foreground font-mono text-xs leading-relaxed">
+          Roki lockers currently use secure access codes. Drop your gear using the code shown — your driver will collect it using the same code.
+        </p>
+      </div>
+
+      {/* Access Code Display */}
+      <div className="bg-green-600/10 border border-green-600/30 rounded-lg p-4">
+        <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
-            {locker.is_locked ? (
-              <Lock className="w-5 h-5 text-[#7cfc00]" />
-            ) : (
-              <Unlock className="w-5 h-5 text-orange-500" />
-            )}
-            <span className="text-white font-semibold">
-              {locker.is_locked ? 'Locked' : 'Unlocked'}
+            <KeyRound className="w-4 h-4 text-green-600" />
+            <span className="text-foreground font-mono text-xs font-semibold uppercase tracking-wider">
+              Locker Access
             </span>
           </div>
-          <div className={`w-2 h-2 rounded-full animate-pulse ${
-            locker.is_locked ? 'bg-green-500' : 'bg-orange-500'
-          }`} />
+          {accessCode && (
+            <Badge className="bg-green-600/20 text-green-600 border border-green-600/40 font-mono text-xs">
+              Active
+            </Badge>
+          )}
         </div>
-        
-        <div className="grid grid-cols-2 gap-3">
+
+        <div className="flex items-center justify-between mt-3">
+          <div>
+            <p className="text-muted-foreground font-mono text-xs mb-1">
+              Locker #{locker.locker_number} · Access Code
+            </p>
+            {isLoading ? (
+              <div className="w-24 h-8 bg-muted rounded animate-pulse" />
+            ) : (
+              <span className="text-green-600 font-mono font-bold text-3xl tracking-[0.3em]">
+                {displayCode}
+              </span>
+            )}
+          </div>
           <Button
-            onClick={() => toggleLockMutation.mutate('unlock')}
-            disabled={!locker.is_locked || isToggling}
-            className="bg-orange-500 hover:bg-orange-600 text-white select-none"
+            size="sm"
+            variant="ghost"
+            className="text-muted-foreground hover:text-green-600 font-mono text-xs h-8"
+            onClick={() => generateCodeMutation.mutate()}
+            disabled={generateCodeMutation.isPending}
           >
-            <Unlock className="w-4 h-4 mr-1 select-none" />
-            {isToggling ? 'Processing...' : 'Unlock'}
-          </Button>
-          <Button
-            onClick={() => toggleLockMutation.mutate('lock')}
-            disabled={locker.is_locked || isToggling}
-            className="bg-[#7cfc00] hover:bg-[#6be600] text-black select-none"
-          >
-            <Lock className="w-4 h-4 mr-1 select-none" />
-            {isToggling ? 'Processing...' : 'Lock'}
+            <RefreshCw className={`w-3 h-3 mr-1 ${generateCodeMutation.isPending ? 'animate-spin' : ''}`} />
+            Rotate
           </Button>
         </div>
 
-        {locker.last_unlocked && (
-          <p className="text-gray-400 text-xs mt-3">
-            Last unlocked: {format(new Date(locker.last_unlocked), 'MMM d, h:mm a')}
+        {accessCode?.expires_at && (
+          <p className="text-muted-foreground font-mono text-xs mt-2">
+            Expires · {format(new Date(accessCode.expires_at), 'MMM d, h:mm a')}
           </p>
         )}
       </div>
 
-      {/* Booking Info */}
-      {locker.booking_end && (
-        <div className={`bg-[#0d1320] rounded-lg p-4 border ${
-          isExpiringSoon ? 'border-orange-500/50' : 'border-gray-700'
-        }`}>
-          <div className="flex items-center gap-2 mb-2">
-            <Calendar className={`w-4 h-4 ${isExpiringSoon ? 'text-orange-500' : 'text-gray-400'}`} />
-            <span className="text-white text-sm font-semibold">Booking Details</span>
-          </div>
-          <div className="space-y-1 text-xs">
-            <div className="flex justify-between">
-              <span className="text-gray-400">Expires:</span>
-              <span className={isExpiringSoon ? 'text-orange-500' : 'text-white'}>
-                {format(new Date(locker.booking_end), 'MMM d, h:mm a')}
-              </span>
-            </div>
-            {isExpiringSoon && (
-              <div className="flex items-center gap-1 text-orange-500 mt-2">
-                <AlertCircle className="w-3 h-3" />
-                <span>Expires within 24 hours</span>
-              </div>
-            )}
+      {/* Instructions */}
+      <div className="bg-muted/30 border border-border rounded-lg p-3 space-y-1.5">
+        <p className="text-muted-foreground font-mono text-xs">
+          <span className="text-foreground font-semibold">1.</span> Use this code to unlock your locker when dropping gear.
+        </p>
+        <p className="text-muted-foreground font-mono text-xs">
+          <span className="text-foreground font-semibold">2.</span> Re-lock the locker after placing your items.
+        </p>
+        <p className="text-muted-foreground font-mono text-xs">
+          <span className="text-foreground font-semibold">3.</span> Tap <span className="text-green-600 font-semibold">Confirm Drop-Off</span> so your driver knows to pick up.
+        </p>
+        <p className="text-muted-foreground font-mono text-xs">
+          <span className="text-foreground font-semibold">4.</span> Codes rotate each cycle for security.
+        </p>
+      </div>
+
+      {/* Confirm Drop-Off CTA */}
+      {activeCycle && !isDropped && (
+        <Button
+          className="w-full bg-green-600 hover:bg-green-700 text-white font-mono text-sm font-bold h-10"
+          onClick={() => confirmDropOffMutation.mutate()}
+          disabled={confirmDropOffMutation.isPending}
+        >
+          <CheckCircle className="w-4 h-4 mr-2" />
+          {confirmDropOffMutation.isPending ? 'Confirming...' : 'Confirm Drop-Off'}
+        </Button>
+      )}
+
+      {isDropped && (
+        <div className="flex items-center gap-2 justify-center p-3 bg-green-600/10 border border-green-600/30 rounded-lg">
+          <CheckCircle className="w-4 h-4 text-green-600" />
+          <p className="text-green-600 font-mono text-xs font-semibold">
+            Gear dropped · Driver en route for pickup
+          </p>
+        </div>
+      )}
+
+      {/* Location */}
+      {gym && (
+        <div className="flex items-start gap-2 p-3 bg-muted/30 border border-border rounded-lg">
+          <MapPin className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-foreground font-mono text-xs font-semibold">{gym.name}</p>
+            <p className="text-muted-foreground font-mono text-xs">{gym.address}</p>
           </div>
         </div>
       )}
 
-      {/* Location Info */}
-      {gym && (
-        <div className="bg-[#0d1320] rounded-lg p-4 border border-gray-700">
-          <p className="text-gray-400 text-xs mb-1">Location</p>
-          <p className="text-white font-semibold">{gym.name}</p>
-          <p className="text-gray-500 text-xs mt-1">{gym.address}</p>
+      {/* Booking expiry warning */}
+      {isExpiringSoon && (
+        <div className="flex items-center gap-2 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+          <Calendar className="w-4 h-4 text-orange-500 flex-shrink-0" />
+          <p className="text-orange-500 font-mono text-xs">Locker assignment expires within 24 hours</p>
         </div>
       )}
     </div>
