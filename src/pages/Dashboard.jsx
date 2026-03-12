@@ -30,6 +30,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import CycleForecastWidget from '../components/dashboard/CycleForecastWidget';
+import InfrastructureMetrics from '../components/dashboard/InfrastructureMetrics';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -270,6 +271,9 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Infrastructure Metrics */}
+        <InfrastructureMetrics userEmail={user?.email} />
 
         {/* Predictive Cycle Forecast */}
         <CycleForecastWidget user={user} preferences={preferences} preferredGym={preferredGym} />

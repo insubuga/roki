@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Users, TrendingUp, Lock, Map, Radio, Activity, Layers } from 'lucide-react';
+import LockerDemandForecastCard from '../components/network/LockerDemandForecastCard';
 import MobileHeader from '../components/mobile/MobileHeader';
 import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -324,6 +325,9 @@ export default function Network() {
           </CardContent>
         </Card>
       )}
+
+      {/* Locker Demand Forecast */}
+      <LockerDemandForecastCard gymId={assignedLocker?.gym_id} />
 
       {/* Coverage Expansion Zones */}
       <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 border-purple-200 dark:border-purple-900/50">
