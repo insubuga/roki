@@ -3,55 +3,94 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { CreditCard, ArrowLeft, Check, Zap, Shirt, Lock, Crown, Clock } from 'lucide-react';
+import {
+  CreditCard, ArrowLeft, Check, Zap, Lock, Crown, Clock,
+  Shield, Package, Shirt, Star, AlertTriangle, RefreshCw
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
-const plans = [
+const PLANS = [
   {
-    id: 'basic',
+    id: 'core',
     name: 'Core Readiness',
     price: 39,
     laundryCredits: 5,
     laundryTurnaround: 48,
-    sneakerCleaning: 30,
+    sneakerCleaningDiscount: 30,
     premiumSneaker: false,
     rushDeliveries: 1,
     rushFee: 12,
     priorityDispatch: false,
+    emergencyCredits: 1,
     features: [
-      'Clean workout gear guaranteed',
-      '48h turnaround',
-      '1 emergency rush per month',
-      'Locker or pickup logistics',
-      'Sneaker care included',
+      { text: 'Clean workout gear guaranteed', icon: Shirt },
+      { text: '48h turnaround SLA', icon: Clock },
+      { text: '1 emergency rush credit/month', icon: Zap },
+      { text: 'Locker or pickup logistics', icon: Package },
+      { text: 'Sneaker care included', icon: Star },
     ],
-    color: 'border-blue-300',
-    buttonClass: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md',
+    accentColor: 'border-green-600',
+    badgeBg: 'bg-green-600',
   },
   {
-    id: 'pro',
+    id: 'priority',
     name: 'Priority Readiness',
     price: 59,
     popular: true,
     laundryCredits: 10,
     laundryTurnaround: 24,
-    sneakerCleaning: 50,
-    premiumSneaker: false,
+    sneakerCleaningDiscount: 50,
+    premiumSneaker: true,
     rushDeliveries: 999,
     rushFee: 0,
     priorityDispatch: true,
+    emergencyCredits: 3,
     features: [
-      '24h turnaround',
-      'Unlimited rush deliveries',
-      'Priority dispatch',
-      'Premium locker zones',
-      'Personal readiness assistant',
+      { text: '24h turnaround SLA', icon: Clock },
+      { text: 'Unlimited rush deliveries', icon: Zap },
+      { text: 'Priority dispatch', icon: Shield },
+      { text: 'Premium locker zones', icon: Lock },
+      { text: 'Personal readiness assistant', icon: Crown },
     ],
-    color: 'border-green-300',
-    buttonClass: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-md',
+    accentColor: 'border-green-500',
+    badgeBg: 'bg-green-500',
+  },
+];
+
+const STAT_ITEMS = [
+  {
+    key: 'turnaround',
+    label: 'Laundry Turnaround',
+    icon: Clock,
+    iconColor: 'text-green-600',
+    getValue: (sub) => `${sub.laundry_turnaround_hours || 48}h`,
+  },
+  {
+    key: 'rush',
+    label: 'Rush Deliveries',
+    icon: Zap,
+    iconColor: 'text-orange-500',
+    getValue: (sub) => sub.rush_deliveries_included === 999 ? 'Unlimited' : `${sub.rush_deliveries_included || 1}/mo`,
+  },
+  {
+    key: 'dispatch',
+    label: 'Priority Dispatch',
+    icon: Shield,
+    iconColor: 'text-purple-500',
+    getValue: (sub) => sub.priority_dispatch ? 'Active' : 'Standard',
+  },
+  {
+    key: 'credits',
+    label: 'Emergency Credits',
+    icon: Zap,
+    iconColor: 'text-green-600',
+    getValue: (sub) => {
+      const used = sub.laundry_credits_used || 0;
+      const total = sub.laundry_credits || 1;
+      return `${total - used} / ${total}`;
+    },
   },
 ];
 
@@ -60,132 +99,86 @@ export default function Subscription() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const userData = await base44.auth.me();
-        setUser(userData);
-      } catch (e) {
-        base44.auth.redirectToLogin();
-      }
-    };
-    loadUser();
+    base44.auth.me().then(setUser).catch(() => base44.auth.redirectToLogin());
   }, []);
 
   const { data: subscription, isLoading } = useQuery({
     queryKey: ['subscription', user?.email],
     queryFn: async () => {
-      const subs = await base44.entities.Subscription.filter({ user_email: user?.email });
+      const subs = await base44.entities.Subscription.filter({ user_email: user.email });
       return subs[0] || null;
     },
     enabled: !!user?.email,
   });
 
-  const updateSubscriptionMutation = useMutation({
+  const selectPlanMutation = useMutation({
     mutationFn: async (planId) => {
-      // Redirect to Stripe checkout for all plans
-      const response = await base44.functions.invoke('createSubscriptionCheckout', {
-        plan_id: planId
-      });
-      
-      if (response.data.url) {
+      const response = await base44.functions.invoke('createSubscriptionCheckout', { plan_id: planId });
+      if (response.data?.url) {
         window.location.href = response.data.url;
       }
-      return null;
-      
-      if (subscription) {
-        return base44.entities.Subscription.update(subscription.id, {
-          plan: planId,
-          monthly_price: plan.price,
-          laundry_credits: plan.laundryCredits,
-          laundry_credits_used: 0,
-          laundry_turnaround_hours: plan.laundryTurnaround,
-          premium_sneaker_cleaning: plan.premiumSneaker,
-          sneaker_cleaning_discount: plan.sneakerCleaning,
-          rush_deliveries_included: plan.rushDeliveries,
-          rush_deliveries_used: 0,
-          rush_delivery_fee: plan.rushFee,
-          priority_dispatch: plan.priorityDispatch,
-          priority_locker: planId !== 'free',
-        });
-      } else {
-        return base44.entities.Subscription.create({
-          user_email: user.email,
-          plan: planId,
-          monthly_price: plan.price,
-          laundry_credits: plan.laundryCredits,
-          laundry_credits_used: 0,
-          laundry_turnaround_hours: plan.laundryTurnaround,
-          premium_sneaker_cleaning: plan.premiumSneaker,
-          sneaker_cleaning_discount: plan.sneakerCleaning,
-          rush_deliveries_included: plan.rushDeliveries,
-          rush_deliveries_used: 0,
-          rush_delivery_fee: plan.rushFee,
-          priority_dispatch: plan.priorityDispatch,
-          priority_locker: planId !== 'free',
-        });
-      }
     },
-    onSuccess: async () => {
-      // User will be redirected to Stripe
-    },
+    onError: () => toast.error('Could not initiate checkout. Please try again.'),
   });
 
-  const cancelSubscriptionMutation = useMutation({
-    mutationFn: () => base44.functions.invoke('manageSubscription', {
-      action: 'cancel'
-    }),
+  const cancelMutation = useMutation({
+    mutationFn: () => base44.functions.invoke('manageSubscription', { action: 'cancel' }),
     onSuccess: () => {
       toast.success('Subscription will cancel at period end');
       queryClient.invalidateQueries({ queryKey: ['subscription'] });
     },
-    onError: () => {
-      toast.error('Failed to cancel subscription');
-    },
+    onError: () => toast.error('Failed to cancel subscription'),
   });
 
-  const currentPlan = subscription?.plan || 'basic';
+  const currentPlanId = subscription?.plan || null;
+  const currentPlanDef = PLANS.find(p => p.id === currentPlanId);
 
-  if (!user) {
+  if (!user || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-[#7cfc00] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
+    <div className="space-y-6 max-w-4xl mx-auto">
+
+      {/* Page Header */}
+      <div className="flex items-center gap-3">
         <Link to={createPageUrl('Dashboard')}>
-          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900">
+          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <CreditCard className="w-8 h-8 text-indigo-500" />
+          <h1 className="text-2xl font-bold text-foreground font-mono tracking-tight uppercase">
             Subscription
           </h1>
-          <p className="text-gray-600 mt-1">Stop thinking about laundry. Choose your plan.</p>
+          <p className="text-muted-foreground text-xs font-mono mt-0.5">
+            READINESS COVERAGE · PLAN MANAGEMENT
+          </p>
         </div>
       </div>
 
-      {/* Current Plan */}
-      {subscription && (
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200 shadow-lg">
-          <div className="flex items-center justify-between">
+      {/* Current Plan Banner */}
+      {subscription ? (
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="text-gray-600 text-sm font-medium">Current Plan</p>
-              <p className="text-gray-900 text-2xl font-bold capitalize">{currentPlan}</p>
+              <p className="text-muted-foreground font-mono text-xs uppercase tracking-widest">Current Plan</p>
+              <p className="text-foreground text-3xl font-bold font-mono mt-1 capitalize">
+                {currentPlanDef?.name || subscription.plan}
+              </p>
               {subscription.status === 'canceling' && (
-                <Badge className="mt-2 bg-yellow-100 text-yellow-700 border-yellow-300">
-                  Cancels on {subscription.renewal_date}
+                <Badge className="mt-2 bg-yellow-900/30 text-yellow-500 border border-yellow-700 font-mono text-xs">
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                  Cancels {subscription.renewal_date}
                 </Badge>
               )}
-              {subscription.renewal_date && subscription.status === 'active' && currentPlan !== 'free' && (
-                <p className="text-gray-600 text-sm mt-1">
-                  Renews on {new Date(subscription.renewal_date).toLocaleDateString()}
+              {subscription.renewal_date && subscription.status === 'active' && (
+                <p className="text-muted-foreground text-xs font-mono mt-1">
+                  Renews · {new Date(subscription.renewal_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               )}
             </div>
@@ -194,81 +187,133 @@ export default function Subscription() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => cancelSubscriptionMutation.mutate()}
-                  disabled={cancelSubscriptionMutation.isPending}
-                  className="border-red-300 text-red-600 hover:bg-red-50"
+                  onClick={() => cancelMutation.mutate()}
+                  disabled={cancelMutation.isPending}
+                  className="border-red-700 text-red-500 hover:bg-red-950/30 font-mono text-xs"
                 >
-                  Cancel
+                  {cancelMutation.isPending ? <RefreshCw className="w-3 h-3 animate-spin" /> : 'Cancel Plan'}
                 </Button>
               )}
-              <Crown className="w-10 h-10 text-green-600" />
+              <div className="w-10 h-10 rounded-full bg-green-600/20 flex items-center justify-center">
+                <Crown className="w-5 h-5 text-green-600" />
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
-            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
-              <Clock className="w-5 h-5 text-green-500 mb-1" />
-              <p className="text-gray-900 font-bold text-lg">{subscription.laundry_turnaround_hours || 48}h</p>
-              <p className="text-gray-600 text-xs">Laundry Turnaround</p>
-            </div>
-            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
-              <Zap className="w-5 h-5 text-orange-500 mb-1" />
-              <p className="text-gray-900 font-bold text-lg">
-                {subscription.rush_deliveries_included === 999 ? 'Unlimited' : `${subscription.rush_deliveries_included}/mo`}
-              </p>
-              <p className="text-gray-600 text-xs">Rush Deliveries</p>
-            </div>
-            <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
-              <Lock className="w-5 h-5 text-purple-500 mb-1" />
-              <p className="text-gray-900 font-bold text-lg">{subscription.priority_dispatch ? 'Yes' : 'No'}</p>
-              <p className="text-gray-600 text-xs">Priority Dispatch</p>
-            </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {STAT_ITEMS.map(({ key, label, icon: Icon, iconColor, getValue }) => (
+              <div key={key} className="bg-muted/50 rounded-lg p-3 border border-border">
+                <Icon className={`w-4 h-4 ${iconColor} mb-2`} />
+                <p className="text-foreground font-bold font-mono text-base">{getValue(subscription)}</p>
+                <p className="text-muted-foreground font-mono text-xs">{label}</p>
+              </div>
+            ))}
           </div>
+        </div>
+      ) : (
+        <div className="bg-card border border-border rounded-xl p-5 text-center">
+          <Crown className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
+          <p className="text-foreground font-mono font-semibold">No active plan</p>
+          <p className="text-muted-foreground font-mono text-xs mt-1">Select a plan below to activate your readiness coverage</p>
         </div>
       )}
 
-      {/* Plans Grid */}
-      <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-        {plans.map((plan) => (
-          <motion.div
-            key={plan.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -5 }}
-            className={`bg-white rounded-xl p-6 border-2 ${plan.color} relative shadow-lg hover:shadow-xl transition-shadow ${currentPlan === plan.id ? 'ring-2 ring-green-500' : ''}`}
-          >
-            {plan.popular && (
-              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold shadow-md">
-                Most Popular
-              </Badge>
-            )}
-            {currentPlan === plan.id && (
-              <Badge className="absolute -top-3 right-4 bg-green-500 text-white font-semibold shadow-md">
-                Current
-              </Badge>
-            )}
-            <h3 className="text-gray-900 text-xl font-bold mb-2">{plan.name}</h3>
-            <div className="mb-4">
-              <span className="text-3xl font-bold text-gray-900">${plan.price}</span>
-              <span className="text-gray-600">/mo</span>
-            </div>
-            <ul className="space-y-3 mb-6">
-              {plan.features.map((feature, idx) => (
-                <li key={idx} className="flex items-start gap-2 text-sm">
-                  <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <Button
-              className={`w-full ${plan.buttonClass}`}
-              disabled={currentPlan === plan.id || updateSubscriptionMutation.isPending}
-              onClick={() => updateSubscriptionMutation.mutate(plan.id)}
-            >
-              {currentPlan === plan.id ? 'Current Plan' : 'Select Plan'}
-            </Button>
-          </motion.div>
-        ))}
+      {/* Plan Cards */}
+      <div>
+        <p className="text-muted-foreground font-mono text-xs uppercase tracking-widest mb-4">Available Plans</p>
+        <div className="grid md:grid-cols-2 gap-5">
+          {PLANS.map((plan) => {
+            const isCurrent = currentPlanId === plan.id;
+            const isLoading = selectPlanMutation.isPending;
+
+            return (
+              <div
+                key={plan.id}
+                className={`relative bg-card rounded-xl border-2 ${plan.accentColor} p-6 flex flex-col transition-all ${
+                  isCurrent ? 'ring-2 ring-green-600 ring-offset-2 ring-offset-background' : ''
+                }`}
+              >
+                {/* Badges */}
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex gap-2">
+                  {plan.popular && !isCurrent && (
+                    <span className={`${plan.badgeBg} text-white text-xs font-mono font-bold px-3 py-1 rounded-full shadow`}>
+                      Most Popular
+                    </span>
+                  )}
+                  {isCurrent && (
+                    <span className="bg-green-600 text-white text-xs font-mono font-bold px-3 py-1 rounded-full shadow">
+                      Current
+                    </span>
+                  )}
+                </div>
+
+                {/* Name + Price */}
+                <div className="mb-5 mt-2">
+                  <h3 className="text-foreground font-bold font-mono text-lg">{plan.name}</h3>
+                  <div className="flex items-end gap-1 mt-2">
+                    <span className="text-foreground font-bold text-4xl font-mono">${plan.price}</span>
+                    <span className="text-muted-foreground font-mono text-sm mb-1">/mo</span>
+                  </div>
+                </div>
+
+                {/* Feature List */}
+                <ul className="space-y-2.5 mb-6 flex-1">
+                  {plan.features.map(({ text, icon: Icon }, idx) => (
+                    <li key={idx} className="flex items-center gap-2.5 text-sm">
+                      <div className="w-5 h-5 rounded-full bg-green-600/20 flex items-center justify-center flex-shrink-0">
+                        <Check className="w-3 h-3 text-green-600" />
+                      </div>
+                      <span className="text-foreground font-mono text-xs">{text}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Meta row */}
+                <div className="flex gap-2 mb-4 flex-wrap">
+                  <Badge className="bg-muted text-muted-foreground font-mono text-xs border border-border">
+                    {plan.emergencyCredits} emergency credit{plan.emergencyCredits > 1 ? 's' : ''}/mo
+                  </Badge>
+                  <Badge className="bg-muted text-muted-foreground font-mono text-xs border border-border">
+                    {plan.laundryTurnaround}h SLA
+                  </Badge>
+                  {plan.priorityDispatch && (
+                    <Badge className="bg-green-600/20 text-green-600 font-mono text-xs border border-green-700">
+                      Priority Dispatch
+                    </Badge>
+                  )}
+                </div>
+
+                {/* CTA */}
+                <Button
+                  className={`w-full font-mono text-sm font-bold h-11 ${
+                    isCurrent
+                      ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                      : 'bg-green-600 hover:bg-green-700 text-white'
+                  }`}
+                  disabled={isCurrent || isLoading}
+                  onClick={() => selectPlanMutation.mutate(plan.id)}
+                >
+                  {isLoading && !isCurrent ? (
+                    <span className="flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4 animate-spin" /> Redirecting...
+                    </span>
+                  ) : isCurrent ? (
+                    'Current Plan'
+                  ) : (
+                    'Select Plan'
+                  )}
+                </Button>
+              </div>
+            );
+          })}
+        </div>
       </div>
+
+      {/* Footer note */}
+      <p className="text-center text-muted-foreground font-mono text-xs pb-2">
+        Payments are processed securely via Stripe · Cancel anytime
+      </p>
     </div>
   );
 }
