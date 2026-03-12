@@ -10,39 +10,38 @@ import { toast } from 'sonner';
 export default function LockerPickups({ user }) {
   const queryClient = useQueryClient();
 
-  // Cycles awaiting driver pickup
+  // Cycles where gear has been dropped (awaiting_pickup + assignment.status=dropped)
   const { data: pendingCycles = [], isLoading } = useQuery({
     queryKey: ['driver-locker-pickups'],
-    queryFn: () => base44.entities.LaundryOrder.filter({ status: 'awaiting_pickup' }),
+    queryFn: () => base44.entities.LaundryOrder.filter({ status: { $in: ['awaiting_pickup', 'washing'] } }),
     enabled: !!user,
   });
 
-  // CycleLockerAssignments for pending cycles
+  // CycleLockerAssignments for cycles with dropped gear (ready for pickup)
   const { data: cycleAssignments = [] } = useQuery({
     queryKey: ['driver-cycle-assignments'],
-    queryFn: () => base44.entities.CycleLockerAssignment.filter({ status: { $in: ['reserved', 'dropped'] } }),
+    queryFn: () => base44.entities.CycleLockerAssignment.filter({ status: 'dropped' }),
     enabled: pendingCycles.length > 0,
   });
 
   const { data: lockers = [] } = useQuery({
-    queryKey: ['all-reserved-lockers'],
-    queryFn: () => base44.entities.Locker.filter({ status: { $in: ['reserved', 'dropped'] } }),
+    queryKey: ['all-dropped-lockers'],
+    queryFn: () => base44.entities.Locker.filter({ status: 'dropped' }),
     enabled: cycleAssignments.length > 0,
   });
 
   const confirmPickupMutation = useMutation({
     mutationFn: async (cycle) => {
-      // Advance cycle to washing
-      await base44.entities.LaundryOrder.update(cycle.id, { status: 'washing' });
-      // Mark assignment as pickedUp and release the locker back to available
       const assignment = cycleAssignments.find(a => a.cycle_id === cycle.id);
+      await base44.entities.LaundryOrder.update(cycle.id, { status: 'washing' });
       if (assignment) {
         await base44.entities.CycleLockerAssignment.update(assignment.id, { status: 'pickedUp' });
+        // Reset locker to available after pickup
         await base44.entities.Locker.update(assignment.locker_id, { status: 'available' });
       }
     },
     onSuccess: () => {
-      toast.success('Pickup confirmed · Locker released · Gear in processing');
+      toast.success('Pickup confirmed · Locker reset to available');
       queryClient.invalidateQueries({ queryKey: ['driver-locker-pickups'] });
       queryClient.invalidateQueries({ queryKey: ['driver-cycle-assignments'] });
     },
@@ -63,6 +62,7 @@ export default function LockerPickups({ user }) {
       <div className="space-y-3">
         {pendingCycles.map((cycle) => {
           const assignment = cycleAssignments.find(a => a.cycle_id === cycle.id);
+          if (!assignment) return null; // only show cycles where gear is physically dropped
           const locker = lockers.find(l => l.id === assignment?.locker_id);
           const displayCode = assignment?.access_code || '----';
 

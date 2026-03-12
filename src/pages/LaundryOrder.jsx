@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Activity, Clock, MapPin, AlertTriangle, TrendingUp, Database, Radio, BarChart3, ArrowLeft } from 'lucide-react';
 import DispatchAttachments from '@/components/cycle/DispatchAttachments';
+import LockerPanel from '@/components/locker/LockerPanel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -142,12 +143,12 @@ export default function LaundryOrder() {
         locker_id: locker.id,
         user_id: user.email,
         access_code: code,
-        status: 'reserved',
+        status: 'softReserved',
         assigned_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+        expires_at: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2-hour soft reserve window
       });
 
-      await base44.entities.Locker.update(locker.id, { status: 'reserved' });
+      await base44.entities.Locker.update(locker.id, { status: 'softReserved' });
 
       await base44.entities.ReliabilityLog.create({
         user_email: user.email,
@@ -158,7 +159,7 @@ export default function LaundryOrder() {
     onSuccess: () => {
       queryClient.invalidateQueries(['activeCycle']);
       queryClient.invalidateQueries(['cycleAssignment']);
-      toast.success('Cycle Activated — Locker Assigned');
+      toast.success('Cycle Activated — Locker Soft Reserved');
       setShowActivateDialog(false);
     },
     onError: (err) => toast.error(err.message),
@@ -206,7 +207,7 @@ export default function LaundryOrder() {
   const incidentCount = reliabilityLogs.filter(l => l.event_type !== 'on_time_delivery').length;
   const routeEfficiency = 92;
   const clusterLoad = allActiveCycles.length > 0 ? Math.min(85, allActiveCycles.length * 8) : 42;
-  const nodeUtilization = allLockers.length > 0 ? Math.round((allLockers.filter(l => l.status === 'reserved').length / allLockers.length) * 100) : 0;
+  const nodeUtilization = allLockers.length > 0 ? Math.round((allLockers.filter(l => l.status !== 'available').length / allLockers.length) * 100) : 0;
 
   // Cycle state mapping
   const getCycleState = (status) => {
@@ -311,25 +312,16 @@ export default function LaundryOrder() {
                   </div>
                 </div>
                 
-                {cycleAssignment && (
-                  <div className="bg-green-600/10 border border-green-600/30 rounded-lg p-3">
-                    <p className="text-green-600 font-mono text-xs uppercase font-bold mb-2">Assigned Locker For This Cycle</p>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-foreground font-mono text-sm font-bold">#{cycleLocker?.locker_number || '—'}</p>
-                        <p className="text-muted-foreground font-mono text-xs capitalize">{cycleAssignment.status}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-muted-foreground font-mono text-xs mb-1">Access Code</p>
-                        <span className="text-green-600 font-mono font-bold text-2xl tracking-widest">{cycleAssignment.access_code}</span>
-                      </div>
-                    </div>
-                    {cycleAssignment.expires_at && (
-                      <p className="text-muted-foreground font-mono text-xs mt-2">
-                        Drop window · Before {new Date(cycleAssignment.expires_at).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    )}
-                  </div>
+                {cycleAssignment && cycleLocker && (
+                  <LockerPanel
+                    assignment={cycleAssignment}
+                    locker={cycleLocker}
+                    gym={preferredGym}
+                    onStatusChange={() => {
+                      queryClient.invalidateQueries(['cycleAssignment']);
+                      queryClient.invalidateQueries(['activeCycle']);
+                    }}
+                  />
                 )}
 
                 <div className="space-y-2 text-xs">
@@ -423,7 +415,7 @@ export default function LaundryOrder() {
                     <p className="text-foreground">{preferredGym.name}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground uppercase">Assignment</p>
+                    <p className="text-muted-foreground uppercase">Phase</p>
                     <p className="text-green-600 font-mono font-bold capitalize">{cycleAssignment?.status || '—'}</p>
                   </div>
                   <div>
