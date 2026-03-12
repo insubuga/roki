@@ -238,6 +238,7 @@ export default function RiskRecovery() {
               <Zap className="w-4 h-4 text-orange-600" />
               EMERGENCY ACTIONS
             </CardTitle>
+            <p className="text-muted-foreground text-xs font-mono">Uses 1 emergency credit. Triggers priority dispatch for laundry rush or attachment resupply.</p>
           </CardHeader>
           <CardContent className="space-y-2">
             <Link to={createPageUrl('LaundryOrder')}>
