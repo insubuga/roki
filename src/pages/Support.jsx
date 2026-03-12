@@ -159,7 +159,7 @@ export default function Support() {
                 const isUser = msg.sender_type === 'user';
                 return (
                   <div key={msg.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] ${isUser ? 'bg-[var(--color-primary)] text-black' : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)]'} rounded-2xl px-4 py-2 select-none`}>
+                    <div className={`max-w-[80%] ${isUser ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'} rounded-2xl px-4 py-2`}>
                       {!isUser && (
                         <div className="flex items-center gap-2 mb-1">
                           <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
@@ -179,7 +179,7 @@ export default function Support() {
                           View attachment
                         </a>
                       )}
-                      <div className={`flex items-center gap-1 mt-1 text-xs ${isUser ? 'text-black/70' : 'text-[var(--color-text-secondary)]'}`}>
+                      <div className={`flex items-center gap-1 mt-1 text-xs ${isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                         <Clock className="w-3 h-3" />
                         {format(new Date(msg.created_date), 'h:mm a')}
                       </div>
