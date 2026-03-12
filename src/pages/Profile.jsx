@@ -326,7 +326,7 @@ export default function Profile() {
                 </div>
               ) : gymsWithKey.length === 0 ? (
                 <div className="bg-muted/50 border border-border rounded-lg p-4 text-center">
-                  <p className="text-muted-foreground font-mono text-xs mb-2">No gyms found within 15 miles</p>
+                  <p className="text-muted-foreground font-mono text-xs mb-2">No gyms found within 15 miles. Contact support to add your gym.</p>
                   <Button size="sm" variant="outline" className="font-mono text-xs" onClick={() => refetchGyms()}>Retry</Button>
                 </div>
               ) : (
