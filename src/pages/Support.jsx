@@ -148,8 +148,8 @@ export default function Support() {
               <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-4">
                 <MessageCircle className="w-8 h-8 text-blue-500" />
               </div>
-              <h3 className="text-[var(--color-text-primary)] font-semibold mb-2">Start a Conversation</h3>
-              <p className="text-[var(--color-text-secondary)] text-sm max-w-sm">
+              <h3 className="text-foreground font-semibold mb-2">Start a Conversation</h3>
+              <p className="text-muted-foreground text-sm max-w-sm">
                 Our support team is here to help with any questions about your fitness journey, subscriptions, or app features.
               </p>
             </div>
