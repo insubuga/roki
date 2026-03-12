@@ -25,7 +25,7 @@ export default function GymManagement() {
   const [showAddGym, setShowAddGym] = useState(false);
   const [selectedGym, setSelectedGym] = useState(null);
   const [gymToDelete, setGymToDelete] = useState(null);
-  const [newGym, setNewGym] = useState({ name: '', address: '', city: '', total_lockers: 50 });
+  const [newGym, setNewGym] = useState({ name: '', address: '', city: '', total_lockers: 50, latitude: '', longitude: '' });
   const queryClient = useQueryClient();
 
   const { data: gyms = [] } = useQuery({
