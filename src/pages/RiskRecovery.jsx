@@ -87,7 +87,7 @@ export default function RiskRecovery() {
         {/* Header */}
         <div>
           <h1 className="text-foreground text-xl font-bold font-mono">RISK & RECOVERY</h1>
-          <p className="text-muted-foreground text-xs font-mono">Backup systems and incident response</p>
+          <p className="text-muted-foreground text-xs font-mono">Backup systems and incident response for laundry & supply readiness</p>
         </div>
 
         {/* Coverage Status */}
@@ -113,7 +113,32 @@ export default function RiskRecovery() {
                   {rushCreditsRemaining} REMAINING
                 </span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground font-mono">Credits Reset</span>
+                <span className="text-foreground font-mono">Monthly (no rollover)</span>
+              </div>
             </div>
+
+            {/* Credit scope explanation */}
+            <div className="mt-4 bg-muted rounded p-3 text-xs space-y-1">
+              <p className="text-foreground font-mono font-bold uppercase mb-2">What Emergency Credits Cover</p>
+              <p className="text-muted-foreground">Each credit triggers a <span className="text-foreground font-semibold">priority dispatch</span> outside your normal cycle — for either:</p>
+              <ul className="text-muted-foreground mt-1 space-y-1 pl-2">
+                <li>🧺 <span className="text-foreground">Rush laundry return</span> — gear back within 12h</li>
+                <li>⚡ <span className="text-foreground">Attachment resupply</span> — electrolytes, pre-workout, or protein when you run out mid-week</li>
+              </ul>
+              <div className="mt-3 pt-2 border-t border-border grid grid-cols-2 gap-2">
+                <div className="bg-background rounded p-2 text-center">
+                  <p className="text-foreground font-mono font-bold">1 credit</p>
+                  <p className="text-muted-foreground uppercase text-[10px] mt-0.5">Core / month</p>
+                </div>
+                <div className="bg-background rounded p-2 text-center">
+                  <p className="text-green-600 font-mono font-bold">3 credits</p>
+                  <p className="text-muted-foreground uppercase text-[10px] mt-0.5">Priority / month</p>
+                </div>
+              </div>
+            </div>
+
             <Link to={createPageUrl('Subscription')}>
               <Button variant="outline" className="w-full mt-4 border-border font-mono text-xs">
                 UPGRADE COVERAGE
