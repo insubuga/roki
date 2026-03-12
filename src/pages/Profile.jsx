@@ -72,42 +72,32 @@ export default function Profile() {
     enabled: !!user?.email,
   });
 
-  const { data: nearbyGyms = [], isLoading: loadingGyms, refetch: refetchGyms } = useQuery({
-    queryKey: ['nearbyGyms', userLocation],
-    queryFn: async () => {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Find real gym locations WITHIN 15 MILES of latitude ${userLocation.latitude}, longitude ${userLocation.longitude}.
-Include popular chains like Planet Fitness, LA Fitness, 24 Hour Fitness, Equinox, Gold's Gym, Crunch Fitness, Anytime Fitness.
-Return up to 15 gyms sorted by distance (closest first). Return JSON:
-{"gyms":[{"name":"Gym Name","address":"Full address","distance_miles":0.5,"latitude":40.7128,"longitude":-74.006}]}`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            gyms: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  name: { type: 'string' },
-                  address: { type: 'string' },
-                  distance_miles: { type: 'number' },
-                  latitude: { type: 'number' },
-                  longitude: { type: 'number' },
-                },
-              },
-            },
-          },
-        },
-      });
-      return (result.gyms || []).filter(g => g.distance_miles <= 15);
-    },
-    enabled: !!userLocation,
+  const { data: allGyms = [], isLoading: loadingGyms, refetch: refetchGyms } = useQuery({
+    queryKey: ['allDbGyms'],
+    queryFn: () => base44.entities.Gym.list(),
   });
 
-  const gymsWithKey = nearbyGyms
-    .map(g => ({ ...g, gymKey: `${g.name}_${g.address}` }))
-    .sort((a, b) => a.distance_miles - b.distance_miles);
+  // Haversine distance in miles
+  function calcDistance(lat1, lng1, lat2, lng2) {
+    const R = 3958.8;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  const gymsWithKey = allGyms
+    .filter(g => {
+      if (!userLocation || g.latitude == null || g.longitude == null) return true; // show all if no location yet
+      return calcDistance(userLocation.latitude, userLocation.longitude, g.latitude, g.longitude) <= 15;
+    })
+    .map(g => {
+      const distance_miles = (userLocation && g.latitude != null && g.longitude != null)
+        ? calcDistance(userLocation.latitude, userLocation.longitude, g.latitude, g.longitude)
+        : null;
+      return { ...g, distance_miles, gymKey: g.id };
+    })
+    .sort((a, b) => (a.distance_miles ?? 999) - (b.distance_miles ?? 999));
 
   const requestLocation = () => {
     setLoadingLocation(true);
