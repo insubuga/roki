@@ -226,7 +226,7 @@ export default function Network() {
       </div>
 
       {/* Assigned Node Details */}
-      {assignedLocker && gym ? (
+      {assignedLocker && gym && activeCycleAssignment ? (
         <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-200 dark:border-green-900/50">
           <CardHeader>
             <CardTitle className="text-base font-mono uppercase flex items-center gap-2">
