@@ -27,6 +27,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import RouteOptimizer from '@/components/driver/RouteOptimizer';
 import PerformanceStats from '@/components/driver/PerformanceStats';
 import DriverSupportChat from '@/components/driver/SupportChat';
+import LockerPickups from '@/components/driver/LockerPickups';
 
 export default function DriverDashboard() {
   const [user, setUser] = useState(null);
