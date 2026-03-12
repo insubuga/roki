@@ -154,6 +154,9 @@ export default function RiskRecovery() {
               <AlertTriangle className="w-4 h-4 text-orange-600" />
               ACTIVE INCIDENTS
             </CardTitle>
+            <p className="text-muted-foreground text-xs font-mono">
+              System-level service failures affecting your readiness — SLA breaches, node failures, route delays, quality issues, or delivery failures.
+            </p>
           </CardHeader>
           <CardContent>
             {activeIncidents.length === 0 ? (
