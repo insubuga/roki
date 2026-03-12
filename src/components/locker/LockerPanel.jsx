@@ -59,7 +59,7 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
         dropped_at: new Date().toISOString(),
       });
       await base44.entities.Locker.update(locker.id, { status: 'dropped' });
-      await base44.entities.LaundryOrder.update(assignment.cycle_id, { status: 'awaiting_pickup' });
+      await base44.entities.Cycle.update(assignment.cycle_id, { status: 'awaiting_pickup' });
     },
     onSuccess: () => {
       toast.success('Drop confirmed · Driver notified for pickup');

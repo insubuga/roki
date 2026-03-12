@@ -13,7 +13,7 @@ export default function LockerPickups({ user }) {
   // Cycles where gear has been dropped (awaiting_pickup + assignment.status=dropped)
   const { data: pendingCycles = [], isLoading } = useQuery({
     queryKey: ['driver-locker-pickups'],
-    queryFn: () => base44.entities.LaundryOrder.filter({ status: { $in: ['awaiting_pickup', 'washing'] } }),
+    queryFn: () => base44.entities.Cycle.filter({ status: { $in: ['awaiting_pickup', 'washing'] } }),
     enabled: !!user,
   });
 
@@ -33,7 +33,7 @@ export default function LockerPickups({ user }) {
   const confirmPickupMutation = useMutation({
     mutationFn: async (cycle) => {
       const assignment = cycleAssignments.find(a => a.cycle_id === cycle.id);
-      await base44.entities.LaundryOrder.update(cycle.id, { status: 'washing' });
+      await base44.entities.Cycle.update(cycle.id, { status: 'washing' });
       if (assignment) {
         await base44.entities.CycleLockerAssignment.update(assignment.id, { status: 'pickedUp' });
         // Reset locker to available after pickup

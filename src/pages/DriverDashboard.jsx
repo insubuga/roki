@@ -60,7 +60,7 @@ export default function DriverDashboard() {
 
   const { data: laundryOrders = [], isLoading: laundryLoading } = useQuery({
     queryKey: ['driver-laundry-orders'],
-    queryFn: () => base44.entities.LaundryOrder.list('-created_date'),
+    queryFn: () => base44.entities.Cycle.list('-created_date'),
     enabled: !!user,
   });
 
@@ -95,10 +95,10 @@ export default function DriverDashboard() {
       }
     });
 
-    const unsubLaundry = base44.entities.LaundryOrder.subscribe((event) => {
+    const unsubLaundry = base44.entities.Cycle.subscribe((event) => {
       queryClient.invalidateQueries({ queryKey: ['driver-laundry-orders'] });
       if (event.type === 'create') {
-        toast.success('🚨 New laundry pickup available!');
+        toast.success('🚨 New cycle pickup available!');
       }
     });
 
@@ -135,7 +135,7 @@ export default function DriverDashboard() {
 
 
   const updateLaundryMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.LaundryOrder.update(id, { status }),
+    mutationFn: ({ id, status }) => base44.entities.Cycle.update(id, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['driver-laundry-orders'] });
       toast.success('✓ Status updated');
@@ -393,7 +393,7 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-bold text-gray-900 truncate">
-                    {isOrder ? 'Shop Delivery' : 'Laundry Service'}
+                    {isOrder ? 'Shop Delivery' : 'Cycle Pickup'}
                   </h3>
                   {isRush && (
                     <Badge className="bg-red-500 text-white text-xs px-2 py-0.5 flex items-center gap-1">
@@ -549,7 +549,7 @@ function DeliveryDetailModal({ delivery, driverStats, onClose, onUpdate }) {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  {isOrder ? 'Shop Order' : 'Laundry Service'}
+                  {isOrder ? 'Shop Order' : 'Cycle'}
                 </h2>
                 <p className="text-sm text-gray-500">#{delivery.order_number || delivery.id.slice(0, 8)}</p>
               </div>
