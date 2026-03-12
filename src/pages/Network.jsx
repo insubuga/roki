@@ -67,18 +67,18 @@ export default function Network() {
     queryFn: async () => {
       if (!assignedLocker?.gym_id) return {};
       const totalLockers = await base44.entities.Locker.filter({ gym_id: assignedLocker.gym_id });
-      const claimedLockers = totalLockers.filter(l => l.status === 'claimed');
+      const activeLockers = totalLockers.filter(l => ['activated', 'softReserved', 'dropped'].includes(l.status));
       return {
         total: totalLockers.length,
-        claimed: claimedLockers.length,
-        utilization: Math.round((claimedLockers.length / totalLockers.length) * 100)
+        claimed: activeLockers.length,
+        utilization: totalLockers.length > 0 ? Math.round((activeLockers.length / totalLockers.length) * 100) : 0
       };
     },
     enabled: !!assignedLocker?.gym_id,
   });
 
-  // Network calculations
-  const totalActiveNodes = allLockers.filter(l => l.status === 'claimed').length;
+  // Network calculations — active = lockers currently in use
+  const totalActiveNodes = allLockers.filter(l => ['activated', 'softReserved', 'dropped'].includes(l.status)).length;
   const totalCapacity = allLockers.length;
   const networkUtilization = totalCapacity > 0 ? Math.round((totalActiveNodes / totalCapacity) * 100) : 0;
   
