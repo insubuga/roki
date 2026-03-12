@@ -1,108 +1,114 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CreditCard, Lock, Clock, DollarSign } from 'lucide-react';
+import { CreditCard, Lock, MapPin, Clock, X, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { addHours } from 'date-fns';
 
-const PRICING = {
-  '1': 2,
-  '3': 5,
-  '6': 9,
-  '12': 15,
-  '24': 25,
-  '72': 60,
-  '168': 100,
-};
+const DURATIONS = [
+  { value: '1',   label: '1 hour',  price: 2  },
+  { value: '3',   label: '3 hours', price: 5  },
+  { value: '6',   label: '6 hours', price: 9  },
+  { value: '12',  label: '12 hours',price: 15 },
+  { value: '24',  label: '1 day',   price: 25 },
+  { value: '72',  label: '3 days',  price: 60 },
+  { value: '168', label: '1 week',  price: 100},
+];
 
-export default function LockerCheckout({ open, onClose, gym, onSuccess, user }) {
+export default function LockerCheckout({ open, onClose, gym, user, onBookingComplete }) {
   const [duration, setDuration] = useState('24');
   const [processing, setProcessing] = useState(false);
-  const queryClient = useQueryClient();
 
-  const durations = [
-    { value: '1', label: '1 hour', price: PRICING['1'] },
-    { value: '3', label: '3 hours', price: PRICING['3'] },
-    { value: '6', label: '6 hours', price: PRICING['6'] },
-    { value: '12', label: '12 hours', price: PRICING['12'] },
-    { value: '24', label: '1 day', price: PRICING['24'] },
-    { value: '72', label: '3 days', price: PRICING['72'] },
-    { value: '168', label: '1 week', price: PRICING['168'] },
-  ];
+  const selected = DURATIONS.find(d => d.value === duration) || DURATIONS[4];
 
-  const selectedPrice = PRICING[duration];
-
-  const processPaymentMutation = useMutation({
-    mutationFn: async () => {
-      setProcessing(true);
-      
-      // Check if running in iframe (preview mode)
-      if (window.self !== window.top) {
-        throw new Error('IFRAME_CHECKOUT');
-      }
-
-      // Create Stripe checkout session
-      const response = await base44.functions.invoke('createCheckoutSession', {
-        duration: duration,
-        gym_name: gym?.name || 'Selected Gym',
-        gym_address: gym?.address || ''
-      });
-
-      if (!response.data.url) {
-        throw new Error('Failed to create checkout session');
-      }
-
-      // Redirect to Stripe Checkout
-      window.location.href = response.data.url;
-      
-      return response.data;
-    },
-    onError: (error) => {
-      setProcessing(false);
-      if (error.message === 'IFRAME_CHECKOUT') {
-        toast.error('Please publish your app to complete checkout', {
-          description: 'Payments can only be processed in the published app, not in preview mode.'
-        });
-      } else {
-        toast.error('Failed to initiate checkout. Please try again.');
-      }
+  const handleCheckout = async () => {
+    if (!gym) {
+      toast.error('Please select a gym first');
+      return;
     }
-  });
+
+    // Block in iframe/preview
+    if (window.self !== window.top) {
+      toast.error('Checkout only works in the published app, not preview mode.');
+      return;
+    }
+
+    setProcessing(true);
+
+    // Store booking intent in sessionStorage so we can claim locker on return
+    sessionStorage.setItem('pendingLockerBooking', JSON.stringify({
+      gymKey: `${gym.name}_${gym.address}`,
+      gymName: gym.name,
+      gymAddress: gym.address,
+      duration: duration,
+    }));
+
+    const response = await base44.functions.invoke('createCheckoutSession', {
+      duration: duration,
+      gym_name: gym.name,
+      gym_address: gym.address,
+    });
+
+    if (response.data?.url) {
+      window.location.href = response.data.url;
+    } else {
+      setProcessing(false);
+      toast.error('Could not start checkout. Please try again.');
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-[#1a2332] border-gray-700 text-white max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5 text-[#7cfc00]" />
-            Locker Rental Checkout
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-4 mt-4">
+      <DialogContent className="bg-card border-border text-foreground max-w-md p-0 overflow-hidden">
+        {/* Header */}
+        <div className="border-b border-border px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-green-600/20 flex items-center justify-center">
+              <Lock className="w-4 h-4 text-green-600" />
+            </div>
+            <div>
+              <h2 className="text-foreground font-mono font-bold text-sm uppercase tracking-wider">Locker Booking</h2>
+              <p className="text-muted-foreground font-mono text-xs">Secure rental checkout</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4">
           {/* Gym Info */}
-          <div className="bg-[#0d1320] rounded-lg p-3 border border-gray-700">
-            <p className="text-gray-400 text-xs mb-1">Location</p>
-            <p className="text-white font-semibold">{gym?.name || 'Selected Gym'}</p>
-            <p className="text-gray-500 text-xs mt-1">{gym?.address || ''}</p>
+          <div className="bg-muted/50 rounded-lg p-3 border border-border">
+            <div className="flex items-start gap-2">
+              <MapPin className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-foreground font-mono font-semibold text-sm">{gym?.name || 'Selected Gym'}</p>
+                {gym?.address && (
+                  <p className="text-muted-foreground font-mono text-xs mt-0.5">{gym.address}</p>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Duration Selection */}
+          {/* Duration */}
           <div>
-            <label className="text-gray-400 text-sm block mb-2">Rental Duration</label>
+            <label className="text-muted-foreground font-mono text-xs uppercase tracking-wider block mb-2">
+              Rental Duration
+            </label>
             <Select value={duration} onValueChange={setDuration}>
-              <SelectTrigger className="bg-[#0d1320] border-gray-700 text-white">
+              <SelectTrigger className="bg-muted border-border text-foreground font-mono">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#1a2332] border-gray-700">
-                {durations.map((d) => (
-                  <SelectItem key={d.value} value={d.value} className="text-white">
-                    <div className="flex items-center justify-between w-full">
-                      <span>{d.label}</span>
-                      <span className="text-[#7cfc00] ml-4">${d.price}</span>
+              <SelectContent className="bg-card border-border">
+                {DURATIONS.map((d) => (
+                  <SelectItem key={d.value} value={d.value} className="text-foreground font-mono">
+                    <div className="flex items-center justify-between w-full gap-8">
+                      <span className="flex items-center gap-2">
+                        <Clock className="w-3 h-3 text-muted-foreground" />
+                        {d.label}
+                      </span>
+                      <span className="text-green-600 font-bold">${d.price}</span>
                     </div>
                   </SelectItem>
                 ))}
@@ -111,41 +117,42 @@ export default function LockerCheckout({ open, onClose, gym, onSuccess, user }) 
           </div>
 
           {/* Pricing Summary */}
-          <div className="bg-gradient-to-br from-[#7cfc00]/10 to-teal-500/10 rounded-lg p-4 border border-[#7cfc00]/30">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400 text-sm">Rental Fee</span>
-              <span className="text-white font-semibold">${selectedPrice}.00</span>
+          <div className="bg-green-600/5 border border-green-600/20 rounded-lg p-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground font-mono">Rental Fee</span>
+              <span className="text-foreground font-mono font-semibold">${selected.price}.00</span>
             </div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-400 text-sm">Processing Fee</span>
-              <span className="text-white font-semibold">$0.00</span>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground font-mono">Processing Fee</span>
+              <span className="text-foreground font-mono font-semibold">$0.00</span>
             </div>
-            <div className="border-t border-gray-700 pt-2 mt-2">
-              <div className="flex items-center justify-between">
-                <span className="text-white font-bold">Total</span>
-                <span className="text-[#7cfc00] font-bold text-xl">${selectedPrice}.00</span>
-              </div>
+            <div className="border-t border-border pt-2 flex justify-between">
+              <span className="text-foreground font-mono font-bold">Total</span>
+              <span className="text-green-600 font-mono font-bold text-lg">${selected.price}.00</span>
             </div>
           </div>
 
-          {/* Payment Button */}
+          {/* CTA */}
           <Button
-            onClick={() => processPaymentMutation.mutate()}
-            disabled={processing}
-            className="w-full bg-[#7cfc00] hover:bg-[#6be600] text-black font-bold py-6"
+            onClick={handleCheckout}
+            disabled={processing || !gym}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-mono font-bold h-12 text-sm"
           >
             {processing ? (
-              <>Processing Payment...</>
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Redirecting to checkout...
+              </span>
             ) : (
-              <>
-                <Lock className="w-4 h-4 mr-2" />
-                Pay ${selectedPrice} & Book Locker
-              </>
+              <span className="flex items-center gap-2">
+                <CreditCard className="w-4 h-4" />
+                Pay ${selected.price} · Book Locker
+              </span>
             )}
           </Button>
 
-          <p className="text-gray-500 text-xs text-center">
-            Secure payment processed by Stripe. Your payment information is encrypted and secure.
+          <p className="text-muted-foreground font-mono text-xs text-center">
+            Secured by Stripe · Encrypted & safe
           </p>
         </div>
       </DialogContent>
