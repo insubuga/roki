@@ -21,10 +21,23 @@ export default function MemberDataHistory({ user }) {
     enabled: !!user?.email,
   });
 
+  // Look up the active cycle's locker assignment (dynamic, not permanent)
+  const { data: activeCycleAssignment } = useQuery({
+    queryKey: ['activeCycleAssignment', user?.email],
+    queryFn: async () => {
+      const assignments = await base44.entities.CycleLockerAssignment.filter({
+        user_id: user.email,
+        status: { $in: ['softReserved', 'activated', 'dropped'] },
+      }, '-created_date', 1);
+      return assignments[0] || null;
+    },
+    enabled: !!user?.email,
+  });
+
   const { data: assignedLocker } = useQuery({
-    queryKey: ['assignedLocker', preferences?.assigned_locker_id],
-    queryFn: () => base44.entities.Locker.get(preferences.assigned_locker_id),
-    enabled: !!preferences?.assigned_locker_id,
+    queryKey: ['assignedLocker', activeCycleAssignment?.locker_id],
+    queryFn: () => base44.entities.Locker.get(activeCycleAssignment.locker_id),
+    enabled: !!activeCycleAssignment?.locker_id,
   });
 
   const { data: gym } = useQuery({
