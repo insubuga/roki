@@ -337,13 +337,15 @@ export default function Profile() {
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border max-h-72">
                       {gymsWithKey.map((gym, idx) => (
-                        <SelectItem key={idx} value={gym.gymKey} className="text-foreground font-mono py-3">
+                        <SelectItem key={gym.gymKey} value={gym.gymKey} className="text-foreground font-mono py-3">
                           <div className="flex items-center justify-between w-full gap-4">
                             <div>
                               <div className="font-semibold text-sm">{gym.name}</div>
-                              <div className="text-muted-foreground text-xs">{gym.address}</div>
+                              <div className="text-muted-foreground text-xs">{gym.city || gym.address}</div>
                             </div>
-                            <span className="text-green-600 text-xs font-mono flex-shrink-0">{gym.distance_miles.toFixed(1)} mi</span>
+                            {gym.distance_miles != null && (
+                              <span className="text-green-600 text-xs font-mono flex-shrink-0">{gym.distance_miles.toFixed(1)} mi</span>
+                            )}
                           </div>
                         </SelectItem>
                       ))}
