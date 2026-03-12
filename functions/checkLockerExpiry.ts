@@ -24,10 +24,11 @@ Deno.serve(async (req) => {
         status: 'expired',
       });
 
-      // Release locker back to available
+      // Release locker back to available (soft reservation expired — not yet activated/dropped)
       await base44.asServiceRole.entities.Locker.update(assignment.locker_id, {
         status: 'available',
       });
+      // Note: if status was pickedUp/resetPending at expiry, the driver flow handles reset separately
 
       // Cancel the cycle
       if (assignment.cycle_id) {

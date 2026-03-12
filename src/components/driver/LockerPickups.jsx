@@ -36,12 +36,12 @@ export default function LockerPickups({ user }) {
       await base44.entities.Cycle.update(cycle.id, { status: 'washing' });
       if (assignment) {
         await base44.entities.CycleLockerAssignment.update(assignment.id, { status: 'pickedUp' });
-        // Reset locker to available after pickup
-        await base44.entities.Locker.update(assignment.locker_id, { status: 'available' });
+        // Set resetPending — locker will be released to available after driver confirms route departure
+        await base44.entities.Locker.update(assignment.locker_id, { status: 'resetPending' });
       }
     },
     onSuccess: () => {
-      toast.success('Pickup confirmed · Locker reset to available');
+      toast.success('Pickup confirmed · Locker set to reset-pending');
       queryClient.invalidateQueries({ queryKey: ['driver-locker-pickups'] });
       queryClient.invalidateQueries({ queryKey: ['driver-cycle-assignments'] });
     },
