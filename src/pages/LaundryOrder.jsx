@@ -71,16 +71,22 @@ export default function LaundryOrder() {
     enabled: !!user?.email,
   });
 
-  const { data: assignedLocker } = useQuery({
-    queryKey: ['assignedLocker', preferences?.assigned_locker_id],
-    queryFn: () => base44.entities.Locker.get(preferences?.assigned_locker_id),
-    enabled: !!preferences?.assigned_locker_id,
+  const { data: preferredGym } = useQuery({
+    queryKey: ['preferredGym', user?.preferred_gym],
+    queryFn: () => base44.entities.Gym.get(user.preferred_gym),
+    enabled: !!user?.preferred_gym,
   });
 
-  const { data: gym } = useQuery({
-    queryKey: ['lockerGym', assignedLocker?.gym_id],
-    queryFn: () => base44.entities.Gym.get(assignedLocker?.gym_id),
-    enabled: !!assignedLocker?.gym_id,
+  const { data: cycleAssignment } = useQuery({
+    queryKey: ['cycleAssignment', activeCycle?.id],
+    queryFn: () => base44.entities.CycleLockerAssignment.filter({ cycle_id: activeCycle.id }).then(r => r[0] || null),
+    enabled: !!activeCycle?.id,
+  });
+
+  const { data: cycleLocker } = useQuery({
+    queryKey: ['cycleLocker', cycleAssignment?.locker_id],
+    queryFn: () => base44.entities.Locker.get(cycleAssignment.locker_id),
+    enabled: !!cycleAssignment?.locker_id,
   });
 
   const { data: allLockers = [] } = useQuery({
@@ -105,18 +111,43 @@ export default function LaundryOrder() {
 
   const activateCycleMutation = useMutation({
     mutationFn: async () => {
+      if (!user?.preferred_gym) throw new Error('Set your home gym in Profile first');
+
+      const availableLockers = await base44.entities.Locker.filter({
+        gym_id: user.preferred_gym,
+        status: 'available',
+      });
+      if (availableLockers.length === 0) {
+        throw new Error('Locker Capacity Reached — Please wait for next route window.');
+      }
+      const locker = availableLockers[0];
+
+      // Non-sequential 4-digit access code
+      const code = String(Math.floor(1000 + Math.random() * 9000));
+
       const volume = gearVolumeOptions.find(v => v.value === gearVolume);
       const batchId = `B${Date.now().toString(36).toUpperCase()}`;
-      const routeId = `RT${Math.floor(Math.random() * 899) + 100}`;
-      
-      await base44.entities.LaundryOrder.create({
+
+      const cycle = await base44.entities.LaundryOrder.create({
         user_email: user.email,
         order_number: batchId,
         drop_off_date: new Date().toISOString(),
         status: 'awaiting_pickup',
         items: Array(volume.itemCount).fill('Unit'),
-        gym_location: gym?.name || 'Node Assigned',
+        gym_location: preferredGym?.name || 'Node Assigned',
       });
+
+      await base44.entities.CycleLockerAssignment.create({
+        cycle_id: cycle.id,
+        locker_id: locker.id,
+        user_id: user.email,
+        access_code: code,
+        status: 'reserved',
+        assigned_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+      });
+
+      await base44.entities.Locker.update(locker.id, { status: 'reserved' });
 
       await base44.entities.ReliabilityLog.create({
         user_email: user.email,
@@ -126,9 +157,11 @@ export default function LaundryOrder() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['activeCycle']);
-      toast.success('Cycle Activated');
+      queryClient.invalidateQueries(['cycleAssignment']);
+      toast.success('Cycle Activated — Locker Assigned');
       setShowActivateDialog(false);
     },
+    onError: (err) => toast.error(err.message),
   });
 
   const activateRecoveryMutation = useMutation({
@@ -173,7 +206,7 @@ export default function LaundryOrder() {
   const incidentCount = reliabilityLogs.filter(l => l.event_type !== 'on_time_delivery').length;
   const routeEfficiency = 92;
   const clusterLoad = allActiveCycles.length > 0 ? Math.min(85, allActiveCycles.length * 8) : 42;
-  const nodeUtilization = allLockers.length > 0 ? Math.round((allLockers.filter(l => l.status === 'claimed').length / allLockers.length) * 100) : 0;
+  const nodeUtilization = allLockers.length > 0 ? Math.round((allLockers.filter(l => l.status === 'reserved').length / allLockers.length) * 100) : 0;
 
   // Cycle state mapping
   const getCycleState = (status) => {
@@ -270,7 +303,7 @@ export default function LaundryOrder() {
                   </div>
                   <div className="bg-muted p-2 rounded">
                     <p className="text-muted-foreground uppercase mb-1">Node</p>
-                    <p className="text-foreground font-mono">{assignedLocker?.locker_number || 'N/A'}</p>
+                    <p className="text-foreground font-mono">{cycleLocker?.locker_number || '—'}</p>
                   </div>
                   <div className="bg-muted p-2 rounded">
                     <p className="text-muted-foreground uppercase mb-1">Batch Volume</p>
@@ -278,6 +311,27 @@ export default function LaundryOrder() {
                   </div>
                 </div>
                 
+                {cycleAssignment && (
+                  <div className="bg-green-600/10 border border-green-600/30 rounded-lg p-3">
+                    <p className="text-green-600 font-mono text-xs uppercase font-bold mb-2">Assigned Locker For This Cycle</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-foreground font-mono text-sm font-bold">#{cycleLocker?.locker_number || '—'}</p>
+                        <p className="text-muted-foreground font-mono text-xs capitalize">{cycleAssignment.status}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-muted-foreground font-mono text-xs mb-1">Access Code</p>
+                        <span className="text-green-600 font-mono font-bold text-2xl tracking-widest">{cycleAssignment.access_code}</span>
+                      </div>
+                    </div>
+                    {cycleAssignment.expires_at && (
+                      <p className="text-muted-foreground font-mono text-xs mt-2">
+                        Drop window · Before {new Date(cycleAssignment.expires_at).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Pickup Timestamp</span>
@@ -308,12 +362,12 @@ export default function LaundryOrder() {
                 <Button
                   onClick={() => setShowActivateDialog(true)}
                   className="bg-green-600 hover:bg-green-700 text-white font-mono text-sm"
-                  disabled={!assignedLocker}
+                  disabled={!user?.preferred_gym}
                 >
                   ACTIVATE NEW CYCLE
                 </Button>
-                {!assignedLocker && (
-                  <p className="text-xs text-muted-foreground mt-2">Complete onboarding to activate</p>
+                {!user?.preferred_gym && (
+                  <p className="text-xs text-muted-foreground mt-2">Set your home gym in Profile to activate</p>
                 )}
               </CardContent>
             </Card>
@@ -349,8 +403,8 @@ export default function LaundryOrder() {
             </CardContent>
           </Card>
 
-          {/* Locker Node Status */}
-          {assignedLocker && gym && (
+          {/* Active Cycle Node Status */}
+          {cycleLocker && preferredGym && (
             <Card className="bg-card border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
@@ -362,19 +416,23 @@ export default function LaundryOrder() {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-muted-foreground uppercase">Node ID</p>
-                    <p className="text-foreground font-mono">{assignedLocker.locker_number}</p>
+                    <p className="text-foreground font-mono">{cycleLocker.locker_number}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground uppercase">Location</p>
-                    <p className="text-foreground">{gym.name}</p>
+                    <p className="text-foreground">{preferredGym.name}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground uppercase">Bay Number</p>
-                    <p className="text-green-600 font-mono font-bold">{assignedLocker.locker_number}</p>
+                    <p className="text-muted-foreground uppercase">Assignment</p>
+                    <p className="text-green-600 font-mono font-bold capitalize">{cycleAssignment?.status || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground uppercase">Utilization</p>
-                    <p className="text-foreground font-mono">{nodeUtilization}%</p>
+                    <p className="text-muted-foreground uppercase">Drop Window</p>
+                    <p className="text-foreground font-mono">
+                      {cycleAssignment?.expires_at
+                        ? new Date(cycleAssignment.expires_at).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })
+                        : '—'}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -533,8 +591,8 @@ export default function LaundryOrder() {
 
               <div className="bg-muted rounded p-3 text-xs space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Node Assignment</span>
-                  <span className="text-foreground font-mono">{assignedLocker?.locker_number || 'N/A'}</span>
+                  <span className="text-muted-foreground">Home Gym</span>
+                  <span className="text-foreground font-mono">{preferredGym?.name || 'Not Set'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Route Capacity</span>
@@ -557,7 +615,7 @@ export default function LaundryOrder() {
                 <Button
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-mono"
                   onClick={() => activateCycleMutation.mutate()}
-                  disabled={activateCycleMutation.isPending || !assignedLocker}
+                  disabled={activateCycleMutation.isPending || !user?.preferred_gym}
                 >
                   {activateCycleMutation.isPending ? 'VALIDATING...' : 'ACTIVATE'}
                 </Button>

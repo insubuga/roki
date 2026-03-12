@@ -13,39 +13,38 @@ export default function LockerPickups({ user }) {
   // Cycles awaiting driver pickup
   const { data: pendingCycles = [], isLoading } = useQuery({
     queryKey: ['driver-locker-pickups'],
-    queryFn: () => base44.entities.Cycle.filter({ status: 'pickup_pending' }),
+    queryFn: () => base44.entities.LaundryOrder.filter({ status: 'awaiting_pickup' }),
     enabled: !!user,
   });
 
-  // For each cycle, we also need the locker + access code
-  const { data: lockers = [] } = useQuery({
-    queryKey: ['all-claimed-lockers'],
-    queryFn: () => base44.entities.Locker.filter({ status: 'claimed' }),
+  // CycleLockerAssignments for pending cycles
+  const { data: cycleAssignments = [] } = useQuery({
+    queryKey: ['driver-cycle-assignments'],
+    queryFn: () => base44.entities.CycleLockerAssignment.filter({ status: { $in: ['reserved', 'dropped'] } }),
     enabled: pendingCycles.length > 0,
   });
 
-  const { data: accessCodes = [] } = useQuery({
-    queryKey: ['all-active-codes'],
-    queryFn: () => base44.entities.LockerAccessCode.filter({ status: 'active' }),
-    enabled: pendingCycles.length > 0,
+  const { data: lockers = [] } = useQuery({
+    queryKey: ['all-reserved-lockers'],
+    queryFn: () => base44.entities.Locker.filter({ status: { $in: ['reserved', 'dropped'] } }),
+    enabled: cycleAssignments.length > 0,
   });
 
   const confirmPickupMutation = useMutation({
     mutationFn: async (cycle) => {
-      await base44.entities.Cycle.update(cycle.id, {
-        status: 'in_processing',
-        actual_pickup_time: new Date().toISOString(),
-      });
-      // Expire the access code for this locker
-      const code = accessCodes.find(c => c.cycle_id === cycle.id || c.user_email === cycle.user_email);
-      if (code) {
-        await base44.entities.LockerAccessCode.update(code.id, { status: 'used' });
+      // Advance cycle to washing
+      await base44.entities.LaundryOrder.update(cycle.id, { status: 'washing' });
+      // Mark assignment as pickedUp and release the locker back to available
+      const assignment = cycleAssignments.find(a => a.cycle_id === cycle.id);
+      if (assignment) {
+        await base44.entities.CycleLockerAssignment.update(assignment.id, { status: 'pickedUp' });
+        await base44.entities.Locker.update(assignment.locker_id, { status: 'available' });
       }
     },
     onSuccess: () => {
-      toast.success('Pickup confirmed · Gear in processing');
+      toast.success('Pickup confirmed · Locker released · Gear in processing');
       queryClient.invalidateQueries({ queryKey: ['driver-locker-pickups'] });
-      queryClient.invalidateQueries({ queryKey: ['all-active-codes'] });
+      queryClient.invalidateQueries({ queryKey: ['driver-cycle-assignments'] });
     },
     onError: () => toast.error('Failed to confirm pickup'),
   });
@@ -63,9 +62,9 @@ export default function LockerPickups({ user }) {
 
       <div className="space-y-3">
         {pendingCycles.map((cycle) => {
-          const locker = lockers.find(l => l.id === cycle.node_id || l.user_email === cycle.user_email);
-          const code = accessCodes.find(c => c.cycle_id === cycle.id || c.user_email === cycle.user_email);
-          const displayCode = code?.code || locker?.access_code || '----';
+          const assignment = cycleAssignments.find(a => a.cycle_id === cycle.id);
+          const locker = lockers.find(l => l.id === assignment?.locker_id);
+          const displayCode = assignment?.access_code || '----';
 
           return (
             <Card key={cycle.id} className="border-l-4 border-l-green-500">

@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   User, Mail, Lock, Save, MapPin, Navigation, Loader2, Map,
-  Upload, Trash2, AlertTriangle, Phone, CheckCircle, Package,
+  Upload, Trash2, AlertTriangle, Phone,
   Crown, Shield, Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,8 +17,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { addMonths } from 'date-fns';
-import LockerControls from '../components/locker/LockerControls';
+
 import GymMapView from '../components/locker/GymMapView';
 import MemberDataHistory from '../components/profile/MemberDataHistory';
 
@@ -66,12 +65,6 @@ export default function Profile() {
     enabled: !!user?.email,
   });
 
-  const { data: locker } = useQuery({
-    queryKey: ['userLocker', user?.email],
-    queryFn: () => base44.entities.Locker.filter({ user_email: user.email }).then(r => r[0] || null),
-    enabled: !!user?.email,
-  });
-
   const { data: allGyms = [], isLoading: loadingGyms, refetch: refetchGyms } = useQuery({
     queryKey: ['allDbGyms'],
     queryFn: () => base44.entities.Gym.list(),
@@ -110,40 +103,6 @@ export default function Profile() {
       () => { setLoadingLocation(false); toast.error('Could not get your location'); }
     );
   };
-
-  // Assign locker directly — no payment needed, covered by subscription
-  const assignLockerMutation = useMutation({
-    mutationFn: async () => {
-      if (!subscription || subscription.status !== 'active') {
-        throw new Error('An active subscription is required to assign a locker');
-      }
-      const selectedGym = gymsWithKey.find(g => g.gymKey === formData.preferred_gym);
-      if (!selectedGym) throw new Error('Please select a gym first');
-
-      const gymId = selectedGym.id;
-
-      const available = await base44.entities.Locker.filter({ gym_id: gymId, status: 'available' });
-      if (available.length === 0) throw new Error('No available lockers at this gym. Try another location.');
-
-      const now = new Date();
-      // Locker valid for 1 month (aligned with subscription cycle)
-      await base44.entities.Locker.update(available[0].id, {
-        user_email: user.email,
-        status: 'claimed',
-        is_locked: true,
-        booking_start: now.toISOString(),
-        booking_end: addMonths(now, 1).toISOString(),
-      });
-
-      // Save preferred gym to profile
-      await base44.auth.updateMe({ preferred_gym: formData.preferred_gym });
-    },
-    onSuccess: () => {
-      toast.success('Locker assigned! Covered by your subscription.');
-      queryClient.invalidateQueries({ queryKey: ['userLocker'] });
-    },
-    onError: (err) => toast.error(err.message),
-  });
 
   const updateProfileMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
@@ -271,7 +230,7 @@ export default function Profile() {
           <CardHeader className="pb-3">
             <CardTitle className="text-foreground flex items-center gap-2 font-mono text-sm uppercase">
               <Lock className="w-4 h-4 text-green-600" />
-              Gym & Locker Node
+              Home Gym
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -282,7 +241,7 @@ export default function Profile() {
                 <PlanIcon className={`w-5 h-5 ${planPerks.color} flex-shrink-0`} />
                 <div className="flex-1 min-w-0">
                   <p className={`font-mono font-bold text-xs ${planPerks.color}`}>{planPerks.label}</p>
-                  <p className="text-muted-foreground font-mono text-xs">{planPerks.lockerZone} · Included in plan</p>
+                  <p className="text-muted-foreground font-mono text-xs">Locker assigned per cycle · Included in plan</p>
                 </div>
                 <Badge className={`${planPerks.bg} ${planPerks.color} border ${planPerks.border} font-mono text-xs`}>
                   {hasActiveSub ? 'Active' : subscription.status}
@@ -361,68 +320,20 @@ export default function Profile() {
               )}
             </div>
 
-            {/* Locker assignment */}
+            {/* Dynamic locker info */}
             <div className="border-t border-border pt-4">
-              {locker ? (
-                <div className="space-y-3">
-                  <div className="bg-green-600/10 border border-green-600/30 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Lock className="w-4 h-4 text-green-600" />
-                        <span className="text-foreground font-mono font-bold text-sm">Locker #{locker.locker_number}</span>
-                      </div>
-                      <Badge className="bg-green-600/20 text-green-600 border border-green-600/40 font-mono text-xs">
-                        <CheckCircle className="w-3 h-3 mr-1" /> Assigned
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground font-mono text-xs">Access Code</span>
-                      <span className="text-green-600 font-mono font-bold text-2xl tracking-widest">{locker.access_code}</span>
-                    </div>
-                    {locker.booking_end && (
-                      <p className="text-muted-foreground font-mono text-xs mt-2">
-                        Valid until · {new Date(locker.booking_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </p>
-                    )}
-                    <p className="text-muted-foreground font-mono text-xs mt-1 flex items-center gap-1">
-                      <Zap className="w-3 h-3 text-green-600" />
-                      Included in your {planPerks.label} plan — no extra charge
-                    </p>
-                  </div>
-                  <LockerControls locker={locker} gym={selectedGym} />
+              <div className="bg-muted/50 border border-border rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="w-4 h-4 text-green-600" />
+                  <p className="text-foreground font-mono text-xs font-bold uppercase">Dynamic Locker Assignment</p>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="bg-muted/50 border border-border rounded-lg p-4 text-center">
-                    <Package className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-foreground font-mono text-sm font-semibold">No locker assigned</p>
-                    <p className="text-muted-foreground font-mono text-xs mt-1">
-                      {hasActiveSub
-                        ? 'Select a gym above and claim your free locker node'
-                        : 'Subscribe to get a locker included with your plan'}
-                    </p>
-                  </div>
-                  <Button
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-mono text-sm font-bold h-10 disabled:opacity-50"
-                    onClick={() => assignLockerMutation.mutate()}
-                    disabled={!formData.preferred_gym || !hasActiveSub || assignLockerMutation.isPending}
-                  >
-                    {assignLockerMutation.isPending ? (
-                      <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Assigning...</span>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <Lock className="w-4 h-4" />
-                        {!hasActiveSub ? 'Subscription Required' : !formData.preferred_gym ? 'Select a Gym First' : 'Claim Locker Node'}
-                      </span>
-                    )}
-                  </Button>
-                  {hasActiveSub && (
-                    <p className="text-center text-muted-foreground font-mono text-xs">
-                      Included in your {planPerks.label} · No additional charge
-                    </p>
-                  )}
-                </div>
-              )}
+                <p className="text-muted-foreground font-mono text-xs">
+                  Lockers are assigned automatically when you start a new cycle. Your home gym above determines which locker cluster you'll be assigned from.
+                </p>
+                <p className="text-muted-foreground font-mono text-xs mt-2">
+                  Your locker number and access code appear on the Active Cycle page once a cycle is activated.
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
