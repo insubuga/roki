@@ -127,10 +127,10 @@ export default function Support() {
         iconColor="text-blue-500"
       />
 
-      <Card className="flex-1 flex flex-col mt-6 bg-[var(--color-bg-card)] border-[var(--color-border)] overflow-hidden">
-        <CardHeader className="border-b border-[var(--color-border)] flex-shrink-0">
+      <Card className="flex-1 flex flex-col mt-6 bg-card border-border overflow-hidden">
+        <CardHeader className="border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-[var(--color-text-primary)] flex items-center gap-2">
+            <CardTitle className="text-foreground flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-blue-500" />
               Live Support Chat
             </CardTitle>
