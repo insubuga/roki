@@ -354,7 +354,7 @@ export default function Profile() {
                   {selectedGym && (
                     <p className="text-muted-foreground font-mono text-xs flex items-center gap-1">
                       <MapPin className="w-3 h-3 text-green-600" />
-                      {selectedGym.name} · {selectedGym.distance_miles.toFixed(1)} mi away
+                      {selectedGym.name}{selectedGym.distance_miles != null ? ` · ${selectedGym.distance_miles.toFixed(1)} mi away` : ''}
                     </p>
                   )}
                   <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground font-mono text-xs h-7 px-2"
