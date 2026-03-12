@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import NotificationDropdown from './components/notifications/NotificationDropdown';
 import AlertCenter from './components/alerts/AlertCenter';
+import FloatingAssistant from './components/assistant/FloatingAssistant';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -202,6 +203,9 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
 
+
+      {/* Floating RokiBot */}
+      <FloatingAssistant user={user} />
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border z-50 select-none shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
