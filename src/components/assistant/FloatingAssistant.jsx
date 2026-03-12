@@ -15,10 +15,7 @@ export default function FloatingAssistant({ user }) {
   const messagesEndRef = useRef(null);
   const location = useLocation();
 
-  // Don't show on driver dashboard
-  if (!user) return null;
-  if (location.pathname.includes('DriverDashboard')) return null;
-  if (user.role === 'driver') return null;
+  const shouldHide = !user || location.pathname.includes('DriverDashboard') || user?.role === 'driver';
 
   const openChat = async () => {
     setIsOpen(true);
