@@ -120,31 +120,7 @@ export default function Profile() {
       const selectedGym = gymsWithKey.find(g => g.gymKey === formData.preferred_gym);
       if (!selectedGym) throw new Error('Please select a gym first');
 
-      // Find or create gym record
-      let gyms = await base44.entities.Gym.filter({ name: selectedGym.name, address: selectedGym.address });
-      let gymId;
-      if (gyms.length === 0) {
-        const newGym = await base44.entities.Gym.create({
-          name: selectedGym.name,
-          address: selectedGym.address,
-          city: selectedGym.address.split(',').slice(-2)[0]?.trim() || 'Unknown',
-          total_lockers: 50,
-        });
-        gymId = newGym.id;
-        await Promise.all(
-          Array.from({ length: 50 }, (_, i) =>
-            base44.entities.Locker.create({
-              gym_id: gymId,
-              locker_number: String(i + 1).padStart(3, '0'),
-              access_code: String(Math.floor(1000 + Math.random() * 9000)),
-              status: 'available',
-              is_locked: true,
-            })
-          )
-        );
-      } else {
-        gymId = gyms[0].id;
-      }
+      const gymId = selectedGym.id;
 
       const available = await base44.entities.Locker.filter({ gym_id: gymId, status: 'available' });
       if (available.length === 0) throw new Error('No available lockers at this gym. Try another location.');
