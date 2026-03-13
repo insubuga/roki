@@ -290,6 +290,9 @@ export default function ActiveCycle() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
+                {/* Live Cycle Tracker */}
+                <CycleTracker cycle={activeCycle} />
+
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-muted p-2 rounded">
                     <p className="text-muted-foreground uppercase mb-1">Cycle ID</p>
