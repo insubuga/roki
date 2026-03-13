@@ -264,8 +264,10 @@ export default function DriverDashboard() {
 
 
 
-        {/* Driver Support Chat */}
-        <DriverSupportChat user={user} />
+        {/* Floating Driver Support Chat — Fixed Position */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <DriverSupportChat user={user} />
+        </div>
       </div>
     </PullToRefresh>
   );
@@ -286,12 +288,12 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
   };
 
   const nextAction = getNextAction();
-  const location = delivery.delivery_location || delivery.gym_location || 'No location specified';
+  const location = delivery.delivery_location || delivery.gym_location || 'Location TBD';
   
   // Calculate estimated earnings
   const earnings = delivery.driver_earnings || (isOrder ? delivery.total * 0.15 : 15);
-  const distance = delivery.distance_miles || 2.5;
-  const duration = delivery.estimated_duration_minutes || 20;
+  const distance = Math.max(0, delivery.distance_miles ?? 2.5);
+  const duration = Math.max(5, delivery.estimated_duration_minutes ?? 20);
 
   return (
     <motion.div
@@ -332,8 +334,8 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
                 </div>
 
                 <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <Circle className="w-3 h-3" />
-                  <span>Order #{delivery.order_number || delivery.id.slice(0, 8)}</span>
+                   <Circle className="w-3 h-3" />
+                   <span>Order #{delivery.order_number || delivery.id?.slice(0, 8) || 'N/A'}</span>
                 </div>
 
                 <div className="flex items-start gap-2 text-sm text-gray-700">
@@ -351,12 +353,12 @@ function DeliveryCardModern({ delivery, index, onUpdate, onSelect }) {
             </div>
 
             <div className="flex flex-col items-end gap-2">
-              <div className="text-right">
+              <div className="flex flex-col items-end gap-1">
                 <div className="font-bold text-green-700 text-lg">
-                  +${earnings.toFixed(2)}
+                  +${Math.max(0, earnings).toFixed(2)}
                 </div>
-                <div className="text-xs text-gray-500">
-                  {distance.toFixed(1)} mi • {duration} min
+                <div className="text-xs text-gray-500 whitespace-nowrap">
+                  {distance.toFixed(1)} mi • {Math.round(duration)} min
                 </div>
               </div>
               <ChevronRight className="w-5 h-5 text-gray-400" />
@@ -479,11 +481,11 @@ function DeliveryDetailModal({ delivery, driverStats, onClose, onUpdate }) {
                 <h2 className="text-xl font-bold text-gray-900">
                   {isOrder ? 'Shop Order' : 'Cycle'}
                 </h2>
-                <p className="text-sm text-gray-500">#{delivery.order_number || delivery.id.slice(0, 8)}</p>
+                <p className="text-sm text-gray-500">#{delivery.order_number || delivery.id?.slice(0, 8) || 'N/A'}</p>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-green-700">+${earnings.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-green-700">+${Math.max(0, earnings).toFixed(2)}</div>
               <p className="text-xs text-gray-500">Your earnings</p>
             </div>
           </div>
@@ -511,7 +513,7 @@ function DeliveryDetailModal({ delivery, driverStats, onClose, onUpdate }) {
           {/* Customer Info */}
           <div className="bg-gray-50 rounded-2xl p-4 mb-4">
             <h3 className="font-semibold text-gray-900 mb-3">Customer</h3>
-            <p className="text-gray-700 mb-2">{delivery.user_email}</p>
+            <p className="text-gray-700 mb-2 break-all">{delivery.user_email || 'Contact info unavailable'}</p>
             <div className="flex gap-2">
               <Button 
                 size="sm"

@@ -47,6 +47,7 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import ActiveCycle from './pages/ActiveCycle';
 import AdminDashboard from './pages/AdminDashboard';
 import Configuration from './pages/Configuration';
 import Dashboard from './pages/Dashboard';
@@ -57,6 +58,7 @@ import Feedback from './pages/Feedback';
 import Initialize from './pages/Initialize';
 import LaundryOrder from './pages/LaundryOrder';
 import Network from './pages/Network';
+import Notifications from './pages/Notifications';
 import OperationsView from './pages/OperationsView';
 import OrderHistory from './pages/OrderHistory';
 import PaymentHistory from './pages/PaymentHistory';
@@ -71,6 +73,7 @@ import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "ActiveCycle": ActiveCycle,
     "AdminDashboard": AdminDashboard,
     "Configuration": Configuration,
     "Dashboard": Dashboard,
@@ -81,6 +84,7 @@ export const PAGES = {
     "Initialize": Initialize,
     "LaundryOrder": LaundryOrder,
     "Network": Network,
+    "Notifications": Notifications,
     "OperationsView": OperationsView,
     "OrderHistory": OrderHistory,
     "PaymentHistory": PaymentHistory,
