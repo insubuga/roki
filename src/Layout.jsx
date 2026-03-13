@@ -82,10 +82,15 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Config', page: 'Configuration', icon: Settings, key: 'config' },
   ];
 
-  const handleTabClick = (page) => {
+  const handleTabClick = (e, page, path) => {
     if (currentPageName === page) {
       // Already on this tab - scroll to top
+      e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Replace history so back button doesn't cycle through tabs
+      e.preventDefault();
+      navigate(path, { replace: true });
     }
   };
 
