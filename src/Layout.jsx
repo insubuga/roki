@@ -61,7 +61,10 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Risk & Recovery', page: 'RiskRecovery' },
     { name: 'Performance', page: 'Performance' },
     { name: 'Configuration', page: 'Configuration' },
-    ...(user?.role === 'admin' ? [{ name: 'Operations', page: 'OperationsView' }] : []),
+    ...(user?.role === 'admin' ? [
+      { name: 'Operations', page: 'OperationsView' },
+      { name: 'Ops Intel', page: 'AdminOps' }
+    ] : []),
     ...(user?.role === 'driver' ? [{ name: 'Driver', page: 'DriverDashboard' }] : []),
   ];
 
