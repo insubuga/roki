@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import { SUBSCRIPTION_PLANS } from '../components/subscription/planConfig';
 import {
   CreditCard, ArrowLeft, Check, Zap, Lock, Crown, Clock,
   Shield, Package, Shirt, Star, AlertTriangle, RefreshCw
@@ -11,54 +12,26 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
-const PLANS = [
-  {
-    id: 'core',
-    name: 'Core Readiness',
-    price: 39,
-    laundryCredits: 5,
-    laundryTurnaround: 48,
-    sneakerCleaningDiscount: 30,
-    premiumSneaker: false,
-    rushDeliveries: 1,
-    rushFee: 12,
-    priorityDispatch: false,
-    emergencyCredits: 1,
-    features: [
-      { text: 'Clean workout gear guaranteed', icon: Shirt },
-      { text: '48h turnaround SLA', icon: Clock },
-      { text: '1 emergency rush credit/month', icon: Zap },
-      { text: 'Locker or pickup logistics', icon: Package },
-      { text: 'Sneaker care included', icon: Star },
-    ],
-    accentColor: 'border-green-600',
-    badgeBg: 'bg-green-600',
-  },
-  {
-    id: 'priority',
-    name: 'Priority Readiness',
-    price: 59,
-    popular: true,
-    laundryCredits: 10,
-    laundryTurnaround: 24,
-    sneakerCleaningDiscount: 50,
-    premiumSneaker: true,
-    rushDeliveries: 999,
-    rushFee: 0,
-    priorityDispatch: true,
-    emergencyCredits: 3,
-    features: [
-      { text: '24h turnaround SLA', icon: Clock },
-      { text: 'Unlimited rush deliveries', icon: Zap },
-      { text: 'Priority dispatch', icon: Shield },
-      { text: 'Premium locker zones', icon: Lock },
-      { text: 'Sneaker care included (premium)', icon: Star },
-      { text: 'Personal readiness assistant', icon: Crown },
-    ],
-    accentColor: 'border-green-500',
-    badgeBg: 'bg-green-500',
-  },
-];
+const PLANS = Object.values(SUBSCRIPTION_PLANS).map(plan => ({
+  ...plan,
+  laundryTurnaround: plan.turnaroundHours,
+  sneakerCleaningDiscount: plan.sneakerCleaningDiscount,
+  premiumSneaker: plan.premiumSneakerCleaning,
+  rushDeliveries: plan.rushDeliveries,
+  rushFee: plan.rushDeliveryFee,
+  emergencyCredits: plan.rushDeliveries === 999 ? 3 : 1,
+  features: plan.features.map(text => ({
+    text,
+    icon: text.includes('turnaround') ? Clock : 
+          text.includes('rush') ? Zap :
+          text.includes('dispatch') ? Shield :
+          text.includes('locker') ? Lock :
+          text.includes('Sneaker') ? Star :
+          Crown
+  })),
+  accentColor: plan.id === 'core' ? 'border-green-600' : 'border-green-500',
+  badgeBg: plan.id === 'core' ? 'bg-green-600' : 'bg-green-500',
+}));
 
 const STAT_ITEMS = [
   {
