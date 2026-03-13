@@ -52,6 +52,7 @@ const PLANS = [
       { text: 'Unlimited rush deliveries', icon: Zap },
       { text: 'Priority dispatch', icon: Shield },
       { text: 'Premium locker zones', icon: Lock },
+      { text: 'Sneaker care included (premium)', icon: Star },
       { text: 'Personal readiness assistant', icon: Crown },
     ],
     accentColor: 'border-green-500',
