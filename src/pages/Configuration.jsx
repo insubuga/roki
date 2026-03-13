@@ -38,23 +38,23 @@ export default function Configuration() {
     {
       title: 'System',
       items: [
-        { icon: User, title: 'Profile & Identity', subtitle: 'User credentials and settings', page: 'Profile' },
-        { icon: MapPin, title: 'Node Assignment', subtitle: 'Locker location and access', page: 'Profile' },
-        { icon: Calendar, title: 'Cycle Schedule', subtitle: 'Pickup and delivery windows', page: 'Schedule' },
+        { icon: User, title: 'Profile & Identity', subtitle: 'User credentials and settings', path: '/Profile' },
+        { icon: MapPin, title: 'Node Assignment', subtitle: 'Locker location and access', path: '/Profile' },
+        { icon: Calendar, title: 'Cycle Schedule', subtitle: 'Pickup and delivery windows', path: '/Schedule' },
       ]
     },
     {
       title: 'Access',
       items: [
-        { icon: CreditCard, title: 'Subscription Plan', subtitle: 'Coverage tier and billing', page: 'Subscription' },
-        { icon: Shield, title: 'Backup Coverage', subtitle: 'Emergency credits and SLA', page: 'Subscription' },
+        { icon: CreditCard, title: 'Subscription Plan', subtitle: 'Coverage tier and billing', path: '/Subscription' },
+        { icon: Shield, title: 'Backup Coverage', subtitle: 'Emergency credits and SLA', path: '/Subscription' },
       ]
     },
     {
       title: 'Support',
       items: [
-        { icon: Bell, title: 'Notifications', subtitle: 'Alert preferences', page: 'Profile' },
-        { icon: HelpCircle, title: 'Help & Support', subtitle: 'Documentation and assistance', page: 'Support' },
+        { icon: Bell, title: 'Notifications', subtitle: 'Alert preferences', path: '/Profile' },
+        { icon: HelpCircle, title: 'Help & Support', subtitle: 'Documentation and assistance', path: '/Support' },
       ]
     }
   ];
@@ -62,13 +62,11 @@ export default function Configuration() {
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-6">
-        {/* Header */}
         <div>
           <h1 className="text-foreground text-xl font-bold font-mono">CONFIGURATION</h1>
           <p className="text-muted-foreground text-xs font-mono">System settings and preferences</p>
         </div>
 
-        {/* Account Summary */}
         <Card className="bg-card border-border">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -92,7 +90,6 @@ export default function Configuration() {
           </CardContent>
         </Card>
 
-        {/* Configuration Sections */}
         {configSections.map((section, idx) => (
           <Card key={idx} className="bg-card border-border">
             <CardContent className="p-4">
@@ -106,7 +103,7 @@ export default function Configuration() {
                   return (
                     <Link
                       key={item.title}
-                      to={createPageUrl(item.page)}
+                      to={item.path}
                       className="flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
                     >
                       <div className="flex items-center gap-3">
@@ -125,14 +122,13 @@ export default function Configuration() {
           </Card>
         ))}
 
-        {/* Danger Zone */}
         <Card className="bg-card border-red-600/30">
           <CardContent className="p-4">
             <h3 className="text-red-600 font-mono font-semibold text-sm uppercase mb-3">
               Danger Zone
             </h3>
             <Link
-              to={createPageUrl('Profile')}
+              to="/Profile"
               className="flex items-center justify-between p-3 rounded-lg hover:bg-red-600/10 transition-colors"
             >
               <div>
