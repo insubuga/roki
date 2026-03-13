@@ -233,7 +233,7 @@ export default function Dashboard() {
               </div>
             </div>
             {!user?.preferred_gym && !preferences && (
-              <Link to={createPageUrl('Initialize')}>
+              <Link to="/Initialize">
                 <Button className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white font-mono text-xs">
                   INITIALIZE SYSTEM
                 </Button>
