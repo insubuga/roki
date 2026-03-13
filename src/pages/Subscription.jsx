@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { SUBSCRIPTION_PLANS } from '../components/subscription/planConfig';
+import { SUBSCRIPTION_PLANS } from '@/components/subscription/planConfig';
 import {
   CreditCard, ArrowLeft, Check, Zap, Lock, Crown, Clock,
   Shield, Package, Shirt, Star, AlertTriangle, RefreshCw
