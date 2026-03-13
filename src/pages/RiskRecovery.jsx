@@ -85,9 +85,16 @@ export default function RiskRecovery() {
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-4">
         {/* Header */}
-        <div>
-          <h1 className="text-foreground text-xl font-bold font-mono">RISK & RECOVERY</h1>
-          <p className="text-muted-foreground text-xs font-mono">Backup systems and incident response for laundry & supply readiness</p>
+        <div className="flex items-center gap-3">
+          <Link to="/Dashboard">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-foreground text-xl font-bold font-mono">RISK & RECOVERY</h1>
+            <p className="text-muted-foreground text-xs font-mono">Backup systems and incident response for laundry & supply readiness</p>
+          </div>
         </div>
 
         {/* Coverage Status */}
