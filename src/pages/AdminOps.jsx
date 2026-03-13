@@ -12,6 +12,7 @@ import DriverPerformanceLeaderboard from '../components/admin/DriverPerformanceL
 import ManualRecoveryPanel from '../components/admin/ManualRecoveryPanel';
 import OperationsQueueMonitor from '../components/operations/OperationsQueueMonitor';
 import ComplianceDashboard from '../components/admin/ComplianceDashboard';
+import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
 
 export default function AdminOps() {
   const [user, setUser] = useState(null);
@@ -125,6 +126,9 @@ export default function AdminOps() {
 
         {/* Compliance & Audit Trail */}
         <ComplianceDashboard />
+
+        {/* Advanced Analytics & Predictive Intelligence */}
+        <AnalyticsDashboard />
 
         {/* Refresh Button */}
         <Button
