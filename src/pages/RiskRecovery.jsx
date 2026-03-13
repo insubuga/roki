@@ -6,7 +6,7 @@ import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Shield, Zap, TrendingDown, Clock, CheckCircle, Activity } from 'lucide-react';
+import { AlertTriangle, Shield, Zap, TrendingDown, Clock, CheckCircle, Activity, ArrowLeft } from 'lucide-react';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
 
 export default function RiskRecovery() {
