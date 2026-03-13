@@ -77,7 +77,7 @@ export default function Notifications() {
         <CardContent className="space-y-1">
           {items.map((item) => {
             const ItemIcon = item.icon;
-            return (
+            return (<React.Fragment key={item.key}>
             <div
               key={item.key}
               className="flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
