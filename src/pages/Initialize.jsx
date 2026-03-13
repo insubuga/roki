@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import { SUBSCRIPTION_PLANS, getPlanConfig } from '../lib/planConfig';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -129,23 +130,24 @@ export default function Initialize() {
         last_calculated: new Date().toISOString(),
       });
 
-      // Create subscription
-      await base44.entities.Subscription.create({
-        user_email: user.email,
-        plan: subscriptionTier,
-        status: 'active',
-        monthly_price: subscriptionTier === 'core' ? 89 : 139,
-        laundry_credits: subscriptionTier === 'core' ? 4 : 8,
-        laundry_credits_used: 0,
-        laundry_turnaround_hours: subscriptionTier === 'core' ? 48 : 24,
-        premium_sneaker_cleaning: subscriptionTier === 'priority',
-        sneaker_cleaning_discount: subscriptionTier === 'priority' ? 100 : 0,
-        rush_deliveries_included: subscriptionTier === 'priority' ? 2 : 0,
-        rush_deliveries_used: 0,
-        rush_delivery_fee: 15,
-        priority_dispatch: subscriptionTier === 'priority',
-        priority_locker: subscriptionTier === 'priority',
-      });
+      // Create subscription from shared config
+       const planConfig = getPlanConfig(subscriptionTier);
+       await base44.entities.Subscription.create({
+         user_email: user.email,
+         plan: subscriptionTier,
+         status: 'active',
+         monthly_price: planConfig.price,
+         laundry_credits: planConfig.laundryCredits,
+         laundry_credits_used: 0,
+         laundry_turnaround_hours: planConfig.turnaroundHours,
+         premium_sneaker_cleaning: planConfig.premiumSneakerCleaning,
+         sneaker_cleaning_discount: planConfig.sneakerCleaningDiscount,
+         rush_deliveries_included: planConfig.rushDeliveries,
+         rush_deliveries_used: 0,
+         rush_delivery_fee: planConfig.rushDeliveryFee,
+         priority_dispatch: planConfig.priorityDispatch,
+         priority_locker: planConfig.priorityLocker,
+       });
 
       // Update user's preferred gym
       await base44.auth.updateMe({ preferred_gym: selectedGymId });
@@ -379,64 +381,74 @@ export default function Initialize() {
                 </div>
                 <div className="space-y-3">
                   {/* Core Plan */}
-                  <button
-                    onClick={() => setSubscriptionTier('core')}
-                    className={`w-full text-left p-5 rounded-xl border-2 transition-all ${
-                      subscriptionTier === 'core' ? 'border-green-500 bg-green-500/5' : 'border-border bg-card hover:border-muted-foreground/40'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <p className="font-bold text-foreground text-lg">Core</p>
-                        <p className="text-muted-foreground text-sm">For the consistent trainer</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-foreground text-xl">$89</p>
-                        <p className="text-muted-foreground text-xs">/month</p>
-                      </div>
-                    </div>
-                    <div className="space-y-1.5 text-sm text-muted-foreground">
-                      {['4 cycles per month', '48h turnaround SLA', 'Locker node access', 'Route optimization'].map(f => (
-                        <div key={f} className="flex items-center gap-2">
-                          <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />
-                          <span>{f}</span>
+                  {(() => {
+                    const core = getPlanConfig('core');
+                    return (
+                      <button
+                        onClick={() => setSubscriptionTier('core')}
+                        className={`w-full text-left p-5 rounded-xl border-2 transition-all ${
+                          subscriptionTier === 'core' ? 'border-green-500 bg-green-500/5' : 'border-border bg-card hover:border-muted-foreground/40'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <p className="font-bold text-foreground text-lg">{core.name}</p>
+                            <p className="text-muted-foreground text-sm">{core.description}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-foreground text-xl">${core.price}</p>
+                            <p className="text-muted-foreground text-xs">/month</p>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  </button>
+                        <div className="space-y-1.5 text-sm text-muted-foreground">
+                          {core.features.slice(0, 4).map(f => (
+                            <div key={f} className="flex items-center gap-2">
+                              <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                              <span>{f}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </button>
+                    );
+                  })()}
 
                   {/* Priority Plan */}
-                  <button
-                    onClick={() => setSubscriptionTier('priority')}
-                    className={`w-full text-left p-5 rounded-xl border-2 transition-all relative overflow-hidden ${
-                      subscriptionTier === 'priority' ? 'border-orange-500 bg-orange-500/5' : 'border-orange-500/40 bg-card hover:border-orange-500/60'
-                    }`}
-                  >
-                    <div className="absolute top-3 right-3">
-                      <Badge className="bg-orange-500 text-white text-[10px] font-bold">MOST POPULAR</Badge>
-                    </div>
-                    <div className="flex items-start justify-between mb-3 pr-24">
-                      <div>
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <p className="font-bold text-foreground text-lg">Priority</p>
-                          <Star className="w-4 h-4 text-orange-500 fill-orange-500" />
+                  {(() => {
+                    const priority = getPlanConfig('priority');
+                    return (
+                      <button
+                        onClick={() => setSubscriptionTier('priority')}
+                        className={`w-full text-left p-5 rounded-xl border-2 transition-all relative overflow-hidden ${
+                          subscriptionTier === 'priority' ? 'border-orange-500 bg-orange-500/5' : 'border-orange-500/40 bg-card hover:border-orange-500/60'
+                        }`}
+                      >
+                        <div className="absolute top-3 right-3">
+                          <Badge className="bg-orange-500 text-white text-[10px] font-bold">MOST POPULAR</Badge>
                         </div>
-                        <p className="text-muted-foreground text-sm">For the serious athlete</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-foreground text-xl">$139</p>
-                        <p className="text-muted-foreground text-xs">/month</p>
-                      </div>
-                    </div>
-                    <div className="space-y-1.5 text-sm text-muted-foreground">
-                      {['8 cycles per month', '24h turnaround SLA', '2 rush deliveries/mo', 'Sneaker cleaning included', 'Priority dispatch queue'].map(f => (
-                        <div key={f} className="flex items-center gap-2">
-                          <CheckCircle className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                          <span>{f}</span>
+                        <div className="flex items-start justify-between mb-3 pr-24">
+                          <div>
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <p className="font-bold text-foreground text-lg">{priority.name}</p>
+                              <Star className="w-4 h-4 text-orange-500 fill-orange-500" />
+                            </div>
+                            <p className="text-muted-foreground text-sm">{priority.description}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-foreground text-xl">${priority.price}</p>
+                            <p className="text-muted-foreground text-xs">/month</p>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  </button>
+                        <div className="space-y-1.5 text-sm text-muted-foreground">
+                          {priority.features.slice(0, 5).map(f => (
+                            <div key={f} className="flex items-center gap-2">
+                              <CheckCircle className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                              <span>{f}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </button>
+                    );
+                  })()}
                 </div>
               </>
             )}
