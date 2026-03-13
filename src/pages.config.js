@@ -69,6 +69,7 @@ import Schedule from './pages/Schedule';
 import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
+import AdminOps from './pages/AdminOps';
 import __Layout from './Layout.jsx';
 
 
@@ -95,6 +96,7 @@ export const PAGES = {
     "Subscription": Subscription,
     "Support": Support,
     "SupportAdmin": SupportAdmin,
+    "AdminOps": AdminOps,
 }
 
 export const pagesConfig = {
