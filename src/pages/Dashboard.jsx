@@ -314,7 +314,7 @@ export default function Dashboard() {
           <CardContent className="p-4">
             <h3 className="text-foreground font-mono font-semibold text-sm uppercase mb-3">System Modules</h3>
             <div className="space-y-2">
-              <Link to={createPageUrl('LaundryOrder')} className="block">
+              <Link to="/LaundryOrder" className="block">
                 <div className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted transition-colors">
                   <div className="flex items-center gap-3">
                     <Activity className="w-4 h-4 text-muted-foreground" />
