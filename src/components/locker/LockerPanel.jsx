@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCycleSubscription, useLockerAssignmentSubscription } from '@/components/hooks/useCycleSubscription';
 import { Lock, Navigation, CheckCircle, Clock, AlertTriangle, MapPin, Zap } from 'lucide-react';
 import LockerQRCode from './LockerQRCode';
 import { Button } from '@/components/ui/button';
@@ -22,12 +23,16 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
   const [checkingGeo, setCheckingGeo] = useState(false);
   const [geoError, setGeoError] = useState(null);
 
+  // Real-time subscription for assignment status changes
+  const { assignment: liveAssignment } = useLockerAssignmentSubscription(assignment?.cycle_id, assignment?.user_id);
+  const localAssignment = liveAssignment || assignment;
+
   // Check expiration on mount / every minute
   const [isExpired, setIsExpired] = useState(false);
   useEffect(() => {
     const check = () => {
-      if (assignment?.status === 'softReserved' && assignment?.expires_at) {
-        setIsExpired(new Date() > new Date(assignment.expires_at));
+      if (localAssignment?.status === 'softReserved' && localAssignment?.expires_at) {
+        setIsExpired(new Date() > new Date(localAssignment.expires_at));
       } else {
         setIsExpired(false);
       }
@@ -35,7 +40,7 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
     check();
     const t = setInterval(check, 60000);
     return () => clearInterval(t);
-  }, [assignment]);
+  }, [localAssignment]);
 
   const activateMutation = useMutation({
     mutationFn: async () => {
@@ -99,9 +104,9 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
     );
   };
 
-  if (!assignment || !locker) return null;
+  if (!localAssignment || !locker) return null;
 
-  const { status, access_code, expires_at } = assignment;
+  const { status, access_code, expires_at } = localAssignment;
   const expiryTime = expires_at ? new Date(expires_at).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' }) : null;
 
   // ── EXPIRED ──
