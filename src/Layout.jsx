@@ -56,7 +56,7 @@ export default function Layout({ children, currentPageName }) {
 
   const navItems = [
     { name: 'Control Center', page: 'Dashboard' },
-    { name: 'Active Cycle', page: 'LaundryOrder' },
+    { name: 'Active Cycle', page: 'ActiveCycle' },
     { name: 'Network', page: 'Network' },
     { name: 'Risk & Recovery', page: 'RiskRecovery' },
     { name: 'Performance', page: 'Performance' },
@@ -76,7 +76,7 @@ export default function Layout({ children, currentPageName }) {
 
   const bottomNavItems = [
     { name: 'Control', page: 'Dashboard', icon: Home },
-    { name: 'Cycle', page: 'LaundryOrder', icon: Activity },
+    { name: 'Cycle', page: 'ActiveCycle', icon: Activity },
     { name: 'Network', page: 'Network', icon: Lock },
     { name: 'Risk', page: 'RiskRecovery', icon: Shield },
     { name: 'Config', page: 'Configuration', icon: Settings, key: 'config' },
