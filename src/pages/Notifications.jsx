@@ -18,11 +18,9 @@ const defaultPrefs = {
 };
 
 export default function Notifications() {
-  const [user, setUser] = useState(null);
   const [prefs, setPrefs] = useState(defaultPrefs);
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => setUser({}));
     const saved = localStorage.getItem(PREF_KEY);
     if (saved) setPrefs(JSON.parse(saved));
   }, []);
