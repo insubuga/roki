@@ -24,7 +24,7 @@ export default function PageTransition({ children, pageKey }) {
 
   React.useEffect(() => {
     // Determine slide direction based on navigation
-    const mainPages = ['/Dashboard', '/Shop', '/VantaBot', '/Community'];
+    const mainPages = ['/Dashboard', '/LaundryOrder', '/Network', '/RiskRecovery', '/Configuration'];
     const currentIndex = mainPages.findIndex(p => location.pathname.includes(p));
     const prevIndex = mainPages.findIndex(p => prevPath.current.includes(p));
     
