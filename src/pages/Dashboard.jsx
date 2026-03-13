@@ -350,7 +350,7 @@ export default function Dashboard() {
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
               </Link>
-              <Link to={createPageUrl('Configuration')} className="block">
+              <Link to="/Configuration" className="block">
                 <div className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted transition-colors">
                   <div className="flex items-center gap-3">
                     <Settings className="w-4 h-4 text-muted-foreground" />
