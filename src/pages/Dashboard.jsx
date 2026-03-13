@@ -169,7 +169,7 @@ export default function Dashboard() {
             <p className="text-muted-foreground text-xs font-mono">System State Overview</p>
           </div>
           {adminActions.length > 0 && (
-            <Link to={createPageUrl('OperationsView')}>
+            <Link to="/OperationsView">
               <Button variant="outline" size="sm" className="text-xs font-mono">
                 OPS VIEW
               </Button>
