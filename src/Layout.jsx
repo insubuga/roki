@@ -218,11 +218,12 @@ export default function Layout({ children, currentPageName }) {
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPageName === item.page;
+            const path = createPageUrl(item.page);
             return (
-              <Link
+              <a
                 key={item.key || item.page}
-                to={createPageUrl(item.page)}
-                onClick={() => handleTabClick(item.page)}
+                href={path}
+                onClick={(e) => handleTabClick(e, item.page, path)}
                 className={`flex flex-col items-center justify-center gap-0.5 select-none transition-all ${
                   isActive ? 'text-green-600' : 'text-muted-foreground'
                 }`}
