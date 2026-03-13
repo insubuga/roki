@@ -232,7 +232,7 @@ export default function Layout({ children, currentPageName }) {
                   <Icon className={`w-5 h-5 select-none ${isActive ? 'text-green-600' : 'text-muted-foreground'}`} />
                 </div>
                 <span className={`text-[10px] font-medium select-none leading-tight ${isActive ? 'text-green-600' : 'text-muted-foreground'}`}>{item.name}</span>
-              </Link>
+              </a>
             );
           })}
         </div>
