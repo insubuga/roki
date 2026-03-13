@@ -33,17 +33,10 @@ export default function Schedule() {
 
   const { data: activeCycles = [] } = useQuery({
     queryKey: ['activeCycles', user?.email],
-    queryFn: async () => {
-      const laundry = await base44.entities.LaundryOrder.filter({
-        user_email: user?.email,
-        status: { $in: ['awaiting_pickup', 'washing', 'drying', 'ready'] }
-      });
-      const orders = await base44.entities.Order.filter({
-        user_email: user?.email,
-        status: { $in: ['pending', 'confirmed', 'in_transit'] }
-      });
-      return [...laundry, ...orders];
-    },
+    queryFn: () => base44.entities.Cycle.filter({
+      user_email: user?.email,
+      status: { $in: ['prepared', 'awaiting_pickup', 'washing', 'drying', 'ready'] }
+    }),
     enabled: !!user?.email,
   });
 
