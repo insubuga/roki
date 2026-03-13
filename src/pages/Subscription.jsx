@@ -147,7 +147,7 @@ export default function Subscription() {
 
       {/* Page Header */}
       <div className="flex items-center gap-3">
-        <Link to="/Dashboard">
+        <Link to="/Configuration">
           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-5 h-5" />
           </Button>

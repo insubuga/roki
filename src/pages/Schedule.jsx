@@ -74,6 +74,7 @@ export default function Schedule() {
         subtitle="Automated pickup and delivery"
         icon={Calendar}
         iconColor="text-blue-600"
+        backTo="/Configuration"
       />
 
       {/* Active Configuration */}

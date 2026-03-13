@@ -125,6 +125,7 @@ export default function Support() {
         subtitle="We're here to help"
         icon={MessageCircle}
         iconColor="text-blue-500"
+        backTo="/Configuration"
       />
 
       <Card className="flex-1 flex flex-col mt-6 bg-card border-border overflow-hidden">
