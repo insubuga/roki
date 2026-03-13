@@ -11,6 +11,7 @@ import RealtimeIncidentStream from '../components/admin/RealtimeIncidentStream';
 import DriverPerformanceLeaderboard from '../components/admin/DriverPerformanceLeaderboard';
 import ManualRecoveryPanel from '../components/admin/ManualRecoveryPanel';
 import OperationsQueueMonitor from '../components/operations/OperationsQueueMonitor';
+import ComplianceDashboard from '../components/admin/ComplianceDashboard';
 
 export default function AdminOps() {
   const [user, setUser] = useState(null);
@@ -121,6 +122,9 @@ export default function AdminOps() {
 
         {/* Manual Recovery */}
         <ManualRecoveryPanel />
+
+        {/* Compliance & Audit Trail */}
+        <ComplianceDashboard />
 
         {/* Refresh Button */}
         <Button
