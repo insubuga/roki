@@ -32,7 +32,7 @@ export default function OrderHistory() {
     queryKey: ['orders', user?.email],
     queryFn: async () => {
       try {
-        const data = await base44.entities.Cycle.filter({ user_email: user?.email }, '-created_date', 50);
+        const data = await base44.entities.Order.filter({ user_email: user?.email }, '-created_date', 50);
         return data || [];
       } catch {
         return [];
