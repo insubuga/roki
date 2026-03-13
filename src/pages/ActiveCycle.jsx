@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Activity, Clock, MapPin, AlertTriangle, TrendingUp, Database, Radio, BarChart3, ArrowLeft } from 'lucide-react';
+import CycleTracker from '@/components/cycle/CycleTracker';
 import LockerQRCode from '@/components/locker/LockerQRCode';
 import DispatchAttachments from '@/components/cycle/DispatchAttachments';
 import LockerPanel from '@/components/locker/LockerPanel';
