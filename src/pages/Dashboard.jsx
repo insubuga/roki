@@ -30,6 +30,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import CycleForecastWidget from '../components/dashboard/CycleForecastWidget';
 import InfrastructureMetrics from '../components/dashboard/InfrastructureMetrics';
+import SubscriptionUsageCard from '../components/dashboard/SubscriptionUsageCard';
+import OnboardingGate from '../components/dashboard/OnboardingGate';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -270,6 +272,12 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Onboarding Gate — shown when setup is incomplete */}
+        <OnboardingGate user={user} subscription={subscription} preferences={preferences} />
+
+        {/* Subscription Usage */}
+        {subscription && <SubscriptionUsageCard subscription={subscription} />}
 
         {/* Infrastructure Metrics */}
         <InfrastructureMetrics userEmail={user?.email} />
