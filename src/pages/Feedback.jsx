@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '../utils';
-import { MessageSquare, ArrowLeft, Send, Star, ThumbsUp, Bug, Lightbulb } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { MessageSquare, ArrowLeft, Send, Star, ThumbsUp, Bug, Lightbulb, Loader2, CheckCircle2, Paperclip, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
 const feedbackTypes = [
-  { id: 'feature', label: 'Feature Request', icon: Lightbulb, color: 'text-green-600' },
-  { id: 'bug', label: 'Bug Report', icon: Bug, color: 'text-red-600' },
-  { id: 'praise', label: 'Praise', icon: ThumbsUp, color: 'text-green-600' },
-  { id: 'other', label: 'Other', icon: MessageSquare, color: 'text-gray-600' },
+  { id: 'feature', label: 'Feature Request', icon: Lightbulb },
+  { id: 'bug', label: 'Bug Report', icon: Bug },
+  { id: 'praise', label: 'Praise', icon: ThumbsUp },
+  { id: 'other', label: 'Other', icon: MessageSquare },
 ];
 
 export default function Feedback() {
