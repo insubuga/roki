@@ -45,14 +45,6 @@ export default function Notifications() {
     { key: 'marketing', icon: Bell, label: 'Tips & Updates', desc: 'Product updates and service announcements' },
   ];
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 max-w-2xl">
       <div className="flex items-center gap-3">
