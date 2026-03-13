@@ -166,7 +166,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-foreground text-xl font-bold font-mono">CONTROL CENTER</h1>
-            <p className="text-muted-foreground text-xs font-mono">System State Overview</p>
+            <p className="text-muted-foreground text-xs font-mono">Roki Cycle Network · System State</p>
           </div>
           {adminActions.length > 0 && (
             <Link to="/OperationsView">
@@ -183,7 +183,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Radio className={`w-5 h-5 ${systemStatus.textColor} animate-pulse`} />
-                <span className="text-muted-foreground text-xs font-mono uppercase">System Status</span>
+                <span className="text-muted-foreground text-xs font-mono uppercase">RCN Health</span>
               </div>
               <Badge className={`${systemStatus.color} text-white font-mono text-sm px-3 py-1`}>
                 {systemStatus.state}
@@ -193,11 +193,11 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-3 text-xs">
               <div className="text-center">
                 <p className="text-2xl font-bold text-foreground font-mono">{clusterLoad}%</p>
-                <p className="text-muted-foreground font-mono uppercase mt-1">Cluster Load</p>
+                <p className="text-muted-foreground font-mono uppercase mt-1">Node Load</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-foreground font-mono">{routeCapacity}%</p>
-                <p className="text-muted-foreground font-mono uppercase mt-1">Route Cap</p>
+                <p className="text-muted-foreground font-mono uppercase mt-1">Route Cap.</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-foreground font-mono">{slaTarget}h</p>
@@ -265,7 +265,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground font-mono">{networkPerformance}%</p>
-                <p className="text-muted-foreground font-mono uppercase mt-1">Network</p>
+                <p className="text-muted-foreground font-mono uppercase mt-1">RCN Score</p>
               </div>
             </div>
           </CardContent>
@@ -312,7 +312,7 @@ export default function Dashboard() {
         {/* System Navigation - View Only */}
         <Card className="bg-card border-border">
           <CardContent className="p-4">
-            <h3 className="text-foreground font-mono font-semibold text-sm uppercase mb-3">System Modules</h3>
+            <h3 className="text-foreground font-mono font-semibold text-sm uppercase mb-3">RCN Modules</h3>
             <div className="space-y-2">
               <Link to="/LaundryOrder" className="block">
                 <div className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted transition-colors">

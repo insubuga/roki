@@ -131,8 +131,8 @@ export default function Performance() {
   return (
     <div className="space-y-6">
       <MobileHeader
-        title="SYSTEM PERFORMANCE"
-        subtitle="Reliability metrics and operational insights"
+        title="RCN PERFORMANCE"
+        subtitle="Roki Cycle Network · Reliability & operational metrics"
         icon={Activity}
         iconColor="text-green-600"
       />
@@ -200,7 +200,7 @@ export default function Performance() {
             </div>
             <div>
               <p className="text-foreground font-bold text-lg font-mono">{Math.floor(estimatedMinutesSaved / 60)} HOURS SAVED</p>
-              <p className="text-muted-foreground text-xs font-mono">Time recovered from cycle automation</p>
+              <p className="text-muted-foreground text-xs font-mono">Time recovered via RCN cycle automation</p>
             </div>
           </div>
         </CardContent>
@@ -266,10 +266,10 @@ export default function Performance() {
 
             {/* Density Insight */}
             <div className="bg-gradient-to-r from-purple-100 to-violet-100 dark:from-purple-950/50 dark:to-violet-950/50 rounded-lg p-4 border border-purple-200 dark:border-purple-900/50">
-              <p className="text-foreground text-sm font-bold font-mono mb-1">INFRASTRUCTURE SCALES WITH DENSITY</p>
+              <p className="text-foreground text-sm font-bold font-mono mb-1">RCN SCALES WITH DENSITY</p>
               <p className="text-muted-foreground text-xs leading-relaxed font-mono">
-                At {networkUtilization}% network utilization, operational efficiency improves by {(densityDiscount * 100).toFixed(0)}%. 
-                Higher cluster density drives down per-unit costs and increases route optimization.
+                At {networkUtilization}% RCN utilization, operational efficiency improves by {(densityDiscount * 100).toFixed(0)}%. 
+                Higher node density drives down per-unit costs and increases route load optimization.
               </p>
             </div>
           </div>
@@ -316,7 +316,7 @@ export default function Performance() {
       {/* System Health */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-base font-mono uppercase">System Health Indicators</CardTitle>
+          <CardTitle className="text-base font-mono uppercase">RCN Health Indicators</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">

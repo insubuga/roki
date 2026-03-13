@@ -108,8 +108,8 @@ export default function Network() {
   return (
     <div className="space-y-6">
       <MobileHeader
-        title="NETWORK INFRASTRUCTURE"
-        subtitle="Physical node distribution and cluster topology"
+        title="CYCLE NETWORK"
+        subtitle="Roki Cycle Network · Node distribution & cluster topology"
         icon={Activity}
         iconColor="text-purple-600"
       />
@@ -192,7 +192,7 @@ export default function Network() {
               <div className="h-full flex items-center justify-center">
                 <div className="text-center">
                   <Map className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600 text-sm">Assign a node to view network map</p>
+                  <p className="text-gray-600 text-sm">Start a cycle to view your RCN node map</p>
                 </div>
               </div>
             )}
@@ -339,9 +339,9 @@ export default function Network() {
               <Layers className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
-              <p className="text-foreground font-bold mb-1 font-mono uppercase text-sm">Expansion Zones Identified</p>
+              <p className="text-foreground font-bold mb-1 font-mono uppercase text-sm">RCN Expansion Zones Identified</p>
               <p className="text-muted-foreground text-xs leading-relaxed font-mono">
-                Network analysis shows {3 + Math.floor(Math.random() * 5)} high-density zones for strategic node placement. 
+                RCN analysis shows {3 + Math.floor(Math.random() * 5)} high-density zones for strategic node placement. 
                 Coverage optimization targets {85 + Math.floor(Math.random() * 10)}% metropolitan reach.
               </p>
             </div>

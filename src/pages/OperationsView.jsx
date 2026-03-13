@@ -154,9 +154,9 @@ export default function OperationsView() {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Activity className="w-7 h-7" />
-            Operations Console
+            RCN Operations Console
           </h1>
-          <p className="text-gray-400 text-sm">Live infrastructure monitoring</p>
+          <p className="text-gray-400 text-sm">Roki Cycle Network · Live infrastructure monitoring</p>
         </div>
         <Badge className="bg-green-500 text-white border-none animate-pulse">
           SYSTEM LIVE
@@ -172,7 +172,7 @@ export default function OperationsView() {
               <TrendingUp className="w-4 h-4 text-green-400" />
             </div>
             <p className="text-3xl font-bold text-white">{allUsers.length}</p>
-            <p className="text-gray-400 text-sm">Active Members</p>
+            <p className="text-gray-400 text-sm">RCN Members</p>
           </CardContent>
         </Card>
 
@@ -182,7 +182,7 @@ export default function OperationsView() {
               <MapPin className="w-5 h-5 text-purple-400" />
             </div>
             <p className="text-3xl font-bold text-white">{allGyms.length}</p>
-            <p className="text-gray-400 text-sm">Network Nodes</p>
+            <p className="text-gray-400 text-sm">RCN Nodes</p>
           </CardContent>
         </Card>
 
@@ -202,7 +202,7 @@ export default function OperationsView() {
               <Zap className="w-5 h-5 text-green-400" />
             </div>
             <p className="text-3xl font-bold text-green-400">{systemReliability}%</p>
-            <p className="text-gray-400 text-sm">System Uptime</p>
+            <p className="text-gray-400 text-sm">RCN Uptime</p>
           </CardContent>
         </Card>
       </div>
@@ -254,11 +254,11 @@ export default function OperationsView() {
           <CardContent>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-gray-400 text-sm">Deliveries In Transit</span>
+                <span className="text-gray-400 text-sm">Cycles In Transit</span>
                 <Badge className="bg-orange-500 text-white border-none">{activeOrders.length}</Badge>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-400 text-sm">Laundry Processing</span>
+                <span className="text-gray-400 text-sm">Cycles Processing</span>
                 <Badge className="bg-blue-500 text-white border-none">{activeLaundry.length}</Badge>
               </div>
               <div className="flex items-center justify-between">
@@ -444,8 +444,8 @@ export default function OperationsView() {
               <TrendingUp className="w-7 h-7 text-white" />
             </div>
             <div>
-              <p className="text-white font-bold text-lg">Density Flywheel: Active</p>
-              <p className="text-blue-200 text-sm">Route efficiency improving with member density</p>
+              <p className="text-white font-bold text-lg">RCN Density Flywheel: Active</p>
+              <p className="text-blue-200 text-sm">Route load efficiency improving with RCN node density</p>
             </div>
           </div>
         </CardContent>
