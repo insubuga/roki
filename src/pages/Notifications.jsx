@@ -75,13 +75,15 @@ export default function Notifications() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-1">
-          {items.map(({ key, icon: Icon, label, desc }) => (
+          {items.map((item) => {
+            const ItemIcon = item.icon;
+            return (
             <div
-              key={key}
+              key={item.key}
               className="flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
             >
               <div className="flex items-center gap-3">
-                <Icon className="w-4 h-4 text-muted-foreground" />
+                <ItemIcon className="w-4 h-4 text-muted-foreground" />
                 <div>
                   <p className="text-foreground text-sm font-mono font-medium">{label}</p>
                   <p className="text-muted-foreground text-xs font-mono">{desc}</p>
