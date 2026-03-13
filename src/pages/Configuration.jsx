@@ -54,7 +54,7 @@ export default function Configuration() {
     {
       title: 'Support',
       items: [
-        { icon: Bell, title: 'Notifications', subtitle: 'Alert preferences', path: '/Profile' },
+        { icon: Bell, title: 'Notifications', subtitle: 'Alert preferences', path: '/Notifications' },
         { icon: HelpCircle, title: 'Help & Support', subtitle: 'Documentation and assistance', path: '/Support' },
       ]
     }
