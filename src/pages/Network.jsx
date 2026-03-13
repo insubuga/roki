@@ -257,7 +257,7 @@ export default function Network() {
           <CardContent className="p-6 text-center">
             <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
             <p className="text-muted-foreground font-mono uppercase text-sm">No Active Cycle Assignment</p>
-            <p className="text-muted-foreground text-xs mt-1 font-mono">Start a laundry cycle to see your assigned locker</p>
+            <p className="text-muted-foreground text-xs mt-1 font-mono">Start a cycle to get an RCN node assigned</p>
           </CardContent>
         </Card>
       )}
