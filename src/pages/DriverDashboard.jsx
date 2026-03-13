@@ -30,6 +30,7 @@ import DriverSupportChat from '@/components/driver/SupportChat';
 import LockerPickups from '@/components/driver/LockerPickups';
 import ConfirmRouteDeparture from '@/components/driver/ConfirmRouteDeparture';
 import ReturnDeliveries from '@/components/driver/ReturnDeliveries';
+import ReturnLockerLoad from '@/components/driver/ReturnLockerLoad';
 
 export default function DriverDashboard() {
   const [user, setUser] = useState(null);
@@ -197,6 +198,9 @@ export default function DriverDashboard() {
 
         {/* Return Deliveries — clean gear back to members */}
         <ReturnDeliveries user={user} />
+
+        {/* Return Locker Load — confirm clean gear loaded into return lockers */}
+        <ReturnLockerLoad user={user} />
 
         {/* Active Deliveries */}
         <div className="px-4">

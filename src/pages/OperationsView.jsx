@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Activity, Users, MapPin, TrendingUp, Package, AlertCircle, Zap, DollarSign } from 'lucide-react';
 import LockerDemandForecastCard from '../components/network/LockerDemandForecastCard';
+import BulkCycleProcessor from '../components/admin/BulkCycleProcessor';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function OperationsView() {
@@ -432,6 +433,9 @@ export default function OperationsView() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Bulk Cycle Processor */}
+      <BulkCycleProcessor />
 
       {/* Locker Demand Forecast */}
       <LockerDemandForecastCard />
