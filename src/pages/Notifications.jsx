@@ -85,24 +85,25 @@ export default function Notifications() {
               <div className="flex items-center gap-3">
                 <ItemIcon className="w-4 h-4 text-muted-foreground" />
                 <div>
-                  <p className="text-foreground text-sm font-mono font-medium">{label}</p>
-                  <p className="text-muted-foreground text-xs font-mono">{desc}</p>
+                  <p className="text-foreground text-sm font-mono font-medium">{item.label}</p>
+                  <p className="text-muted-foreground text-xs font-mono">{item.desc}</p>
                 </div>
               </div>
               <button
-                onClick={() => togglePref(key)}
+                onClick={() => togglePref(item.key)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                  prefs[key] ? 'bg-green-600' : 'bg-muted-foreground/30'
+                  prefs[item.key] ? 'bg-green-600' : 'bg-muted-foreground/30'
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                    prefs[key] ? 'translate-x-6' : 'translate-x-1'
+                    prefs[item.key] ? 'translate-x-6' : 'translate-x-1'
                   }`}
                 />
               </button>
             </div>
-          ))}
+            );
+          })}
         </CardContent>
       </Card>
 
