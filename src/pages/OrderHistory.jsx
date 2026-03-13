@@ -31,10 +31,15 @@ export default function OrderHistory() {
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['orders', user?.email],
     queryFn: async () => {
-      const data = await base44.entities.Order.filter({ user_email: user?.email }, '-created_date', 50);
-      return data || [];
+      try {
+        const data = await base44.entities.Cycle.filter({ user_email: user?.email }, '-created_date', 50);
+        return data || [];
+      } catch {
+        return [];
+      }
     },
     enabled: !!user?.email,
+    retry: false,
   });
 
   const reorderMutation = useMutation({
