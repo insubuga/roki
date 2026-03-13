@@ -44,6 +44,7 @@ const PLAN_PERKS = {
 };
 
 export default function Profile() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({ preferred_gym: '', phone: '' });
   const [userLocation, setUserLocation] = useState(null);
