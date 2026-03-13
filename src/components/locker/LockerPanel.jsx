@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Lock, Navigation, CheckCircle, Clock, AlertTriangle, MapPin, Zap } from 'lucide-react';
+import LockerQRCode from './LockerQRCode';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -194,6 +195,8 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
           <p className="text-muted-foreground font-mono text-xs"><span className="text-foreground font-semibold">2.</span> Place your gear inside</p>
           <p className="text-muted-foreground font-mono text-xs"><span className="text-foreground font-semibold">3.</span> Re-lock and tap Confirm Drop below</p>
         </div>
+
+        <LockerQRCode accessCode={access_code} lockerNumber={locker.locker_number} />
 
         <Button
           className="w-full bg-green-600 hover:bg-green-700 text-white font-mono text-sm font-bold h-10"
