@@ -332,7 +332,7 @@ export default function Dashboard() {
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
               </Link>
-              <Link to={createPageUrl('RiskRecovery')} className="block">
+              <Link to="/RiskRecovery" className="block">
                 <div className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted transition-colors">
                   <div className="flex items-center gap-3">
                     <Shield className="w-4 h-4 text-orange-600" />
