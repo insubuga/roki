@@ -63,9 +63,16 @@ export default function Configuration() {
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-foreground text-xl font-bold font-mono">CONFIGURATION</h1>
-          <p className="text-muted-foreground text-xs font-mono">System settings and preferences</p>
+        <div className="flex items-center gap-3">
+          <Link to="/Dashboard">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-foreground text-xl font-bold font-mono">CONFIGURATION</h1>
+            <p className="text-muted-foreground text-xs font-mono">System settings and preferences</p>
+          </div>
         </div>
 
         <Card className="bg-card border-border">
