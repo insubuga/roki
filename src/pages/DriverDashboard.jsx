@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouteSubscription, useDeliverySubscription } from '@/components/hooks/useRouteSubscription';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -37,6 +38,10 @@ export default function DriverDashboard() {
   const [selectedDelivery, setSelectedDelivery] = useState(null);
   const queryClient = useQueryClient();
 
+  // Real-time route & delivery subscriptions
+  const { routes, newRouteAlert, clearNewRouteAlert, isSubscribed: routesSubscribed } = useRouteSubscription(user?.email);
+  const { deliveries: liveDeliveries, pendingCount, isSubscribed: deliveriesSubscribed } = useDeliverySubscription(user?.email);
+
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -54,6 +59,16 @@ export default function DriverDashboard() {
     };
     loadUser();
   }, []);
+
+  // Show toast when new route assigned
+  useEffect(() => {
+    if (newRouteAlert) {
+      toast.success(`🚨 New route assigned! ${newRouteAlert.stops} stops, ${newRouteAlert.distance}mi`, {
+        duration: 5000
+      });
+      clearNewRouteAlert();
+    }
+  }, [newRouteAlert, clearNewRouteAlert]);
 
   const { data: laundryOrders = [], isLoading: laundryLoading } = useQuery({
     queryKey: ['driver-laundry-orders'],
@@ -79,21 +94,12 @@ export default function DriverDashboard() {
     enabled: !!user?.email,
   });
 
-  // Real-time subscriptions
+  // Sync live deliveries with React Query
   useEffect(() => {
-    if (!user) return;
-
-    const unsubLaundry = base44.entities.Cycle.subscribe((event) => {
-      queryClient.invalidateQueries({ queryKey: ['driver-laundry-orders'] });
-      if (event.type === 'create') {
-        toast.success('🚨 New cycle pickup available!');
-      }
-    });
-
-    return () => {
-      unsubLaundry();
-    };
-  }, [user, queryClient]);
+    if (liveDeliveries.length > 0) {
+      queryClient.setQueryData(['driver-laundry-orders'], liveDeliveries);
+    }
+  }, [liveDeliveries, queryClient]);
 
   const updateLaundryMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.Cycle.update(id, { status }),
@@ -206,9 +212,9 @@ export default function DriverDashboard() {
         <div className="px-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">Active Deliveries</h2>
-            {allActiveDeliveries.length > 0 && (
+            {(allActiveDeliveries.length > 0 || pendingCount > 0) && (
               <Badge className="bg-red-500 text-white animate-pulse">
-                {allActiveDeliveries.length} active
+                {Math.max(allActiveDeliveries.length, pendingCount)} active
               </Badge>
             )}
           </div>
