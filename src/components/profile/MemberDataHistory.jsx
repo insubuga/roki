@@ -62,8 +62,9 @@ export default function MemberDataHistory({ user }) {
     ? (cleanlinessHistory.reduce((sum, h) => sum + (h.cleanliness_rating || 0), 0) / cleanlinessHistory.length).toFixed(1)
     : preferences?.average_cleanliness_score || 0;
 
-  const memberSince = preferences?.member_since_formatted
-    || new Date(user.created_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  const memberSince = user.created_date
+    ? new Date(user.created_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    : (preferences?.member_since_formatted || '—');
 
   return (
     <div className="space-y-4">
