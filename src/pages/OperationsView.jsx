@@ -40,17 +40,15 @@ export default function OperationsView() {
 
   const { data: activeOrders = [] } = useQuery({
     queryKey: ['allActiveOrders'],
-    queryFn: () => base44.entities.Order.filter({
-      status: { $in: ['pending', 'confirmed', 'in_transit'] }
+    queryFn: () => base44.entities.Cycle.filter({
+      status: { $in: ['awaiting_pickup', 'washing', 'drying'] }
     }),
     enabled: !!user,
   });
 
   const { data: activeLaundry = [] } = useQuery({
     queryKey: ['allActiveLaundry'],
-    queryFn: () => base44.entities.LaundryOrder.filter({
-      status: { $in: ['awaiting_pickup', 'washing', 'drying'] }
-    }),
+    queryFn: () => base44.entities.Cycle.filter({ status: 'ready' }),
     enabled: !!user,
   });
 

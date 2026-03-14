@@ -76,14 +76,25 @@ export default function DriverApplicationReview() {
 
       await base44.entities.DriverApplication.update(id, updateData);
 
+      const app = applications.find(a => a.id === id);
       // If approved, update user role to driver
       if (status === 'approved') {
-        const app = applications.find(a => a.id === id);
         const users = await base44.asServiceRole.entities.User.filter({ email: app.applicant_email });
         if (users[0]) {
           await base44.asServiceRole.entities.User.update(users[0].id, { role: 'driver' });
         }
       }
+      // Notify the applicant
+      await base44.asServiceRole.entities.Notification.create({
+        user_email: app.applicant_email,
+        type: 'system',
+        title: status === 'approved' ? '🎉 Driver Application Approved!' : 'Driver Application Update',
+        message: status === 'approved'
+          ? 'Congratulations! Your driver application has been approved. You now have access to the Driver Dashboard.'
+          : `Your driver application has been reviewed. ${notes ? `Admin note: ${notes}` : 'Please contact support for details.'}`,
+        priority: 'high',
+        read: false,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['driver-applications'] });

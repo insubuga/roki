@@ -61,8 +61,7 @@ export default function AdminOps() {
   });
 
   const handleRefresh = async () => {
-    // Refresh all queries
-    window.location.reload();
+    window.location.reload(); // full reload for admin intel page is fine
   };
 
   if (!user) {
