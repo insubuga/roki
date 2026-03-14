@@ -476,7 +476,7 @@ export default function ActiveCycle() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">SLA Adherence</span>
-                  <span className="text-green-600 font-mono font-bold">{slaAdherence}%</span>
+                  <span className="text-green-600 font-mono font-bold">{slaAdherence !== null ? `${slaAdherence}%` : '—'}</span>
                 </div>
               </div>
               <div>
