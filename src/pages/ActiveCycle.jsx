@@ -276,7 +276,7 @@ export default function ActiveCycle() {
             </div>
             <div>
               <p className="text-muted-foreground uppercase">Route ID</p>
-              <p className="text-foreground font-mono font-bold">{activeCycle ? `RT${Math.floor(Math.random() * 899) + 100}` : '—'}</p>
+              <p className="text-foreground font-mono font-bold">{activeCycle ? `RT${activeCycle.id?.slice(-4).toUpperCase() || '—'}` : '—'}</p>
             </div>
             <div>
               <p className="text-muted-foreground uppercase">Turnaround ETA</p>
