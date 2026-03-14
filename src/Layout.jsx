@@ -207,7 +207,9 @@ export default function Layout({ children, currentPageName }) {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6" style={{ marginTop: '64px' }}>
         <PageTransition pageKey={location.pathname}>
-          {children}
+          <ErrorBoundary label="Page failed to load. Please retry.">
+            {children}
+          </ErrorBoundary>
         </PageTransition>
       </main>
 
