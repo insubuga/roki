@@ -396,7 +396,7 @@ export default function ActiveCycle() {
                 </div>
                 <div>
                   <p className="text-muted-foreground uppercase mb-1">Route Code</p>
-                  <p className="text-foreground font-mono">RT{Math.floor(Math.random() * 899) + 100}</p>
+                  <p className="text-foreground font-mono">{activeCycle ? `RT${activeCycle.id?.slice(-4).toUpperCase()}` : '—'}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground uppercase mb-1">Route Load</p>
