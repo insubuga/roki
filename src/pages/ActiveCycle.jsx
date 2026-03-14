@@ -457,8 +457,8 @@ export default function ActiveCycle() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-3 text-xs">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-green-600 font-mono">{reliabilityScore}%</p>
-                  <p className="text-muted-foreground uppercase mt-1">On-Time</p>
+                  <p className="text-2xl font-bold text-green-600 font-mono">{reliabilityScoreVal !== null ? `${reliabilityScoreVal}` : '—'}</p>
+                  <p className="text-muted-foreground uppercase mt-1">Reliability</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-foreground font-mono">{totalCycles}</p>
