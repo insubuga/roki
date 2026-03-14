@@ -4,28 +4,28 @@ import { CheckCircle2, Circle, Clock, Truck, Wind, Sparkles, PackageCheck, Timer
 const STAGES = [
   {
     key: 'awaiting_pickup',
-    label: 'Gear Dropped',
-    sublabel: 'Locker secured',
+    label: 'Gear Secured',
+    sublabel: 'In Roki Network',
     icon: PackageCheck,
     color: 'green',
   },
   {
     key: 'washing',
-    label: 'Washing',
-    sublabel: 'Deep clean cycle',
+    label: 'In Transit',
+    sublabel: 'Processing stage',
     icon: Sparkles,
     color: 'blue',
   },
   {
     key: 'drying',
-    label: 'Drying',
-    sublabel: 'Fresh & dry',
+    label: 'Final Processing',
+    sublabel: 'Reset preparing',
     icon: Wind,
     color: 'purple',
   },
   {
     key: 'ready',
-    label: 'Ready',
+    label: 'Reset Ready',
     sublabel: 'Back in your locker',
     icon: Truck,
     color: 'green',
@@ -202,16 +202,16 @@ export default function CycleTracker({ cycle }) {
       <div className="border-t border-border px-4 py-2.5 bg-muted/40">
         {isComplete ? (
           <p className="text-green-600 font-semibold text-xs text-center">
-            🎉 Your gear is clean and waiting in your locker. Access code sent!
+            🎉 Your gear is reset and ready in your locker!
           </p>
         ) : isPrepared ? (
-          <p className="text-muted-foreground text-xs text-center">Drop your gear in the locker to start your cycle.</p>
+          <p className="text-muted-foreground text-xs text-center">Drop your gear in the locker to activate your reset cycle.</p>
         ) : cycle.status === 'awaiting_pickup' ? (
-          <p className="text-muted-foreground text-xs text-center">Gear confirmed — driver collecting on next route window.</p>
+          <p className="text-muted-foreground text-xs text-center">Gear secured in Roki Network — processing next.</p>
         ) : cycle.status === 'washing' ? (
-          <p className="text-muted-foreground text-xs text-center">Deep cleaning in progress at processing facility.</p>
+          <p className="text-muted-foreground text-xs text-center">Gear in transit through Roki Network processing.</p>
         ) : cycle.status === 'drying' ? (
-          <p className="text-muted-foreground text-xs text-center">Almost done — gear drying and being prepped for delivery.</p>
+          <p className="text-muted-foreground text-xs text-center">Final processing stage — gear being prepped for reset.</p>
         ) : null}
       </div>
     </div>
