@@ -158,10 +158,8 @@ export default function Network() {
 
                 {/* Nearby Nodes */}
                 {nearbyNodes.slice(0, 8).map((node, idx) => {
-                  const angle = (idx / 8) * 2 * Math.PI;
-                  const distance = 0.05 + Math.random() * 0.08;
-                  const lat = mapCenter[0] + Math.cos(angle) * distance;
-                  const lng = mapCenter[1] + Math.sin(angle) * distance;
+                  const lat = node.gym.latitude || (mapCenter[0] + Math.cos((idx / 8) * 2 * Math.PI) * 0.06);
+                  const lng = node.gym.longitude || (mapCenter[1] + Math.sin((idx / 8) * 2 * Math.PI) * 0.06);
                   const utilization = node.lockers.length > 0 
                     ? Math.round((node.lockers.filter(l => l.status === 'claimed').length / node.lockers.length) * 100)
                     : 0;
