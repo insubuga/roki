@@ -177,7 +177,7 @@ export default function Network() {
                       <Popup>
                         <div className="text-xs">
                           <p className="font-semibold text-gray-900">{node.gym.name}</p>
-                          <p className="text-gray-600">{node.distance} mi</p>
+                          <p className="text-gray-600">{node.gym.city || ''}</p>
                           <p className="text-gray-600">{utilization}% utilized</p>
                         </div>
                       </Popup>
