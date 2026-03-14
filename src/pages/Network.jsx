@@ -277,7 +277,7 @@ export default function Network() {
                 <div key={idx} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div className="flex-1 min-w-0">
                     <p className="text-foreground font-medium text-sm truncate font-mono">{node.gym.name}</p>
-                    <p className="text-muted-foreground text-xs font-mono">{node.distance} mi away</p>
+                    <p className="text-muted-foreground text-xs font-mono">{node.gym.city || node.gym.address || 'Network node'}</p>
                   </div>
                   <div className="text-right">
                     <Badge className={`${utilization > 70 ? 'bg-blue-600' : utilization > 40 ? 'bg-purple-600' : 'bg-gray-600'} text-white text-xs font-mono`}>
