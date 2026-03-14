@@ -545,7 +545,7 @@ export default function ActiveCycle() {
                   </div>
                   <div>
                     <p className="text-muted-foreground uppercase mb-1">Route Efficiency</p>
-                    <p className="text-green-600 text-xl font-bold font-mono">{routeEfficiency}%</p>
+                    <p className="text-green-600 text-xl font-bold font-mono">{nodeUtilization}%</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground uppercase mb-1">Cost/Cluster</p>
