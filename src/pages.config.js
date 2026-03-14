@@ -49,6 +49,7 @@
  */
 import ActiveCycle from './pages/ActiveCycle';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminOps from './pages/AdminOps';
 import Configuration from './pages/Configuration';
 import Dashboard from './pages/Dashboard';
 import DriverApplicationReview from './pages/DriverApplicationReview';
@@ -69,13 +70,13 @@ import Schedule from './pages/Schedule';
 import Subscription from './pages/Subscription';
 import Support from './pages/Support';
 import SupportAdmin from './pages/SupportAdmin';
-import AdminOps from './pages/AdminOps';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ActiveCycle": ActiveCycle,
     "AdminDashboard": AdminDashboard,
+    "AdminOps": AdminOps,
     "Configuration": Configuration,
     "Dashboard": Dashboard,
     "DriverApplicationReview": DriverApplicationReview,
@@ -96,7 +97,6 @@ export const PAGES = {
     "Subscription": Subscription,
     "Support": Support,
     "SupportAdmin": SupportAdmin,
-    "AdminOps": AdminOps,
 }
 
 export const pagesConfig = {

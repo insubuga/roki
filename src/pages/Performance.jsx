@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import MobileHeader from '../components/mobile/MobileHeader';
 import PullToRefresh from '../components/mobile/PullToRefresh';
-import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
 
 export default function Performance() {
   const [user, setUser] = useState(null);
