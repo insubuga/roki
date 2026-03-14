@@ -202,10 +202,7 @@ export default function DriverDashboard() {
         {/* Confirm Route Departure — releases resetPending lockers */}
         <ConfirmRouteDeparture user={user} />
 
-        {/* Return Deliveries — clean gear back to members */}
-        <ReturnDeliveries user={user} />
-
-        {/* Return Locker Load — confirm clean gear loaded into return lockers */}
+        {/* Return Locker Load — assign locker + confirm clean gear delivered */}
         <ReturnLockerLoad user={user} />
 
         {/* Active Deliveries */}
