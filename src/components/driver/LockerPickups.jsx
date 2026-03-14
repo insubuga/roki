@@ -13,7 +13,7 @@ export default function LockerPickups({ user }) {
   // Cycles where gear has been dropped (awaiting_pickup + assignment.status=dropped)
   const { data: pendingCycles = [], isLoading } = useQuery({
     queryKey: ['driver-locker-pickups'],
-    queryFn: () => base44.entities.Cycle.filter({ status: { $in: ['awaiting_pickup', 'washing'] } }),
+    queryFn: () => base44.entities.Cycle.filter({ status: 'awaiting_pickup' }),
     enabled: !!user,
   });
 
