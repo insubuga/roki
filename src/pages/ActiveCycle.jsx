@@ -401,7 +401,7 @@ export default function ActiveCycle() {
                 </div>
                 <div>
                   <p className="text-muted-foreground uppercase mb-1">Route Load</p>
-                  <p className="text-foreground font-mono font-bold">{routeEfficiency}%</p>
+                  <p className="text-foreground font-mono font-bold">{nodeUtilization}%</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground uppercase mb-1">Cluster Density</p>
