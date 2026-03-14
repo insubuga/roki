@@ -44,6 +44,9 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
 
   const activateMutation = useMutation({
     mutationFn: async () => {
+      // Optimistic update
+      setLocalAssignment(prev => ({ ...prev, status: 'activated', activated_at: new Date().toISOString() }));
+      
       await base44.entities.CycleLockerAssignment.update(assignment.id, {
         status: 'activated',
         activated_at: new Date().toISOString(),
@@ -55,11 +58,17 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
       queryClient.invalidateQueries({ queryKey: ['cycleAssignment'] });
       if (onStatusChange) onStatusChange('activated');
     },
-    onError: () => toast.error('Activation failed'),
+    onError: () => {
+      setLocalAssignment(assignment);
+      toast.error('Activation failed');
+    },
   });
 
   const confirmDropMutation = useMutation({
     mutationFn: async () => {
+      // Optimistic update
+      setLocalAssignment(prev => ({ ...prev, status: 'dropped', dropped_at: new Date().toISOString() }));
+      
       await base44.entities.CycleLockerAssignment.update(assignment.id, {
         status: 'dropped',
         dropped_at: new Date().toISOString(),
@@ -74,7 +83,10 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
       queryClient.invalidateQueries({ queryKey: ['activeCycle'] });
       if (onStatusChange) onStatusChange('dropped');
     },
-    onError: () => toast.error('Failed to confirm drop'),
+    onError: () => {
+      setLocalAssignment(assignment);
+      toast.error('Failed to confirm drop');
+    },
   });
 
   const handleGeofenceCheck = () => {
