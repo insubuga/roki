@@ -33,6 +33,8 @@ function TypingIndicator() {
   );
 }
 
+const CONV_STORAGE_KEY = (email) => `rokibot_conv_${email}`;
+
 export default function FloatingAssistant({ user }) {
   const [isOpen, setIsOpen] = useState(false);
   const [conversation, setConversation] = useState(null);
