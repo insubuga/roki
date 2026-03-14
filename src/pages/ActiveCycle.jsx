@@ -312,6 +312,19 @@ export default function ActiveCycle() {
                   />
                 )}
 
+                {/* Return locker panel — shown when clean gear is delivered back */}
+                {returnAssignment && (returnLocker || returnAssignment.locker_id) && (
+                  <div className="border-t border-border pt-3 mt-3">
+                    <p className="text-muted-foreground font-mono text-[10px] uppercase tracking-widest mb-2">Return Delivery</p>
+                    <ReturnLockerPanel
+                      returnAssignment={returnAssignment}
+                      locker={returnLocker || { id: returnAssignment.locker_id, locker_number: '—' }}
+                      gym={preferredGym}
+                      cycleId={activeCycle.id}
+                    />
+                  </div>
+                )}
+
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Pickup Timestamp</span>
