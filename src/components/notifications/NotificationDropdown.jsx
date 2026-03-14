@@ -17,7 +17,7 @@ const notificationIcons = {
   vantabot: Bot,
   subscription: CreditCard,
   wearable: Activity,
-  laundry: Shirt,
+  cycle: Truck,
   delivery: Truck,
   system: Bell,
 };
@@ -26,7 +26,7 @@ const notificationColors = {
   vantabot: 'text-[#7cfc00]',
   subscription: 'text-indigo-400',
   wearable: 'text-purple-400',
-  laundry: 'text-cyan-400',
+  cycle: 'text-cyan-400',
   delivery: 'text-orange-400',
   system: 'text-gray-400',
 };

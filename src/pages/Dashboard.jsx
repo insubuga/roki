@@ -122,10 +122,10 @@ export default function Dashboard() {
   const getReadinessStatus = () => {
     if (!activeCycle) return { state: 'READY', color: 'bg-green-600', textColor: 'text-green-500', pulse: false };
     const map = {
-      'awaiting_pickup': { state: 'AWAITING PICKUP', color: 'bg-blue-600', textColor: 'text-blue-500', pulse: true },
-      'washing':         { state: 'WASHING',         color: 'bg-purple-600', textColor: 'text-purple-500', pulse: true },
-      'drying':          { state: 'DRYING',           color: 'bg-purple-600', textColor: 'text-purple-500', pulse: true },
-      'ready':           { state: 'READY TO COLLECT', color: 'bg-green-600', textColor: 'text-green-500', pulse: false },
+      'awaiting_pickup': { state: 'IN NETWORK', color: 'bg-blue-600', textColor: 'text-blue-500', pulse: true },
+      'washing':         { state: 'IN TRANSIT',         color: 'bg-purple-600', textColor: 'text-purple-500', pulse: true },
+      'drying':          { state: 'PROCESSING',           color: 'bg-purple-600', textColor: 'text-purple-500', pulse: true },
+      'ready':           { state: 'READY FOR RESET', color: 'bg-green-600', textColor: 'text-green-500', pulse: false },
     };
     return map[activeCycle.status] || { state: 'READY', color: 'bg-green-600', textColor: 'text-green-500', pulse: false };
   };
@@ -138,7 +138,7 @@ export default function Dashboard() {
   const clusterLoad = Math.min(85, (preferences?.total_cycles_completed || 0) * 8);
   const routeCapacity = 100 - 92;
   const slaTarget = subscription?.laundry_turnaround_hours ?? 48;
-  const cleanCycleFrequency = preferences?.laundry_schedule?.replace('weekly_', '').toUpperCase() || 'NOT SET';
+  const resetCycleFrequency = preferences?.laundry_schedule?.replace('weekly_', '').toUpperCase() || 'NOT SET';
   const activeAlerts = incidentFreeStreak === 0 || rushCreditsRemaining === 0 ? 1 : 0;
 
   const getSystemStatus = () => {
@@ -250,7 +250,7 @@ export default function Dashboard() {
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Schedule</span>
-                  <span className="text-foreground font-mono font-medium">{cleanCycleFrequency}</span>
+                  <span className="text-foreground font-mono font-medium">{resetCycleFrequency}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Window</span>
