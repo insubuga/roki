@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 
 import GymMapView from '../components/locker/GymMapView';
 import MemberDataHistory from '../components/profile/MemberDataHistory';
+import { useUnsavedChangesWarning } from '../components/warnings/UnsavedChangesPrompt';
 
 const PLAN_PERKS = {
   core: {
@@ -144,6 +145,10 @@ export default function Profile() {
   const planPerks = PLAN_PERKS[planId] || PLAN_PERKS.core;
   const PlanIcon = planPerks.icon;
   const hasActiveSub = subscription?.status === 'active';
+  
+  // Track unsaved changes
+  const hasChanges = user && (formData.phone !== (user.phone || '') || formData.preferred_gym !== (user.preferred_gym || ''));
+  useUnsavedChangesWarning(hasChanges);
 
   if (!user) {
     return (
