@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { useConfirmDialog } from '@/components/hooks/useConfirmDialog';
 
 const PLANS = Object.values(SUBSCRIPTION_PLANS).map(plan => ({
   ...plan,
@@ -71,6 +72,7 @@ const STAT_ITEMS = [
 export default function Subscription() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
+  const { confirm, Dialog } = useConfirmDialog();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => base44.auth.redirectToLogin());
@@ -109,6 +111,16 @@ export default function Subscription() {
     onError: () => toast.error('Failed to cancel subscription'),
   });
 
+  const handleCancelClick = async () => {
+    const confirmed = await confirm(
+      'Cancel Subscription?',
+      'Your plan will end at the next renewal. You\'ll lose access to priority dispatch and emergency credits.',
+      'Cancel Plan',
+      true
+    );
+    if (confirmed) cancelMutation.mutate();
+  };
+
   const currentPlanId = subscription?.plan || null;
   const currentPlanDef = PLANS.find(p => p.id === currentPlanId);
 
@@ -122,6 +134,7 @@ export default function Subscription() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+      <Dialog />
 
       {/* Page Header */}
       <div className="flex items-center gap-3">
@@ -166,7 +179,7 @@ export default function Subscription() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => cancelMutation.mutate()}
+                  onClick={handleCancelClick}
                   disabled={cancelMutation.isPending}
                   className="border-red-700 text-red-500 hover:bg-red-950/30 font-mono text-xs"
                 >
