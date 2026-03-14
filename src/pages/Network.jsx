@@ -161,7 +161,7 @@ export default function Network() {
                   const lat = node.gym.latitude || (mapCenter[0] + Math.cos((idx / 8) * 2 * Math.PI) * 0.06);
                   const lng = node.gym.longitude || (mapCenter[1] + Math.sin((idx / 8) * 2 * Math.PI) * 0.06);
                   const utilization = node.lockers.length > 0 
-                    ? Math.round((node.lockers.filter(l => l.status === 'claimed').length / node.lockers.length) * 100)
+                    ? Math.round((node.lockers.filter(l => ['activated','softReserved','dropped'].includes(l.status)).length / node.lockers.length) * 100)
                     : 0;
                   
                   return (
@@ -271,7 +271,7 @@ export default function Network() {
           <CardContent className="space-y-2">
             {nearbyNodes.map((node, idx) => {
               const utilization = node.lockers.length > 0 
-                ? Math.round((node.lockers.filter(l => l.status === 'claimed').length / node.lockers.length) * 100)
+                ? Math.round((node.lockers.filter(l => ['activated','softReserved','dropped'].includes(l.status)).length / node.lockers.length) * 100)
                 : 0;
               return (
                 <div key={idx} className="flex items-center justify-between p-3 bg-muted rounded-lg">
