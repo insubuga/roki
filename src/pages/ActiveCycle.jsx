@@ -354,7 +354,7 @@ export default function ActiveCycle() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">SLA Commitment</span>
-                    <span className="text-green-600 font-mono font-bold">48h</span>
+                    <span className="text-green-600 font-mono font-bold">{subscription?.laundry_turnaround_hours ?? 48}h</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Variance</span>
