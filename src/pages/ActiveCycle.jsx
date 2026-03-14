@@ -314,8 +314,8 @@ export default function ActiveCycle() {
                     <p className="text-foreground font-mono">{activeCycle.order_number}</p>
                   </div>
                   <div className="bg-muted p-2 rounded">
-                    <p className="text-muted-foreground uppercase mb-1">Route ID</p>
-                    <p className="text-foreground font-mono">RT{Math.floor(Math.random() * 899) + 100}</p>
+                   <p className="text-muted-foreground uppercase mb-1">Route ID</p>
+                   <p className="text-foreground font-mono">RT{activeCycle.id?.slice(-4).toUpperCase()}</p>
                   </div>
                   <div className="bg-muted p-2 rounded">
                     <p className="text-muted-foreground uppercase mb-1">Node</p>
