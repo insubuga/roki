@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
         // Notify member — gear is ready for collection
         await base44.asServiceRole.entities.Notification.create({
           user_email: cycle.user_email,
-          type: 'cycle_ready',
+          type: 'laundry',
           title: 'Clean Gear Ready',
           message: `Cycle ${cycle.order_number} is complete. Check your return locker access code to collect your gear.`,
           priority: 'high',
