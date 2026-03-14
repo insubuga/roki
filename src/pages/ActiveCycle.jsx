@@ -218,12 +218,13 @@ export default function ActiveCycle() {
   }
 
   const totalCycles = preferences?.total_cycles_completed || 0;
-  const reliabilityScore = totalCycles > 0 ? 96 : 0;
-  const avgTurnaround = 2760;
-  const slaAdherence = 98;
+  const reliabilityScoreVal = reliabilityScore?.score ?? null;
+  const onTimeLogs = reliabilityLogs.filter(l => l.event_type === 'on_time_delivery');
+  const totalLogged = reliabilityLogs.filter(l => ['on_time_delivery', 'delayed_delivery'].includes(l.event_type)).length;
+  const slaAdherence = totalLogged > 0 ? Math.round((onTimeLogs.length / totalLogged) * 100) : null;
+  const avgTurnaround = subscription?.laundry_turnaround_hours ? subscription.laundry_turnaround_hours * 60 : 2880;
   const incidentCount = reliabilityLogs.filter(l => l.event_type !== 'on_time_delivery').length;
-  const routeEfficiency = 92;
-  const clusterLoad = allActiveCycles.length > 0 ? Math.min(85, allActiveCycles.length * 8) : 42;
+  const clusterLoad = allActiveCycles.length > 0 ? Math.min(85, allActiveCycles.length * 8) : 0;
   const nodeUtilization = allLockers.length > 0 ? Math.round((allLockers.filter(l => l.status !== 'available').length / allLockers.length) * 100) : 0;
 
   const getCycleState = (status) => {
