@@ -88,7 +88,13 @@ export default function LockerPickups({ user }) {
                   </span>
                 </div>
 
-                <p className="text-gray-500 text-xs font-mono mb-3">
+                {cycle.gym_location && (
+                  <div className="flex items-center gap-1 text-xs text-gray-500 font-mono mb-1">
+                    <MapPin className="w-3 h-3" />
+                    <span>{cycle.gym_location}</span>
+                  </div>
+                )}
+                <p className="text-gray-400 text-xs font-mono mb-3">
                   Member: {cycle.user_email}
                 </p>
 
