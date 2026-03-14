@@ -77,7 +77,7 @@ export default function OperationsView() {
   });
 
   // Calculate cluster metrics
-  const claimedLockers = allLockers.filter(l => l.status === 'claimed').length;
+  const claimedLockers = allLockers.filter(l => l.status !== 'available' && l.status !== 'maintenance').length;
   const lockerUtilization = allLockers.length > 0 ? Math.round((claimedLockers / allLockers.length) * 100) : 0;
   const totalActiveCycles = activeOrders.length + activeLaundry.length;
   const systemReliability = 96;
@@ -89,7 +89,7 @@ export default function OperationsView() {
   // Cost per cluster calculation
   const avgCostPerCluster = allGyms.map(gym => {
     const gymLockers = allLockers.filter(l => l.gym_id === gym.id);
-    const claimedCount = gymLockers.filter(l => l.status === 'claimed').length;
+    const claimedCount = gymLockers.filter(l => l.status !== 'available' && l.status !== 'maintenance').length;
     const utilizationRate = claimedCount / (gymLockers.length || 1);
     const baseCost = 250;
     const efficiency = utilizationRate > 0.7 ? 0.8 : utilizationRate > 0.5 ? 0.9 : 1.0;
@@ -98,7 +98,7 @@ export default function OperationsView() {
 
   // Pickup density heatmap data
   const pickupDensity = allGyms.map(gym => {
-    const gymLockers = allLockers.filter(l => l.gym_id === gym.id && l.status === 'claimed');
+    const gymLockers = allLockers.filter(l => l.gym_id === gym.id && l.status !== 'available' && l.status !== 'maintenance');
     return {
       name: gym.name?.substring(0, 15) || 'Node',
       density: gymLockers.length,
