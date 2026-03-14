@@ -68,8 +68,7 @@ export default function Performance() {
                 </p>
               </CardContent>
             </Card>
-          </div>
-        )}
+        </div>
       </div>
     </PullToRefresh>
   );
