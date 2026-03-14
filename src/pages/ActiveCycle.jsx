@@ -107,9 +107,23 @@ export default function ActiveCycle() {
   });
 
   const { data: reliabilityLogs = [] } = useQuery({
-    queryKey: ['reliabilityLogs'],
-    queryFn: () => base44.entities.ReliabilityLog.list('-created_date', 30),
-    enabled: !!user,
+    queryKey: ['reliabilityLogs', user?.email],
+    queryFn: () => base44.entities.ReliabilityLog.filter({ user_email: user.email }, '-created_date', 30),
+    enabled: !!user?.email,
+  });
+
+  const { data: reliabilityScore } = useQuery({
+    queryKey: ['reliabilityScore', user?.email],
+    queryFn: () => base44.entities.ReliabilityScore.filter({ entity_id: user.email }),
+    enabled: !!user?.email,
+    select: (d) => d?.[0],
+  });
+
+  const { data: subscription } = useQuery({
+    queryKey: ['subscription', user?.email],
+    queryFn: () => base44.entities.Subscription.filter({ user_email: user.email }),
+    enabled: !!user?.email,
+    select: (d) => d?.[0],
   });
 
   const activateCycleMutation = useMutation({
