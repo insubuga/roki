@@ -3,7 +3,7 @@ export const SUBSCRIPTION_PLANS = {
   core: {
     id: 'core',
     name: 'Core Readiness',
-    price: 29,
+    price: 39,
     description: 'For the consistent trainer',
     laundryCredits: 5,
     turnaroundHours: 48,
