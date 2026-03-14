@@ -551,8 +551,8 @@ export default function ActiveCycle() {
                     <p className="text-green-600 text-xl font-bold font-mono">{nodeUtilization}%</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground uppercase mb-1">Cost/Cluster</p>
-                    <p className="text-foreground text-xl font-bold font-mono">$210</p>
+                    <p className="text-muted-foreground uppercase mb-1">Active Cycles</p>
+                    <p className="text-foreground text-xl font-bold font-mono">{allActiveCycles.length}</p>
                   </div>
                 </div>
               </CardContent>
