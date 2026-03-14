@@ -44,9 +44,12 @@ Deno.serve(async (req) => {
         });
 
         const planDetails = {
-          basic: { credits: 5, turnaround: 36, sneaker: 30, premium: false, rush: 1, rushFee: 12, dispatch: false, price: 9.99 },
-          pro: { credits: 10, turnaround: 24, sneaker: 50, premium: false, rush: 3, rushFee: 10, dispatch: true, price: 19.99 },
-          elite: { credits: 999, turnaround: 12, sneaker: 100, premium: true, rush: 999, rushFee: 0, dispatch: true, price: 49.99 },
+          core: { credits: 8, turnaround: 48, sneaker: 0, premium: false, rush: 0, rushFee: 15, dispatch: false, price: 29.99 },
+          priority: { credits: 20, turnaround: 24, sneaker: 50, premium: true, rush: 3, rushFee: 10, dispatch: true, price: 59.99 },
+          // legacy keys — keep for backward compat
+          basic: { credits: 8, turnaround: 48, sneaker: 0, premium: false, rush: 0, rushFee: 15, dispatch: false, price: 29.99 },
+          pro: { credits: 20, turnaround: 24, sneaker: 50, premium: true, rush: 3, rushFee: 10, dispatch: true, price: 59.99 },
+          elite: { credits: 999, turnaround: 12, sneaker: 100, premium: true, rush: 999, rushFee: 0, dispatch: true, price: 99.99 },
         };
 
         const plan = planDetails[metadata.plan_id] || planDetails.basic;
