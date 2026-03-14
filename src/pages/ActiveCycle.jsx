@@ -164,15 +164,17 @@ export default function ActiveCycle() {
 
       await base44.entities.Locker.update(locker.id, { status: 'softReserved' });
 
-      await base44.entities.ReliabilityLog.create({
-        user_email: user.email,
-        event_type: 'on_time_delivery',
-        promised_time: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-      });
+      // Deduct laundry credit from subscription
+      const subs = await base44.entities.Subscription.filter({ user_email: user.email });
+      if (subs[0]) {
+        await base44.entities.Subscription.update(subs[0].id, {
+          laundry_credits_used: (subs[0].laundry_credits_used || 0) + 1,
+        });
+      }
 
       await base44.entities.Notification.create({
         user_email: user.email,
-        type: 'cycle_activated',
+        type: 'laundry',
         title: 'Locker Reserved — Drop Off Ready',
         message: `Cycle activated. Locker reserved at ${preferredGym?.name || 'your gym'}. Access code: ${code}. Drop your gear within 2 hours.`,
         priority: 'high',
