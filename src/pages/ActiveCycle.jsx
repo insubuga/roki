@@ -47,7 +47,7 @@ export default function ActiveCycle() {
         const userData = await base44.auth.me();
         setUser(userData);
       } catch (e) {
-        setUser(null);
+        base44.auth.redirectToLogin();
       }
     };
     loadUser();
