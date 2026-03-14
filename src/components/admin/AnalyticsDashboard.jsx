@@ -246,11 +246,40 @@ export default function AnalyticsDashboard() {
 
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-3">
-        <Button variant="outline" className="text-xs h-10">
+        <Button
+          variant="outline"
+          className="text-xs h-10"
+          onClick={() => {
+            const emails = topChurnRisks.map(r => r.user_email).join(', ');
+            toast.info(`Retention campaign targeting ${topChurnRisks.length} users: ${emails || 'none'}`);
+          }}
+        >
           <Target className="w-3 h-3 mr-1" />
           Run Retention Campaign
         </Button>
-        <Button className="bg-green-600 hover:bg-green-700 text-white text-xs h-10">
+        <Button
+          className="bg-green-600 hover:bg-green-700 text-white text-xs h-10"
+          onClick={() => {
+            const rows = [
+              ['Metric', 'Value'],
+              ['Total Users', analyticsData.total_users],
+              ['Monthly Active', analyticsData.growth_metrics.mau],
+              ['Avg LTV', `$${analyticsData.ltv_analysis.average_ltv}`],
+              ['Churn Risks', analyticsData.churn_risks.length],
+              ['7-Day Retention', `${analyticsData.growth_metrics.retention_d7}%`],
+              ['30-Day Retention', `${analyticsData.growth_metrics.retention_d30}%`],
+            ];
+            const csv = rows.map(r => r.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `roki-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast.success('Analytics report exported');
+          }}
+        >
           <TrendingUp className="w-3 h-3 mr-1" />
           Export Report
         </Button>
