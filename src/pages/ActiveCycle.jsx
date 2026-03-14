@@ -283,11 +283,11 @@ export default function ActiveCycle() {
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-muted p-2 rounded">
-                    <p className="text-muted-foreground uppercase mb-1">Cycle ID</p>
+                    <p className="text-muted-foreground uppercase mb-1">Reset ID</p>
                     <p className="text-foreground font-mono">{activeCycle.order_number}</p>
                   </div>
                   <div className="bg-muted p-2 rounded">
-                   <p className="text-muted-foreground uppercase mb-1">Route ID</p>
+                   <p className="text-muted-foreground uppercase mb-1">Route Code</p>
                    <p className="text-foreground font-mono">RT{activeCycle.id?.slice(-4).toUpperCase()}</p>
                   </div>
                   <div className="bg-muted p-2 rounded">
@@ -295,7 +295,7 @@ export default function ActiveCycle() {
                     <p className="text-foreground font-mono">{cycleLocker?.locker_number || '—'}</p>
                   </div>
                   <div className="bg-muted p-2 rounded">
-                    <p className="text-muted-foreground uppercase mb-1">Batch Volume</p>
+                    <p className="text-muted-foreground uppercase mb-1">Gear Units</p>
                     <p className="text-foreground font-mono">{activeCycle.items?.length || 0} units</p>
                   </div>
                 </div>
@@ -312,10 +312,10 @@ export default function ActiveCycle() {
                   />
                 )}
 
-                {/* Return locker panel — shown when clean gear is delivered back */}
+                {/* Return locker panel — shown when reset gear is delivered back */}
                 {returnAssignment && (returnLocker || returnAssignment.locker_id) && (
                   <div className="border-t border-border pt-3 mt-3">
-                    <p className="text-muted-foreground font-mono text-[10px] uppercase tracking-widest mb-2">Return Delivery</p>
+                    <p className="text-muted-foreground font-mono text-[10px] uppercase tracking-widest mb-2">Reset Delivery</p>
                     <ReturnLockerPanel
                       returnAssignment={returnAssignment}
                       locker={returnLocker || { id: returnAssignment.locker_id, locker_number: '—' }}
@@ -327,17 +327,17 @@ export default function ActiveCycle() {
 
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Pickup Timestamp</span>
+                    <span className="text-muted-foreground">Drop Timestamp</span>
                     <span className="text-foreground font-mono">{pickupTime?.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Expected Delivery</span>
+                    <span className="text-muted-foreground">Expected Reset</span>
                     <span className="text-foreground font-mono">{expectedDelivery?.toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">SLA Commitment</span>
-                    <span className="text-green-600 font-mono font-bold">{subscription?.laundry_turnaround_hours ?? 48}h</span>
-                  </div>
+                     <span className="text-muted-foreground">Reset SLA</span>
+                     <span className="text-green-600 font-mono font-bold">{subscription?.laundry_turnaround_hours ?? 48}h</span>
+                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Variance</span>
                     <span className={`font-mono font-bold ${variance > 0 ? 'text-green-600' : 'text-red-600'}`}>
