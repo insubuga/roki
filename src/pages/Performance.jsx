@@ -37,8 +37,7 @@ export default function Performance() {
         />
 
         {/* Member Dashboard: Personal Stats */}
-        {user?.role !== 'admin' && user?.role !== 'driver' && (
-          <div className="space-y-4">
+        <div className="space-y-4">
             <Card className="border-border">
               <CardHeader>
                 <CardTitle className="text-sm font-mono">Your Service History</CardTitle>
