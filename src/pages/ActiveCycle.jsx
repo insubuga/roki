@@ -37,6 +37,7 @@ const gearVolumeOptions = [
 
 export default function ActiveCycle() {
   const [user, setUser] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
   const [showActivateDialog, setShowActivateDialog] = useState(false);
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
   const [gearVolume, setGearVolume] = useState('standard');
@@ -53,6 +54,21 @@ export default function ActiveCycle() {
       }
     };
     loadUser();
+
+    // Get initial user location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setUserLocation({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          });
+        },
+        () => {
+          console.log('Location access denied');
+        }
+      );
+    }
   }, []);
 
   const { data: activeCycle } = useQuery({
@@ -366,6 +382,18 @@ export default function ActiveCycle() {
               </CardContent>
             </Card>
           )}
+
+          {/* Location Monitoring */}
+          {activeCycle && preferredGym && (
+            <GeofenceMonitor 
+              userEmail={user?.email} 
+              gymId={preferredGym.id}
+              enabled={true}
+            />
+          )}
+
+          {/* Nearby Gyms */}
+          <NearbyGymsMap userLocation={userLocation} />
 
           {/* Route & Node Allocation */}
           <Card className="bg-card border-border">
