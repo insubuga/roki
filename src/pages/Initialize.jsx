@@ -150,6 +150,17 @@ export default function Initialize() {
 
       // Update user's preferred gym
       await base44.auth.updateMe({ preferred_gym: selectedGymId });
+
+      // Welcome notification
+      await base44.entities.Notification.create({
+        user_email: user.email,
+        type: 'system',
+        title: '🎉 Welcome to ROKI!',
+        message: `Your locker at ${selectedGym?.name || 'your gym'} is ready. Drop your first bag and we'll handle the rest.`,
+        action_url: '/ActiveCycle',
+        priority: 'high',
+        read: false,
+      });
     },
     onSuccess: () => {
       setDone(true);
