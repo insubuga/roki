@@ -216,7 +216,7 @@ Deno.serve(async (req) => {
 
       if (subs[0]) {
         await base44.asServiceRole.entities.Subscription.update(subs[0].id, {
-          plan: 'free',
+          plan: 'core',
           status: 'canceled',
           stripe_subscription_id: null,
           monthly_price: 0,
