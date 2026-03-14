@@ -28,6 +28,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import CycleForecastWidget from '../components/dashboard/CycleForecastWidget';
 import InfrastructureMetrics from '../components/dashboard/InfrastructureMetrics';
 import SubscriptionUsageCard from '../components/dashboard/SubscriptionUsageCard';
