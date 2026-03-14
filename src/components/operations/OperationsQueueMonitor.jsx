@@ -163,7 +163,7 @@ export default function OperationsQueueMonitor() {
 
       {/* Manual Refresh */}
       <Button 
-        onClick={() => refetch()}
+        onClick={() => { refetch(); refetchIncidents(); }}
         className="w-full bg-green-600 hover:bg-green-700 text-white"
       >
         <RefreshCw className="w-4 h-4 mr-2" />
