@@ -96,7 +96,7 @@ Deno.serve(async (req) => {
     // 1. Create in-app notification
     await base44.asServiceRole.entities.Notification.create({
       user_email: userEmail,
-      type: 'cycle_update',
+      type: 'laundry',
       title,
       message,
       action_url: '/LaundryOrder',
