@@ -36,11 +36,6 @@ export default function Performance() {
           iconColor="text-green-600"
         />
 
-        {/* Admin Only: Advanced Analytics */}
-        {user?.role === 'admin' && (
-          <AnalyticsDashboard />
-        )}
-
         {/* Member Dashboard: Personal Stats */}
         {user?.role !== 'admin' && user?.role !== 'driver' && (
           <div className="space-y-4">
