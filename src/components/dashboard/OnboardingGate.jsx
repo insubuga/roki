@@ -25,7 +25,7 @@ export default function OnboardingGate({ user, subscription, preferences }) {
       done: hasSub,
       icon: CreditCard,
       title: 'Choose a Plan',
-      desc: 'Core ($89/mo) or Priority ($139/mo)',
+      desc: 'Core ($29/mo) or Priority ($59/mo)',
     },
     {
       id: 'schedule',

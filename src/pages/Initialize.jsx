@@ -96,9 +96,8 @@ export default function Initialize() {
 
   const provisionMutation = useMutation({
     mutationFn: async () => {
-      // Assign locker
+      // Reserve locker reference in preferences (locker stays available for cycle assignment)
       const locker = availableLockers[0];
-      await base44.entities.Locker.update(locker.id, { status: 'claimed', user_email: user.email });
       setAssignedLockerId(locker.id);
 
       // Save preferences
