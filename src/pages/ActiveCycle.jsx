@@ -243,9 +243,12 @@ export default function ActiveCycle() {
   const expectedDelivery = pickupTime ? new Date(pickupTime.getTime() + avgTurnaround * 60 * 1000) : null;
   const variance = activeCycle && expectedDelivery ? Math.round((expectedDelivery - new Date()) / 60000) : 0;
 
-  const turnaroundTrend = Array.from({ length: 7 }, (_, i) => ({
-    value: avgTurnaround + Math.floor(Math.random() * 400 - 200)
-  }));
+  // Build turnaround trend from real reliability logs (deviation_minutes relative to avgTurnaround)
+  const turnaroundTrend = reliabilityLogs.length > 0
+    ? reliabilityLogs.slice(0, 7).reverse().map((log) => ({
+        value: avgTurnaround + (log.deviation_minutes ?? 0),
+      }))
+    : [{ value: avgTurnaround }];
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
