@@ -82,19 +82,18 @@ export default function Network() {
   const totalCapacity = allLockers.length;
   const networkUtilization = totalCapacity > 0 ? Math.round((totalActiveNodes / totalCapacity) * 100) : 0;
   
-  // Mock nearby nodes based on assigned gym
+  // Nearby nodes — no random distances, use real gym data
   const nearbyNodes = allGyms
     .filter(g => g.id !== gym?.id)
     .slice(0, 5)
     .map(g => ({
       gym: g,
       lockers: allLockers.filter(l => l.gym_id === g.id),
-      distance: (Math.random() * 5 + 0.5).toFixed(1) // Mock distance in miles
     }));
 
-  // Calculate center point for map
-  const mapCenter = gym 
-    ? [41.8781, -87.6298] // Chicago default, would use gym coordinates
+  // Use actual gym coordinates if available
+  const mapCenter = (gym?.latitude && gym?.longitude)
+    ? [gym.latitude, gym.longitude]
     : [41.8781, -87.6298];
 
   if (!user) {
