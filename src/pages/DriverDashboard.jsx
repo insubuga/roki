@@ -30,7 +30,6 @@ import PerformanceStats from '@/components/driver/PerformanceStats';
 import DriverSupportChat from '@/components/driver/SupportChat';
 import LockerPickups from '@/components/driver/LockerPickups';
 import ConfirmRouteDeparture from '@/components/driver/ConfirmRouteDeparture';
-import ReturnDeliveries from '@/components/driver/ReturnDeliveries';
 import ReturnLockerLoad from '@/components/driver/ReturnLockerLoad';
 
 export default function DriverDashboard() {
