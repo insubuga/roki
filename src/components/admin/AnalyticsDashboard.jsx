@@ -136,24 +136,34 @@ export default function AnalyticsDashboard() {
           <CardTitle className="text-sm font-mono">User Segmentation</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie
-                data={segmentData}
-                cx="50%"
-                cy="50%"
-                outerRadius={60}
-                fill="#8884d8"
-                dataKey="value"
-                label={({ name, value }) => `${name} (${value})`}
-              >
-                {segmentData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={segmentData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={70}
+                  dataKey="value"
+                  label={false}
+                >
+                  {segmentData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value, name) => [value, name]} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="flex flex-col gap-2 min-w-[140px]">
+              {segmentData.map(entry => (
+                <div key={entry.name} className="flex items-center gap-2 text-xs">
+                  <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: entry.color }} />
+                  <span className="text-foreground">{entry.name}</span>
+                  <span className="text-muted-foreground ml-auto">({entry.value})</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
