@@ -20,7 +20,7 @@ export default function OperationsQueueMonitor() {
     refetchInterval: 30000 // Refresh every 30s
   });
 
-  const { data: incidents = [] } = useQuery({
+  const { data: incidents = [], refetch: refetchIncidents } = useQuery({
     queryKey: ['incidentsOpen'],
     queryFn: () => base44.asServiceRole.entities.IncidentLog.filter({
       status: { $in: ['open', 'investigating'] }
