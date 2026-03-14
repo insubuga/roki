@@ -338,8 +338,8 @@ export default function Network() {
             <div className="flex-1">
               <p className="text-foreground font-bold mb-1 font-mono uppercase text-sm">RCN Expansion Zones Identified</p>
               <p className="text-muted-foreground text-xs leading-relaxed font-mono">
-                RCN analysis shows {3 + Math.floor(Math.random() * 5)} high-density zones for strategic node placement. 
-                Coverage optimization targets {85 + Math.floor(Math.random() * 10)}% metropolitan reach.
+                RCN analysis shows {allGyms.length} active network locations. 
+                Coverage optimization targets {allLockers.length > 0 ? Math.min(99, Math.round((allLockers.filter(l => l.status !== 'maintenance').length / allLockers.length) * 100)) : 0}% node availability.
               </p>
             </div>
           </div>
