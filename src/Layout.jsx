@@ -20,6 +20,7 @@ import {
 import NotificationDropdown from './components/notifications/NotificationDropdown';
 import AlertCenter from './components/alerts/AlertCenter';
 import FloatingAssistant from './components/assistant/FloatingAssistant';
+import ErrorBoundary from './components/error/ErrorBoundary';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
