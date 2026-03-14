@@ -127,6 +127,18 @@ export default function ActiveCycle() {
     select: (d) => d?.[0],
   });
 
+  const { data: returnAssignment } = useQuery({
+    queryKey: ['returnAssignment', activeCycle?.id],
+    queryFn: () => base44.entities.ReturnLockerAssignment.filter({ cycle_id: activeCycle.id }).then(r => r[0] || null),
+    enabled: !!activeCycle?.id,
+  });
+
+  const { data: returnLocker } = useQuery({
+    queryKey: ['returnLocker', returnAssignment?.locker_id],
+    queryFn: () => base44.entities.Locker.get(returnAssignment.locker_id),
+    enabled: !!returnAssignment?.locker_id,
+  });
+
   const activateCycleMutation = useMutation({
     mutationFn: async () => {
       if (!user?.preferred_gym) throw new Error('Set your home gym in Profile first');
