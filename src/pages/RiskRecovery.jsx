@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Shield, Zap, TrendingDown, Clock, CheckCircle, Activity, ArrowLeft } from 'lucide-react';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
+import CreditsWarning from '@/components/warnings/CreditsWarning';
+import SLAWarning from '@/components/warnings/SLAWarning';
 
 export default function RiskRecovery() {
   const [user, setUser] = useState(null);
@@ -84,6 +86,10 @@ export default function RiskRecovery() {
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-4">
+        {/* Warnings */}
+        <CreditsWarning remaining={rushCreditsRemaining} threshold={1} />
+        <SLAWarning breachRate={100 - (reliabilityScore?.sla_adherence_rate || 100)} slaAdherence={reliabilityScore?.sla_adherence_rate || 100} />
+
         {/* Header */}
         <div className="flex items-center gap-3">
           <Link to="/Dashboard">
