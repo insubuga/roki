@@ -7,6 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Package, CheckCircle2, Lock, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 
+function generateCode() {
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
+
 export default function ReturnLockerLoad({ user }) {
   const queryClient = useQueryClient();
 
@@ -18,7 +22,15 @@ export default function ReturnLockerLoad({ user }) {
 
   const { data: returnAssignments = [] } = useQuery({
     queryKey: ['driver-return-assignments-load'],
-    queryFn: () => base44.entities.ReturnLockerAssignment.filter({ status: 'assigned' }),
+    queryFn: () => base44.entities.ReturnLockerAssignment.filter({
+      status: { $in: ['assigned', 'en_route'] }
+    }),
+    enabled: readyCycles.length > 0,
+  });
+
+  const { data: availableLockers = [] } = useQuery({
+    queryKey: ['driver-available-lockers'],
+    queryFn: () => base44.entities.Locker.filter({ status: 'available' }),
     enabled: readyCycles.length > 0,
   });
 
@@ -28,17 +40,47 @@ export default function ReturnLockerLoad({ user }) {
     enabled: returnAssignments.length > 0,
   });
 
+  // Assign a locker to a ready cycle (driver at facility, picking up gear)
+  const assignLockerMutation = useMutation({
+    mutationFn: async (cycle) => {
+      const locker = availableLockers[0];
+      if (!locker) throw new Error('No lockers available at this gym');
+      const code = generateCode();
+
+      await base44.entities.ReturnLockerAssignment.create({
+        cycle_id: cycle.id,
+        locker_id: locker.id,
+        user_email: cycle.user_email,
+        access_code: code,
+        status: 'assigned',
+        assigned_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      });
+
+      await base44.entities.Locker.update(locker.id, { status: 'softReserved' });
+    },
+    onSuccess: () => {
+      toast.success('Locker assigned — deliver gear and confirm load');
+      queryClient.invalidateQueries({ queryKey: ['driver-ready-cycles'] });
+      queryClient.invalidateQueries({ queryKey: ['driver-return-assignments-load'] });
+      queryClient.invalidateQueries({ queryKey: ['driver-available-lockers'] });
+    },
+    onError: (e) => toast.error(e.message || 'Failed to assign locker'),
+  });
+
+  // Confirm gear has been physically loaded into the locker
   const confirmLoadMutation = useMutation({
     mutationFn: async ({ cycle, assignment }) => {
       await base44.entities.ReturnLockerAssignment.update(assignment.id, {
         status: 'delivered',
       });
       await base44.entities.Locker.update(assignment.locker_id, { status: 'dropped' });
+      // In-app notification (email also fires via returnLockerNotifier automation)
       await base44.entities.Notification.create({
         user_email: cycle.user_email,
-        type: 'cycle_ready',
-        title: '✅ Clean gear in your locker',
-        message: `Order ${cycle.order_number} has been loaded into your return locker. Access code: ${assignment.access_code}. Head to ${cycle.gym_location || 'your gym'} to collect.`,
+        type: 'laundry',
+        title: '✅ Clean gear in your locker!',
+        message: `Your gear is ready. Access code: ${assignment.access_code}. Head to ${cycle.gym_location || 'your gym'} to collect.`,
         priority: 'high',
         read: false,
       });
@@ -51,27 +93,62 @@ export default function ReturnLockerLoad({ user }) {
     onError: () => toast.error('Failed to confirm delivery'),
   });
 
-  const cyclesWithAssignment = readyCycles
+  // Split cycles into: needs locker assigned vs. has assignment ready to load
+  const unassignedCycles = readyCycles.filter(
+    c => !returnAssignments.find(a => a.cycle_id === c.id)
+  );
+  const assignedPairs = readyCycles
     .map(cycle => ({
       cycle,
       assignment: returnAssignments.find(a => a.cycle_id === cycle.id),
     }))
     .filter(({ assignment }) => !!assignment);
 
-  if (cyclesWithAssignment.length === 0) return null;
+  if (readyCycles.length === 0) return null;
 
   return (
     <div className="px-4 mb-4">
       <div className="flex items-center gap-2 mb-3">
         <Package className="w-4 h-4 text-blue-600" />
-        <h2 className="text-base font-bold text-gray-900 font-mono">Clean Gear — Load Return Lockers</h2>
-        <Badge className="bg-blue-600 text-white text-xs">{cyclesWithAssignment.length}</Badge>
+        <h2 className="text-base font-bold text-gray-900 font-mono">Clean Gear Returns</h2>
+        <Badge className="bg-blue-600 text-white text-xs">{readyCycles.length}</Badge>
       </div>
 
       <div className="space-y-3">
-        {cyclesWithAssignment.map(({ cycle, assignment }) => {
-          const locker = allLockers.find(l => l.id === assignment.locker_id);
+        {/* Step 1: Unassigned cycles — driver needs to claim a locker */}
+        {unassignedCycles.map((cycle) => (
+          <Card key={cycle.id} className="border-l-4 border-l-orange-400">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-sm text-gray-900">
+                  Order #{cycle.order_number}
+                </span>
+                <Badge className="bg-orange-100 text-orange-700 border border-orange-300 font-mono text-xs">
+                  Needs Locker
+                </Badge>
+              </div>
+              {cycle.gym_location && (
+                <div className="flex items-center gap-1 text-xs text-gray-500 font-mono mb-3">
+                  <MapPin className="w-3 h-3" />
+                  <span>{cycle.gym_location}</span>
+                </div>
+              )}
+              <p className="text-gray-400 font-mono text-xs mb-3">Member: {cycle.user_email}</p>
+              <Button
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-mono text-sm font-bold"
+                onClick={() => assignLockerMutation.mutate(cycle)}
+                disabled={assignLockerMutation.isPending || availableLockers.length === 0}
+              >
+                <Lock className="w-4 h-4 mr-2" />
+                {availableLockers.length === 0 ? 'No Lockers Available' : 'Assign Return Locker'}
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
 
+        {/* Step 2: Locker assigned — driver loads gear and confirms */}
+        {assignedPairs.map(({ cycle, assignment }) => {
+          const locker = allLockers.find(l => l.id === assignment.locker_id);
           return (
             <Card key={cycle.id} className="border-l-4 border-l-blue-500">
               <CardContent className="p-4">
@@ -80,30 +157,25 @@ export default function ReturnLockerLoad({ user }) {
                     Order #{cycle.order_number}
                   </span>
                   <Badge className="bg-blue-100 text-blue-700 border border-blue-300 font-mono text-xs">
-                    Load Pending
+                    Load Gear
                   </Badge>
                 </div>
 
-                {/* Return locker code */}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                  <p className="text-blue-700 font-mono text-xs mb-1">Return Locker Code</p>
+                  <p className="text-blue-600 font-mono text-xs mb-1">
+                    Locker #{locker?.locker_number || '—'} — Enter this code to open:
+                  </p>
                   <span className="text-blue-700 font-mono font-bold text-2xl tracking-[0.3em]">
                     {assignment.access_code}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-gray-500 font-mono mb-3">
-                  <Lock className="w-3 h-3" />
-                  <span>Locker #{locker?.locker_number || '—'}</span>
-                  {cycle.gym_location && (
-                    <>
-                      <span>·</span>
-                      <MapPin className="w-3 h-3" />
-                      <span>{cycle.gym_location}</span>
-                    </>
-                  )}
-                </div>
-
+                {cycle.gym_location && (
+                  <div className="flex items-center gap-1 text-xs text-gray-500 font-mono mb-3">
+                    <MapPin className="w-3 h-3" />
+                    <span>{cycle.gym_location}</span>
+                  </div>
+                )}
                 <p className="text-xs text-gray-400 font-mono mb-3">Member: {cycle.user_email}</p>
 
                 <Button
@@ -112,7 +184,7 @@ export default function ReturnLockerLoad({ user }) {
                   disabled={confirmLoadMutation.isPending}
                 >
                   <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Confirm — Clean Gear Loaded
+                  Confirm — Gear Loaded in Locker
                 </Button>
               </CardContent>
             </Card>
