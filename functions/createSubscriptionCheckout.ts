@@ -3,11 +3,10 @@ import Stripe from 'npm:stripe@17.5.0';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
 
-// Map plan IDs to Stripe price IDs (you'll need to create these in Stripe)
+// Stripe price IDs for Roki subscription plans
 const SUBSCRIPTION_PRICE_MAP = {
-  'basic': Deno.env.get('STRIPE_PRICE_BASIC') || 'price_basic_monthly',
-  'pro': Deno.env.get('STRIPE_PRICE_PRO') || 'price_pro_monthly',
-  'elite': Deno.env.get('STRIPE_PRICE_ELITE') || 'price_elite_monthly',
+  'core':     'price_1TAjaTA10LjEPy7hBaL0t9zo',
+  'priority': 'price_1TAjaTA10LjEPy7hJU6Ekhok',
 };
 
 Deno.serve(async (req) => {
@@ -21,7 +20,7 @@ Deno.serve(async (req) => {
 
     const { plan_id } = await req.json();
 
-    if (!plan_id || plan_id === 'free') {
+    if (!plan_id || !['core', 'priority'].includes(plan_id)) {
       return Response.json({ error: 'Invalid plan' }, { status: 400 });
     }
 

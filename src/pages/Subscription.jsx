@@ -87,6 +87,11 @@ export default function Subscription() {
 
   const selectPlanMutation = useMutation({
     mutationFn: async (planId) => {
+      // Block checkout inside iframes (must use published app URL)
+      if (window.self !== window.top) {
+        toast.error('Checkout only works from the published app — not inside the builder preview.');
+        return;
+      }
       const response = await base44.functions.invoke('createSubscriptionCheckout', { plan_id: planId });
       if (response.data?.url) {
         window.location.href = response.data.url;
