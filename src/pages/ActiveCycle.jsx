@@ -220,6 +220,7 @@ export default function ActiveCycle() {
   }
 
   const totalCycles = preferences?.total_cycles_completed || 0;
+  // reliabilityScore, avgTurnaround, slaAdherence computed from real data above
   const reliabilityScoreVal = reliabilityScore?.score ?? null;
   const onTimeLogs = reliabilityLogs.filter(l => l.event_type === 'on_time_delivery');
   const totalLogged = reliabilityLogs.filter(l => ['on_time_delivery', 'delayed_delivery'].includes(l.event_type)).length;
