@@ -8,6 +8,7 @@ import CycleTracker from '@/components/cycle/CycleTracker';
 import LockerQRCode from '@/components/locker/LockerQRCode';
 import DispatchAttachments from '@/components/cycle/DispatchAttachments';
 import LockerPanel from '@/components/locker/LockerPanel';
+import ReturnLockerPanel from '@/components/locker/ReturnLockerPanel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
