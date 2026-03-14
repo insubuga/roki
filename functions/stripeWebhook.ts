@@ -233,6 +233,31 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Handle payment failure — flip subscription to past_due and notify member
+    if (event.type === 'invoice.payment_failed') {
+      const invoice = event.data.object;
+      console.warn('Payment failed for invoice:', invoice.id, 'customer:', invoice.customer_email);
+
+      if (invoice.subscription) {
+        const subs = await base44.asServiceRole.entities.Subscription.filter({
+          stripe_subscription_id: invoice.subscription
+        });
+        if (subs[0]) {
+          await base44.asServiceRole.entities.Subscription.update(subs[0].id, { status: 'past_due' });
+          console.log('Subscription set to past_due for:', subs[0].user_email);
+
+          await base44.asServiceRole.entities.Notification.create({
+            user_email: subs[0].user_email,
+            type: 'subscription',
+            title: 'Payment Failed',
+            message: 'Your subscription payment failed. Please update your payment method to keep your plan active.',
+            priority: 'high',
+            read: false,
+          });
+        }
+      }
+    }
+
     // Handle subscription updates
     if (event.type === 'customer.subscription.updated') {
       const subscription = event.data.object;
