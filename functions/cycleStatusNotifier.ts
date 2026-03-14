@@ -1,11 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const STATUS_LABELS = {
-  ready: 'Ready for Pickup',
-  awaiting_pickup: 'Ready for Pickup',
-  washing: 'Now Washing',
-  drying: 'Now Drying',
-  picked_up: 'Picked Up — Cycle Complete',
+  ready: 'Gear Ready for Pickup',
+  awaiting_pickup: 'Gear Ready for Pickup',
+  washing: 'Gear In Transit',
+  drying: 'Gear Processing',
+  picked_up: 'Cycle Complete — Reset Ready',
   cancelled: 'Cycle Cancelled',
 };
 
@@ -53,42 +53,42 @@ Deno.serve(async (req) => {
     let emailBody = '';
 
     if (newStatus === 'ready' || newStatus === 'awaiting_pickup') {
-      title = '🧺 Your laundry is ready!';
-      message = `Order ${orderNumber} is ready for pickup at ${gymLocation}. Head to your locker to collect your clean gear.`;
+      title = '🎯 Your gear is reset and ready!';
+      message = `Order ${orderNumber} is reset and ready at ${gymLocation}. Head to your locker to collect your gear.`;
       emailBody = `
-        <h2>Your laundry is ready for pickup!</h2>
-        <p>Great news — your ROKI order <strong>${orderNumber}</strong> has been cleaned, folded, and placed back in your locker at <strong>${gymLocation}</strong>.</p>
-        <p>Head to your locker at your next gym visit to collect your gear.</p>
-        <p style="color:#666;font-size:12px;">You can check your access code in the ROKI app under Locker.</p>
+        <h2>Your gear is reset and ready!</h2>
+        <p>Your ROKI cycle <strong>${orderNumber}</strong> has been processed and reset. Your gear is waiting in your locker at <strong>${gymLocation}</strong>.</p>
+        <p>Head to your locker at your next visit to collect your gear.</p>
+        <p style="color:#666;font-size:12px;">Your access code is available in the ROKI app under Active Cycle.</p>
       `;
     } else if (newStatus === 'washing') {
-      title = '🫧 Your laundry is being washed';
-      message = `Order ${orderNumber} has been picked up and is now in the wash. Expected back within your turnaround window.`;
+      title = '🚀 Your gear is in transit';
+      message = `Order ${orderNumber} has been picked up and is now in the Roki Network. Expected delivery within your turnaround window.`;
       emailBody = `
-        <h2>Your laundry cycle is underway</h2>
-        <p>Order <strong>${orderNumber}</strong> has been picked up and is currently being washed at our facility.</p>
-        <p>We'll notify you again when it's ready for pickup.</p>
+        <h2>Your gear is in the Roki Network</h2>
+        <p>Order <strong>${orderNumber}</strong> has been picked up and is currently being processed.</p>
+        <p>We'll notify you when it's ready for reset.</p>
       `;
     } else if (newStatus === 'drying') {
-      title = '💨 Your laundry is drying';
-      message = `Order ${orderNumber} is in the dryer — almost ready. We'll notify you when it's back at ${gymLocation}.`;
+      title = '⚡ Gear processing — almost ready';
+      message = `Order ${orderNumber} is in final processing — almost reset. We'll notify you when it's back at ${gymLocation}.`;
       emailBody = `
-        <h2>Your laundry is almost done</h2>
-        <p>Order <strong>${orderNumber}</strong> is currently drying. We'll send you a final notification when it's back at your locker at <strong>${gymLocation}</strong>.</p>
+        <h2>Your gear is almost reset</h2>
+        <p>Order <strong>${orderNumber}</strong> is in final processing. We'll send you a notification when it's ready at <strong>${gymLocation}</strong>.</p>
       `;
     } else if (newStatus === 'picked_up') {
-      title = '✅ Cycle complete';
-      message = `Order ${orderNumber} has been collected. Your cycle is complete.`;
+      title = '✅ Cycle complete — reset ready';
+      message = `Order ${orderNumber} has been collected. Your reset cycle is complete.`;
       emailBody = `
-        <h2>Cycle complete!</h2>
-        <p>You've successfully picked up order <strong>${orderNumber}</strong>. Your locker is now reset for your next cycle.</p>
-        <p>Thanks for using ROKI.</p>
+        <h2>Reset cycle complete!</h2>
+        <p>You've successfully collected order <strong>${orderNumber}</strong>. Your locker is now ready for your next reset cycle.</p>
+        <p>Thanks for using ROKI Readiness OS.</p>
       `;
     } else if (newStatus === 'cancelled') {
       title = '⚠️ Cycle cancelled';
       message = `Order ${orderNumber} has been cancelled. Contact support if this was unexpected.`;
       emailBody = `
-        <h2>Your cycle was cancelled</h2>
+        <h2>Your reset cycle was cancelled</h2>
         <p>Order <strong>${orderNumber}</strong> has been cancelled. If you did not request this, please contact ROKI support.</p>
       `;
     }
@@ -96,10 +96,10 @@ Deno.serve(async (req) => {
     // 1. Create in-app notification
     await base44.asServiceRole.entities.Notification.create({
       user_email: userEmail,
-      type: 'laundry',
+      type: 'cycle',
       title,
       message,
-      action_url: '/LaundryOrder',
+      action_url: '/ActiveCycle',
       priority: (newStatus === 'ready' || newStatus === 'awaiting_pickup') ? 'high' : 'normal',
       read: false,
     });
