@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTransition } from 'react';
 import { createPageUrl } from './utils';
 import PageTransition from './components/mobile/PageTransition';
 import { base44 } from '@/api/base44Client';
@@ -33,6 +34,7 @@ import { Badge } from '@/components/ui/badge';
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [pendingTab, setPendingTab] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -87,13 +89,13 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const handleTabClick = (e, page, path) => {
+    e.preventDefault();
     if (currentPageName === page) {
       // Already on this tab - scroll to top
-      e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       // Replace history so back button doesn't cycle through tabs
-      e.preventDefault();
+      setPendingTab(page);
       navigate(path, { replace: true });
     }
   };
@@ -224,13 +226,13 @@ export default function Layout({ children, currentPageName }) {
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPageName === item.page;
+            const isLoading = pendingTab === item.page;
             const path = createPageUrl(item.page);
             return (
-              <a
-                key={item.key || item.page}
-                href={path}
+              <button
+                key={item.page}
                 onClick={(e) => handleTabClick(e, item.page, path)}
-                className={`flex flex-col items-center justify-center gap-0.5 select-none transition-all ${
+                className={`flex flex-col items-center justify-center gap-0.5 select-none transition-all opacity-${isLoading ? '60' : '100'} ${
                   isActive ? 'text-green-600' : 'text-muted-foreground'
                 }`}
               >
@@ -238,7 +240,7 @@ export default function Layout({ children, currentPageName }) {
                   <Icon className={`w-5 h-5 select-none ${isActive ? 'text-green-600' : 'text-muted-foreground'}`} />
                 </div>
                 <span className={`text-[10px] font-medium select-none leading-tight ${isActive ? 'text-green-600' : 'text-muted-foreground'}`}>{item.name}</span>
-              </a>
+              </button>
             );
           })}
         </div>
