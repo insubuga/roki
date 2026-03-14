@@ -71,6 +71,20 @@ export default function FloatingAssistant({ user }) {
   const openChat = async () => {
     setIsOpen(true);
     if (!conversation) {
+      // Try to restore previous session from localStorage
+      const storedId = user?.email ? localStorage.getItem(CONV_STORAGE_KEY(user.email)) : null;
+      if (storedId) {
+        try {
+          const existing = await base44.agents.getConversation(storedId);
+          if (existing?.id) {
+            setConversation(existing);
+            setMessages(existing.messages || []);
+            return;
+          }
+        } catch (_) {
+          localStorage.removeItem(CONV_STORAGE_KEY(user.email));
+        }
+      }
       const conv = await base44.agents.createConversation({
         agent_name: 'rokibot',
         metadata: {
@@ -80,6 +94,7 @@ export default function FloatingAssistant({ user }) {
           user_role: user.role || 'user',
         },
       });
+      if (user?.email) localStorage.setItem(CONV_STORAGE_KEY(user.email), conv.id);
       setConversation(conv);
       setMessages(conv.messages || []);
     }
@@ -95,6 +110,7 @@ export default function FloatingAssistant({ user }) {
   };
 
   const handleClear = () => {
+    if (user?.email) localStorage.removeItem(CONV_STORAGE_KEY(user.email));
     setConversation(null);
     setMessages([]);
   };
