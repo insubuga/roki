@@ -148,7 +148,7 @@ export default function Dashboard() {
   // Calculate system metrics
   const clusterLoad = Math.min(85, (preferences?.total_cycles_completed || 0) * 8);
   const routeCapacity = 100 - 92; // 92% route efficiency = 8% capacity remaining
-  const slaTarget = 48;
+  const slaTarget = subscription?.laundry_turnaround_hours ?? 48;
   
   // System status logic
   const getSystemStatus = () => {
