@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import GeofenceMonitor from '../components/location/GeofenceMonitor';
-import NearbyGymsMap from '../components/location/NearbyGymsMap';
 import { createPageUrl } from '../utils';
 import { Activity, Clock, MapPin, AlertTriangle, TrendingUp, Database, Radio, BarChart3, ArrowLeft } from 'lucide-react';
 import CycleTracker from '@/components/cycle/CycleTracker';
@@ -37,7 +35,6 @@ const gearVolumeOptions = [
 
 export default function ActiveCycle() {
   const [user, setUser] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
   const [showActivateDialog, setShowActivateDialog] = useState(false);
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
   const [gearVolume, setGearVolume] = useState('standard');
@@ -54,21 +51,6 @@ export default function ActiveCycle() {
       }
     };
     loadUser();
-
-    // Get initial user location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setUserLocation({
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude
-          });
-        },
-        () => {
-          console.log('Location access denied');
-        }
-      );
-    }
   }, []);
 
   const { data: activeCycle } = useQuery({
@@ -382,18 +364,6 @@ export default function ActiveCycle() {
               </CardContent>
             </Card>
           )}
-
-          {/* Location Monitoring */}
-          {activeCycle && preferredGym && (
-            <GeofenceMonitor 
-              userEmail={user?.email} 
-              gymId={preferredGym.id}
-              enabled={true}
-            />
-          )}
-
-          {/* Nearby Gyms */}
-          <NearbyGymsMap userLocation={userLocation} />
 
           {/* Route & Node Allocation */}
           <Card className="bg-card border-border">
