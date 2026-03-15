@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Sparkles, Calendar, Clock, CheckCircle, SkipForward, RefreshCw, Loader2, Lock } from 'lucide-react';
@@ -6,6 +6,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import RescheduleForecastDialog from './RescheduleForecastDialog';
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -66,6 +71,8 @@ function buildForecast(user, preferences) {
 
 export default function CycleForecastWidget({ user, preferences, preferredGym }) {
   const queryClient = useQueryClient();
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [showSkipConfirm, setShowSkipConfirm] = useState(false);
 
   const { data: forecast, isLoading } = useQuery({
     queryKey: ['cycleForecast', user?.email],
@@ -185,30 +192,22 @@ export default function CycleForecastWidget({ user, preferences, preferredGym })
   });
 
   const rescheduleMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (newSlot) => {
       await base44.entities.CycleForecast.update(forecast.id, { status: 'skipped' });
-      // Push 1 week out
-      const shiftedPrefs = { ...preferences };
-      const data = buildForecast(user, shiftedPrefs);
-      const nextDate = new Date(data.predicted_drop_window_start);
-      nextDate.setDate(nextDate.getDate() + 7);
-      const nextEnd = new Date(data.predicted_drop_window_end);
-      nextEnd.setDate(nextEnd.getDate() + 7);
-      const dayName = DAY_NAMES[nextDate.getDay()];
-      const window = WINDOW_HOURS[preferences?.preferred_pickup_window] || WINDOW_HOURS.evening;
       return base44.entities.CycleForecast.create({
-        ...data,
-        predicted_date: nextDate.toISOString().split('T')[0],
-        predicted_drop_window: `${dayName} ${window.label}`,
-        predicted_drop_window_start: nextDate.toISOString(),
-        predicted_drop_window_end: nextEnd.toISOString(),
+        user_id: user.email,
+        ...newSlot,
+        confidence_score: forecast.confidence_score,
+        basis: forecast.basis,
         status: 'pending',
       });
     },
     onSuccess: () => {
-      toast.success('Cycle rescheduled to next week');
+      toast.success('Cycle rescheduled');
+      setShowReschedule(false);
       queryClient.invalidateQueries({ queryKey: ['cycleForecast'] });
     },
+    onError: () => toast.error('Failed to reschedule'),
   });
 
   // Don't show widget if cycle is already active
@@ -259,22 +258,18 @@ export default function CycleForecastWidget({ user, preferences, preferredGym })
           <Button
             variant="outline"
             className="border-border text-muted-foreground font-mono text-xs h-9"
-            onClick={() => rescheduleMutation.mutate()}
+            onClick={() => setShowReschedule(true)}
             disabled={rescheduleMutation.isPending}
           >
-            {rescheduleMutation.isPending
-              ? <Loader2 className="w-3 h-3 animate-spin" />
-              : <><RefreshCw className="w-3 h-3 mr-1" />Reschedule</>}
+            <RefreshCw className="w-3 h-3 mr-1" />Reschedule
           </Button>
           <Button
             variant="ghost"
             className="text-muted-foreground font-mono text-xs h-9"
-            onClick={() => skipMutation.mutate()}
+            onClick={() => setShowSkipConfirm(true)}
             disabled={skipMutation.isPending}
           >
-            {skipMutation.isPending
-              ? <Loader2 className="w-3 h-3 animate-spin" />
-              : <><SkipForward className="w-3 h-3 mr-1" />Skip</>}
+            <SkipForward className="w-3 h-3 mr-1" />Skip
           </Button>
         </div>
 
@@ -282,6 +277,34 @@ export default function CycleForecastWidget({ user, preferences, preferredGym })
           <p className="text-orange-500 font-mono text-xs mt-2 text-center">Set your home gym in Profile to confirm</p>
         )}
       </CardContent>
+
+      <RescheduleForecastDialog
+        open={showReschedule}
+        onClose={() => setShowReschedule(false)}
+        onConfirm={(slot) => rescheduleMutation.mutate(slot)}
+        isPending={rescheduleMutation.isPending}
+        currentForecast={forecast}
+      />
+
+      <AlertDialog open={showSkipConfirm} onOpenChange={setShowSkipConfirm}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-foreground font-mono text-sm uppercase">Skip This Cycle?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground font-mono text-xs">
+              This will dismiss the forecast for <span className="text-foreground font-semibold">{forecast?.predicted_drop_window}</span>. A new forecast will be generated for the following week.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-muted text-foreground border-border font-mono text-xs">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white font-mono text-xs"
+              onClick={() => { skipMutation.mutate(); setShowSkipConfirm(false); }}
+            >
+              Yes, Skip Cycle
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
