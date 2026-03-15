@@ -651,6 +651,31 @@ export default function ActiveCycle() {
           </DialogContent>
         </Dialog>
 
+        {/* Cancel & Reschedule Dialog */}
+        <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+          <AlertDialogContent className="bg-card border-border">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-foreground font-mono text-sm uppercase flex items-center gap-2">
+                <XCircle className="w-4 h-4 text-red-500" />
+                Cancel This Cycle?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-muted-foreground font-mono text-xs">
+                Your locker reservation will be released and the cycle cancelled. You can start a new cycle anytime from this page or the Dashboard forecast widget.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-muted text-foreground border-border font-mono text-xs">Keep Cycle</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-600 hover:bg-red-700 text-white font-mono text-xs"
+                onClick={() => cancelCycleMutation.mutate()}
+                disabled={cancelCycleMutation.isPending}
+              >
+                {cancelCycleMutation.isPending ? 'Cancelling...' : 'Yes, Cancel & Release Locker'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         {/* Recovery Protocol Dialog */}
         <Dialog open={showRecoveryDialog} onOpenChange={setShowRecoveryDialog}>
           <DialogContent className="bg-card border-red-700/50">
