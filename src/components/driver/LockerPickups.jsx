@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Lock, KeyRound, CheckCircle2, MapPin } from 'lucide-react';
@@ -10,24 +10,40 @@ import { toast } from 'sonner';
 export default function LockerPickups({ user }) {
   const queryClient = useQueryClient();
 
+  // Real-time: refresh pickups whenever a cycle or assignment changes
+  useEffect(() => {
+    if (!user) return;
+    const unsubCycle = base44.entities.Cycle.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['driver-locker-pickups'] });
+    });
+    const unsubAssignment = base44.entities.CycleLockerAssignment.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['driver-cycle-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['all-dropped-lockers'] });
+    });
+    return () => { unsubCycle(); unsubAssignment(); };
+  }, [user, queryClient]);
+
   // Cycles where gear has been dropped (awaiting_pickup + assignment.status=dropped)
   const { data: pendingCycles = [], isLoading } = useQuery({
     queryKey: ['driver-locker-pickups'],
     queryFn: () => base44.entities.Cycle.filter({ status: 'awaiting_pickup' }),
     enabled: !!user,
+    refetchInterval: 20000,
   });
 
   // CycleLockerAssignments for cycles with dropped gear (ready for pickup)
   const { data: cycleAssignments = [] } = useQuery({
     queryKey: ['driver-cycle-assignments'],
     queryFn: () => base44.entities.CycleLockerAssignment.filter({ status: 'dropped' }),
-    enabled: pendingCycles.length > 0,
+    enabled: !!user,
+    refetchInterval: 20000,
   });
 
   const { data: lockers = [] } = useQuery({
     queryKey: ['all-dropped-lockers'],
     queryFn: () => base44.entities.Locker.filter({ status: 'dropped' }),
-    enabled: cycleAssignments.length > 0,
+    enabled: !!user,
+    refetchInterval: 20000,
   });
 
   const confirmPickupMutation = useMutation({
