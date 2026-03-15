@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Activity, Clock, MapPin, AlertTriangle, TrendingUp, Database, Radio, BarChart3, ArrowLeft } from 'lucide-react';
+import { Activity, Clock, MapPin, AlertTriangle, TrendingUp, Database, Radio, BarChart3, ArrowLeft, XCircle } from 'lucide-react';
 import CycleTracker from '@/components/cycle/CycleTracker';
 import LockerQRCode from '@/components/locker/LockerQRCode';
 import DispatchAttachments from '@/components/cycle/DispatchAttachments';
@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import MobileSelect from '@/components/mobile/MobileSelect';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
@@ -38,6 +39,7 @@ export default function ActiveCycle() {
   const [user, setUser] = useState(null);
   const [showActivateDialog, setShowActivateDialog] = useState(false);
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [gearVolume, setGearVolume] = useState('standard');
   const [operationsView, setOperationsView] = useState(false);
   const queryClient = useQueryClient();
@@ -157,6 +159,37 @@ export default function ActiveCycle() {
       setShowActivateDialog(false);
     },
     onError: (err) => toast.error(err.message),
+  });
+
+  const cancelCycleMutation = useMutation({
+    mutationFn: async () => {
+      // Release the locker back to available
+      if (cycleAssignment?.locker_id) {
+        await base44.entities.Locker.update(cycleAssignment.locker_id, { status: 'available' });
+      }
+      // Mark assignment as expired
+      if (cycleAssignment?.id) {
+        await base44.entities.CycleLockerAssignment.update(cycleAssignment.id, { status: 'expired' });
+      }
+      // Cancel the cycle
+      await base44.entities.Cycle.update(activeCycle.id, { status: 'picked_up' });
+      // Notify user
+      await base44.entities.Notification.create({
+        user_email: user.email,
+        type: 'system',
+        title: 'Cycle Cancelled',
+        message: 'Your cycle has been cancelled and the locker released. Start a new cycle whenever you\'re ready.',
+        priority: 'normal',
+        read: false,
+      });
+    },
+    onSuccess: () => {
+      toast.success('Cycle cancelled — locker released');
+      setShowCancelDialog(false);
+      queryClient.invalidateQueries(['activeCycle']);
+      queryClient.invalidateQueries(['cycleAssignment']);
+    },
+    onError: () => toast.error('Failed to cancel cycle'),
   });
 
   const activateRecoveryMutation = useMutation({
