@@ -96,10 +96,10 @@ export default function DriverDashboard() {
     enabled: !!user?.email,
   });
 
-  // Sync live deliveries with React Query
+  // Real-time: invalidate query when subscription fires (don't replace full list)
   useEffect(() => {
     if (liveDeliveries.length > 0) {
-      queryClient.setQueryData(['driver-laundry-orders'], liveDeliveries);
+      queryClient.invalidateQueries({ queryKey: ['driver-laundry-orders'] });
     }
   }, [liveDeliveries, queryClient]);
 
