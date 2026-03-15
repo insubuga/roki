@@ -83,24 +83,13 @@ export function useDeliverySubscription(driverEmail) {
         console.log(`[DELIVERY_SUB] Driver ${driverEmail} subscribing to deliveries`);
         
         unsubscribe = base44.entities.Cycle.subscribe((event) => {
-          // Track cycles assigned to this driver's routes
-          const isRelevant = event.data?.status === 'ready' || event.data?.status === 'awaiting_pickup';
+          const activeStatuses = ['awaiting_pickup', 'washing', 'drying', 'ready'];
+          const isActive = activeStatuses.includes(event.data?.status);
           
-          if (isRelevant) {
-            console.log(`[DELIVERY_SUB] ${event.type} - cycle=${event.data?.order_number}, status=${event.data?.status}`);
-            
-            if (event.type === 'create' || event.type === 'update') {
-              setDeliveries(prev => {
-                const exists = prev.find(d => d.id === event.id);
-                if (exists) {
-                  return prev.map(d => d.id === event.id ? event.data : d);
-                } else {
-                  return [event.data, ...prev];
-                }
-              });
-              
-              // Update pending count
-              setPendingCount(prev => event.data?.status === 'ready' ? prev + 1 : prev);
+          if (event.type === 'create' || event.type === 'update') {
+            if (isActive) {
+              // Signal the query to refresh — pendingCount used as trigger
+              setPendingCount(prev => prev + 1);
             }
           }
         });
