@@ -10,6 +10,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 
 export default function OperationsView() {
   const [user, setUser] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -25,6 +26,16 @@ export default function OperationsView() {
     };
     loadUser();
   }, []);
+
+  // Real-time subscription: auto-refresh when any cycle changes
+  useEffect(() => {
+    if (!user) return;
+    const unsub = base44.entities.Cycle.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['allActiveOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['allActiveLaundry'] });
+    });
+    return () => unsub();
+  }, [user, queryClient]);
 
   const { data: allGyms = [] } = useQuery({
     queryKey: ['allGyms'],
@@ -44,12 +55,14 @@ export default function OperationsView() {
       status: { $in: ['awaiting_pickup', 'washing', 'drying'] }
     }),
     enabled: !!user,
+    refetchInterval: 30000, // fallback poll every 30s
   });
 
   const { data: activeLaundry = [] } = useQuery({
     queryKey: ['allActiveLaundry'],
     queryFn: () => base44.entities.Cycle.filter({ status: 'ready' }),
     enabled: !!user,
+    refetchInterval: 30000,
   });
 
   const { data: allUsers = [] } = useQuery({
