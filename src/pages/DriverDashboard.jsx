@@ -71,8 +71,11 @@ export default function DriverDashboard() {
 
   const { data: laundryOrders = [], isLoading: laundryLoading } = useQuery({
     queryKey: ['driver-laundry-orders'],
-    queryFn: () => base44.entities.Cycle.list('-created_date'),
+    queryFn: () => base44.entities.Cycle.filter({
+      status: { $in: ['awaiting_pickup', 'washing', 'drying', 'ready'] }
+    }, '-created_date'),
     enabled: !!user,
+    refetchInterval: 20000, // poll every 20s as reliable fallback
   });
 
   const { data: driverStats } = useQuery({
