@@ -6,11 +6,27 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Users, TrendingUp, Lock, Map, Radio, Activity, Layers } from 'lucide-react';
 import LockerDemandForecastCard from '../components/network/LockerDemandForecastCard';
 import MobileHeader from '../components/mobile/MobileHeader';
-import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+
+function RecenterMap({ center }) {
+  const map = useMap();
+  useEffect(() => { map.setView(center, map.getZoom()); }, [center]);
+  return null;
+}
 
 export default function Network() {
   const [user, setUser] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserLocation([pos.coords.latitude, pos.coords.longitude]),
+        () => {} // silently fail
+      );
+    }
+  }, []);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -91,10 +107,10 @@ export default function Network() {
       lockers: allLockers.filter(l => l.gym_id === g.id),
     }));
 
-  // Use actual gym coordinates if available
-  const mapCenter = (gym?.latitude && gym?.longitude)
-    ? [gym.latitude, gym.longitude]
-    : [41.8781, -87.6298];
+  // Center priority: user's real location > assigned gym > Chicago default
+  const mapCenter = userLocation
+    || (gym?.latitude && gym?.longitude ? [gym.latitude, gym.longitude] : null)
+    || [41.8781, -87.6298];
 
   if (!user) {
     return (
@@ -134,6 +150,28 @@ export default function Network() {
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   attribution='&copy; OpenStreetMap contributors'
                 />
+                <RecenterMap center={mapCenter} />
+
+                {/* User's current location */}
+                {userLocation && (
+                  <CircleMarker
+                    center={userLocation}
+                    radius={9}
+                    fillColor="#3b82f6"
+                    color="#fff"
+                    weight={3}
+                    fillOpacity={0.9}
+                  >
+                    <Popup>
+                      <div className="text-xs">
+                        <p className="font-bold text-blue-600">Your Location</p>
+                      </div>
+                    </Popup>
+                    <Tooltip permanent direction="top" offset={[0, -10]}>
+                      <span className="text-xs font-bold">YOU</span>
+                    </Tooltip>
+                  </CircleMarker>
+                )}
                 
                 {/* Assigned Node - Primary */}
                 <CircleMarker
