@@ -345,6 +345,18 @@ export default function ActiveCycle() {
                   />
                 )}
 
+                {/* Cancel option — only before gear is dropped */}
+                {cycleAssignment?.status === 'softReserved' && (
+                  <Button
+                    variant="outline"
+                    className="w-full border-red-700/50 text-red-500 hover:bg-red-950/30 font-mono text-xs h-8"
+                    onClick={() => setShowCancelDialog(true)}
+                  >
+                    <XCircle className="w-3 h-3 mr-1" />
+                    CAN'T MAKE IT — CANCEL & RESCHEDULE
+                  </Button>
+                )}
+
                 {/* Return locker panel — shown when reset gear is delivered back */}
                 {returnAssignment && (returnLocker || returnAssignment.locker_id) && (
                   <div className="border-t border-border pt-3 mt-3">
