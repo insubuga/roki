@@ -634,8 +634,8 @@ export default function ActiveCycle() {
                   <span className="text-foreground font-mono">{preferredGym?.name || 'Not Set'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Route Capacity</span>
-                  <span className="text-green-400 font-mono">Available</span>
+                  <span className="text-muted-foreground">Node Load</span>
+                  <span className={`font-mono font-bold ${gymLoadColor}`}>{gymUtilization}% · {gymLoadLabel}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">SLA Impact</span>
@@ -653,7 +653,7 @@ export default function ActiveCycle() {
                 <Button
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-mono"
                   onClick={() => activateCycleMutation.mutate()}
-                  disabled={activateCycleMutation.isPending || !user?.preferred_gym}
+                  disabled={activateCycleMutation.isPending || !user?.preferred_gym || gymAtCapacity}
                 >
                   {activateCycleMutation.isPending ? 'VALIDATING...' : 'ACTIVATE'}
                 </Button>
