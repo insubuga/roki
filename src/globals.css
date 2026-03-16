@@ -37,6 +37,20 @@ css
 html {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Force GPU compositing on scroll containers for 60fps mobile */
+main {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Prevent layout thrash from fixed elements */
+header, nav {
+  will-change: transform;
 }
 
 body {
