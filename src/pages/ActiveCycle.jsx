@@ -642,6 +642,18 @@ export default function ActiveCycle() {
                   <span className="text-green-400 font-mono">+0h</span>
                 </div>
               </div>
+              {gymAtCapacity && (
+                <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded p-3">
+                  <AlertTriangle className="w-3 h-3 text-red-500 mt-0.5 shrink-0" />
+                  <p className="text-red-400 font-mono text-xs">Your gym is at full capacity. New cycles are temporarily paused. Check back shortly.</p>
+                </div>
+              )}
+              {gymUtilization >= 85 && !gymAtCapacity && (
+                <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded p-3">
+                  <AlertTriangle className="w-3 h-3 text-amber-400 mt-0.5 shrink-0" />
+                  <p className="text-amber-400 font-mono text-xs">Limited lockers available — activate now to secure your spot.</p>
+                </div>
+              )}
               <div className="flex gap-3">
                 <Button
                   variant="outline"
