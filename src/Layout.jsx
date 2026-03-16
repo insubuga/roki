@@ -57,6 +57,19 @@ export default function Layout({ children, currentPageName }) {
 
 
 
+  const { data: hasActiveCycle } = useQuery({
+    queryKey: ['hasActiveCycle', user?.email],
+    queryFn: async () => {
+      const cycles = await base44.entities.Cycle.filter({
+        user_email: user.email,
+        status: { $in: ['awaiting_pickup', 'washing', 'drying', 'ready'] }
+      }, '-created_date', 1);
+      return cycles.length > 0;
+    },
+    enabled: !!user?.email,
+    refetchInterval: 60000,
+  });
+
   const navItems = [
     { name: 'Control Center', page: 'Dashboard' },
     { name: 'Active Cycle', page: 'ActiveCycle' },

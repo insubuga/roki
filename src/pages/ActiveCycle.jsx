@@ -95,6 +95,13 @@ export default function ActiveCycle() {
     enabled: !!cycleAssignment?.locker_id,
   });
 
+  const { data: gymLockers = [] } = useQuery({
+    queryKey: ['gymLockers', user?.preferred_gym],
+    queryFn: () => base44.entities.Locker.filter({ gym_id: user.preferred_gym }),
+    enabled: !!user?.preferred_gym,
+    refetchInterval: 60000,
+  });
+
   const { data: allLockers = [] } = useQuery({
     queryKey: ['allLockers'],
     queryFn: () => base44.entities.Locker.list(),
