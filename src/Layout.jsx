@@ -136,9 +136,12 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] overscroll-none">
       {/* Header */}
-      <header className="bg-background/95 backdrop-blur-md border-b border-border fixed top-0 left-0 right-0 z-50 shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <header
+        className={`bg-background/95 backdrop-blur-md border-b border-border fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'shadow-md' : 'shadow-sm'} ${headerVisible ? 'translate-y-0' : '-translate-y-full'}`}
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex justify-between items-center h-16">
+          <div className={`flex justify-between items-center transition-all duration-300 ${scrolled ? 'h-12' : 'h-16'}`}>
             {/* Logo */}
             <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md">
