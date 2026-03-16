@@ -144,12 +144,12 @@ export default function Layout({ children, currentPageName }) {
           <div className={`flex justify-between items-center transition-all duration-300 ${scrolled ? 'h-12' : 'h-16'}`}>
             {/* Logo */}
             <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md">
-                <Zap className="w-5 h-5 text-white" />
+              <div className={`bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md transition-all duration-300 ${scrolled ? 'w-7 h-7' : 'w-8 h-8'}`}>
+                <Zap className={`text-white transition-all duration-300 ${scrolled ? 'w-4 h-4' : 'w-5 h-5'}`} />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-foreground leading-none">ROKI</span>
-                <span className="text-[9px] text-muted-foreground font-medium leading-none hidden sm:block">Readiness OS</span>
+                <span className={`font-bold text-foreground leading-none transition-all duration-300 ${scrolled ? 'text-lg' : 'text-xl'}`}>ROKI</span>
+                {!scrolled && <span className="text-[9px] text-muted-foreground font-medium leading-none hidden sm:block">Readiness OS</span>}
               </div>
             </Link>
 
