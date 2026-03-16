@@ -37,7 +37,7 @@ export default function Layout({ children, currentPageName }) {
   const [pendingTab, setPendingTab] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
-  const lastScrollY = React.useRef(0);
+  const lastScrollY = useRef(0);
   const location = useLocation();
   const navigate = useNavigate();
 
