@@ -141,7 +141,12 @@ export default function Layout({ children, currentPageName }) {
                     currentPageName === item.page ? 'text-green-600 font-semibold' : ''
                   }`}
                 >
-                  {item.name}
+                  <span className="flex items-center gap-1.5">
+                    {item.name}
+                    {item.page === 'ActiveCycle' && hasActiveCycle && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                    )}
+                  </span>
                   {currentPageName === item.page && (
                     <span className="absolute -bottom-4 left-0 right-0 h-0.5 bg-green-600 rounded-full" />
                   )}
@@ -209,10 +214,13 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 key={item.name}
                 to={createPageUrl(item.page)}
-                className="text-foreground hover:text-green-600 hover:bg-accent py-2 px-3 font-medium rounded-lg transition-colors"
+                className="text-foreground hover:text-green-600 hover:bg-accent py-2 px-3 font-medium rounded-lg transition-colors flex items-center gap-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {item.name}
+                {item.page === 'ActiveCycle' && hasActiveCycle && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                )}
               </Link>
             ))}
           </nav>
