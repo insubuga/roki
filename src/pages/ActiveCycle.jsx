@@ -236,6 +236,10 @@ export default function ActiveCycle() {
   const avgTurnaround = subscription?.laundry_turnaround_hours ? subscription.laundry_turnaround_hours * 60 : 2880;
   const incidentCount = reliabilityLogs.filter(l => l.event_type !== 'on_time_delivery').length;
   const nodeUtilization = allLockers.length > 0 ? Math.round((allLockers.filter(l => l.status !== 'available').length / allLockers.length) * 100) : 0;
+  const gymUtilization = gymLockers.length > 0 ? Math.round((gymLockers.filter(l => l.status !== 'available').length / gymLockers.length) * 100) : 0;
+  const gymLoadColor = gymUtilization >= 95 ? 'text-red-500' : gymUtilization >= 85 ? 'text-amber-400' : 'text-green-400';
+  const gymLoadLabel = gymUtilization >= 95 ? 'CRITICAL — Waitlist Only' : gymUtilization >= 85 ? 'LIMITED AVAILABILITY' : gymUtilization === 0 ? 'Open' : 'Available';
+  const gymAtCapacity = gymUtilization >= 95;
 
   const getCycleState = (status) => {
     const stateMap = {
