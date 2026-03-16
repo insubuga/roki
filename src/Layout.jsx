@@ -114,11 +114,11 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const bottomNavItems = [
-    { name: 'Control', page: 'Dashboard', icon: Home },
+    { name: 'Home', page: 'Dashboard', icon: Home },
     { name: 'Cycle', page: 'ActiveCycle', icon: Activity },
-    { name: 'Network', page: 'Network', icon: Lock },
+    { name: 'Network', page: 'Network', icon: Zap },
     { name: 'Risk', page: 'RiskRecovery', icon: Shield },
-    { name: 'Config', page: 'Configuration', icon: Settings, key: 'config' },
+    { name: 'Settings', page: 'Configuration', icon: Settings },
   ];
 
   const handleTabClick = (e, page, path) => {
