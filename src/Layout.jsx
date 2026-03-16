@@ -128,6 +128,8 @@ export default function Layout({ children, currentPageName }) {
       // Replace history so back button doesn't cycle through tabs
       setPendingTab(page);
       navigate(path, { replace: true });
+      // Clear pending state after animation completes
+      setTimeout(() => setPendingTab(null), 400);
     }
   };
 
