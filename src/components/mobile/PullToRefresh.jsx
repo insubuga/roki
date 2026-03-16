@@ -1,39 +1,39 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { RefreshCw } from 'lucide-react';
+
+const REFRESH_THRESHOLD = 72;
 
 export default function PullToRefresh({ onRefresh, children }) {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isPulling, setIsPulling] = useState(false);
+  const isPulling = useRef(false);
   const touchStartY = useRef(0);
-  const containerRef = useRef(null);
-  const refreshThreshold = 80;
 
-  const handleTouchStart = (e) => {
-    if (containerRef.current?.scrollTop === 0) {
+  const handleTouchStart = useCallback((e) => {
+    if (window.scrollY === 0) {
       touchStartY.current = e.touches[0].clientY;
-      setIsPulling(true);
+      isPulling.current = true;
     }
-  };
+  }, []);
 
-  const handleTouchMove = (e) => {
-    if (!isPulling || isRefreshing) return;
-
-    const touchY = e.touches[0].clientY;
-    const pull = Math.max(0, touchY - touchStartY.current);
-    
-    if (pull > 0 && containerRef.current?.scrollTop === 0) {
-      e.preventDefault();
-      setPullDistance(Math.min(pull, refreshThreshold * 1.5));
+  const handleTouchMove = useCallback((e) => {
+    if (!isPulling.current || isRefreshing) return;
+    const pull = Math.max(0, e.touches[0].clientY - touchStartY.current);
+    if (window.scrollY > 0) {
+      isPulling.current = false;
+      setPullDistance(0);
+      return;
     }
-  };
+    if (pull > 0) {
+      setPullDistance(Math.min(pull * 0.5, REFRESH_THRESHOLD * 1.4));
+    }
+  }, [isRefreshing]);
 
-  const handleTouchEnd = async () => {
-    if (!isPulling) return;
-    
-    setIsPulling(false);
-    
-    if (pullDistance >= refreshThreshold && !isRefreshing) {
+  const handleTouchEnd = useCallback(async () => {
+    if (!isPulling.current) return;
+    isPulling.current = false;
+    const current = pullDistance;
+    if (current >= REFRESH_THRESHOLD && !isRefreshing) {
       setIsRefreshing(true);
       try {
         await onRefresh();
@@ -44,54 +44,35 @@ export default function PullToRefresh({ onRefresh, children }) {
     } else {
       setPullDistance(0);
     }
-  };
+  }, [pullDistance, isRefreshing, onRefresh]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    container.addEventListener('touchstart', handleTouchStart, { passive: true });
-    container.addEventListener('touchmove', handleTouchMove, { passive: false });
-    container.addEventListener('touchend', handleTouchEnd, { passive: true });
-
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
     return () => {
-      container.removeEventListener('touchstart', handleTouchStart);
-      container.removeEventListener('touchmove', handleTouchMove);
-      container.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isPulling, pullDistance, isRefreshing]);
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
 
-  const rotation = (pullDistance / refreshThreshold) * 360;
-  const opacity = Math.min(pullDistance / refreshThreshold, 1);
+  const progress = Math.min(pullDistance / REFRESH_THRESHOLD, 1);
+  const indicatorHeight = isRefreshing ? 48 : pullDistance > 0 ? pullDistance : 0;
 
   return (
-    <div ref={containerRef} className="relative h-full overflow-auto">
-      {/* Pull indicator */}
-      <div 
-        className="absolute top-0 left-0 right-0 flex items-center justify-center transition-all pointer-events-none select-none"
-        style={{ 
-          height: `${pullDistance}px`,
-          opacity: opacity
-        }}
+    <div className="relative">
+      {/* Pull indicator — no layout shift, no nested scroll container */}
+      <div
+        className="flex items-center justify-center pointer-events-none select-none overflow-hidden transition-all"
+        style={{ height: indicatorHeight, opacity: isRefreshing ? 1 : progress }}
       >
-        <RefreshCw 
-          className={`w-6 h-6 text-[var(--color-primary)] select-none ${isRefreshing ? 'animate-spin' : ''}`}
-          style={{ 
-            transform: `rotate(${rotation}deg)`,
-            transition: isRefreshing ? 'none' : 'transform 0.2s'
-          }}
+        <RefreshCw
+          className={`w-5 h-5 text-green-500 ${isRefreshing ? 'animate-spin' : ''}`}
+          style={{ transform: isRefreshing ? undefined : `rotate(${progress * 360}deg)` }}
         />
       </div>
-      
-      {/* Content */}
-      <div 
-        style={{ 
-          transform: `translateY(${isRefreshing ? '60px' : pullDistance > 0 ? `${pullDistance}px` : '0'})`,
-          transition: isRefreshing || !isPulling ? 'transform 0.3s ease-out' : 'none'
-        }}
-      >
-        {children}
-      </div>
+      {children}
     </div>
   );
 }
