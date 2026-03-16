@@ -12,7 +12,6 @@ import {
   Menu,
   X,
   Home,
-  Lock,
   Zap,
   Activity,
   Shield,
