@@ -35,8 +35,28 @@ export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [pendingTab, setPendingTab] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const lastScrollY = React.useRef(0);
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      setScrolled(currentY > 10);
+      // Hide header on scroll down (>60px), show on scroll up
+      if (currentY > lastScrollY.current + 8 && currentY > 80) {
+        setHeaderVisible(false);
+        setMobileMenuOpen(false);
+      } else if (currentY < lastScrollY.current - 4) {
+        setHeaderVisible(true);
+      }
+      lastScrollY.current = currentY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Close mobile menu and dropdowns on location change
   useEffect(() => {
