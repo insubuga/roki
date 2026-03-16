@@ -8,7 +8,6 @@ import { base44 } from '@/api/base44Client';
 import { 
   LogOut, 
   User,
-  ChevronDown,
   Menu,
   X,
   Home,
