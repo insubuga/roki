@@ -276,17 +276,15 @@ export default function Layout({ children, currentPageName }) {
               <button
                 key={item.page}
                 onClick={(e) => handleTabClick(e, item.page, path)}
-                className={`flex flex-col items-center justify-center gap-0.5 select-none transition-all opacity-${isLoading ? '60' : '100'} ${
-                  isActive ? 'text-green-600' : 'text-muted-foreground'
-                }`}
+                className={`flex flex-col items-center justify-center gap-1 select-none transition-all duration-200 ${isLoading ? 'opacity-50' : 'opacity-100'} ${isActive ? 'text-green-600' : 'text-muted-foreground hover:text-foreground'}`}
               >
-                <div className={`relative p-2 rounded-xl transition-all ${isActive ? 'bg-accent' : ''}`}>
-                  <Icon className={`w-5 h-5 select-none ${isActive ? 'text-green-600' : 'text-muted-foreground'}`} />
+                <div className={`relative flex items-center justify-center rounded-2xl transition-all duration-200 ${isActive ? 'bg-green-500/15 w-12 h-7' : 'w-10 h-7'}`}>
+                  <Icon className={`select-none transition-all duration-200 ${isActive ? 'w-5 h-5 text-green-600' : 'w-5 h-5'}`} />
                   {item.page === 'ActiveCycle' && hasActiveCycle && !isActive && (
-                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-500 border border-background" />
+                    <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-green-500 border-2 border-background animate-pulse" />
                   )}
                 </div>
-                <span className={`text-[10px] font-medium select-none leading-tight ${isActive ? 'text-green-600' : 'text-muted-foreground'}`}>{item.name}</span>
+                <span className={`text-[9px] font-semibold select-none tracking-wide uppercase transition-colors duration-200 ${isActive ? 'text-green-600' : 'text-muted-foreground'}`}>{item.name}</span>
               </button>
             );
           })}
