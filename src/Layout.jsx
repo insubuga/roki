@@ -258,8 +258,11 @@ export default function Layout({ children, currentPageName }) {
                   isActive ? 'text-green-600' : 'text-muted-foreground'
                 }`}
               >
-                <div className={`p-2 rounded-xl transition-all ${isActive ? 'bg-accent' : ''}`}>
+                <div className={`relative p-2 rounded-xl transition-all ${isActive ? 'bg-accent' : ''}`}>
                   <Icon className={`w-5 h-5 select-none ${isActive ? 'text-green-600' : 'text-muted-foreground'}`} />
+                  {item.page === 'ActiveCycle' && hasActiveCycle && !isActive && (
+                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-500 border border-background" />
+                  )}
                 </div>
                 <span className={`text-[10px] font-medium select-none leading-tight ${isActive ? 'text-green-600' : 'text-muted-foreground'}`}>{item.name}</span>
               </button>
