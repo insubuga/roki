@@ -41,6 +41,8 @@ export default function DispatchAttachments({ user, activeCycle, embedded = fals
     enabled: !!activeCycle?.id,
   });
 
+  const existingAttachments = Array.isArray(existingAttachmentsRaw) ? existingAttachmentsRaw : [];
+
   const attachMutation = useMutation({
     mutationFn: async (selections) => {
       const promises = Object.entries(selections).map(([id, qty]) => {
