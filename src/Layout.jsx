@@ -42,13 +42,6 @@ export default function Layout({ children, currentPageName }) {
     const handleScroll = () => {
       const currentY = window.scrollY;
       setScrolled(currentY > 10);
-      // Hide header on scroll down (>60px), show on scroll up
-      if (currentY > lastScrollY.current + 8 && currentY > 80) {
-        setHeaderVisible(false);
-        setMobileMenuOpen(false);
-      } else if (currentY < lastScrollY.current - 4) {
-        setHeaderVisible(true);
-      }
       lastScrollY.current = currentY;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
