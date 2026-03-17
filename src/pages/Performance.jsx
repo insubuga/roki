@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp, TrendingDown, Activity, Zap, Star, CheckCircle2, Clock, Minus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,8 +48,9 @@ export default function Performance() {
     select: (d) => d?.[0],
   });
 
+  const queryClient = useQueryClient();
   const handleRefresh = async () => {
-    window.location.reload();
+    await queryClient.invalidateQueries();
   };
 
   // Derived metrics
