@@ -11,6 +11,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import RescheduleForecastDialog from './RescheduleForecastDialog';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -73,6 +75,7 @@ export default function CycleForecastWidget({ user, preferences, preferredGym })
   const queryClient = useQueryClient();
   const [showReschedule, setShowReschedule] = useState(false);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+  const [showEnhancementNudge, setShowEnhancementNudge] = useState(false);
 
   const { data: forecast, isLoading } = useQuery({
     queryKey: ['cycleForecast', user?.email],
@@ -179,6 +182,7 @@ export default function CycleForecastWidget({ user, preferences, preferredGym })
       toast.success('Cycle confirmed · Locker soft reserved');
       queryClient.invalidateQueries({ queryKey: ['cycleForecast'] });
       queryClient.invalidateQueries({ queryKey: ['activeCycle'] });
+      setShowEnhancementNudge(true);
     },
     onError: (err) => toast.error(err.message),
   });
@@ -275,6 +279,29 @@ export default function CycleForecastWidget({ user, preferences, preferredGym })
 
         {!user?.preferred_gym && (
           <p className="text-orange-500 font-mono text-xs mt-2 text-center">Set your home gym in Profile to confirm</p>
+        )}
+
+        {/* Post-confirm enhancement nudge */}
+        {showEnhancementNudge && (
+          <div className="mt-3 bg-green-600/10 border border-green-600/30 rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-600 font-mono text-xs font-bold">✓ Cycle Confirmed</p>
+                <p className="text-muted-foreground font-mono text-xs mt-0.5">Want to add gear essentials to this cycle?</p>
+              </div>
+              <div className="flex gap-2">
+                <Link to={createPageUrl('ActiveCycle')}>
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white font-mono text-xs h-7">
+                    Add Items
+                  </Button>
+                </Link>
+                <Button size="sm" variant="ghost" className="font-mono text-xs h-7 text-muted-foreground"
+                  onClick={() => setShowEnhancementNudge(false)}>
+                  Skip
+                </Button>
+              </div>
+            </div>
+          </div>
         )}
       </CardContent>
 
