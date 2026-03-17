@@ -129,7 +129,7 @@ export default function Layout({ children, currentPageName }) {
     <div className="min-h-screen bg-[var(--color-bg-primary)] overscroll-none">
       {/* Header */}
       <header
-        className={`bg-background/95 backdrop-blur-md border-b border-border fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'shadow-md' : 'shadow-sm'} ${headerVisible ? 'translate-y-0' : '-translate-y-full'}`}
+        className={`bg-background/95 backdrop-blur-md border-b border-border fixed top-0 left-0 right-0 z-50 transition-shadow duration-300 ${scrolled ? 'shadow-md' : 'shadow-sm'}`}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
