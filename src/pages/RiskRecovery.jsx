@@ -86,10 +86,6 @@ export default function RiskRecovery() {
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-4">
-        {/* Warnings */}
-        <CreditsWarning remaining={rushCreditsRemaining} threshold={1} />
-        <SLAWarning breachRate={100 - (reliabilityScore?.sla_adherence_rate || 100)} slaAdherence={reliabilityScore?.sla_adherence_rate || 100} />
-
         {/* Header */}
         <div className="flex items-center gap-3">
           <Link to="/Dashboard">
@@ -99,9 +95,13 @@ export default function RiskRecovery() {
           </Link>
           <div>
             <h1 className="text-foreground text-xl font-bold font-mono">RISK & RECOVERY</h1>
-            <p className="text-muted-foreground text-xs font-mono">Backup systems and incident response for laundry & supply readiness</p>
+            <p className="text-muted-foreground text-xs font-mono">Backup systems and incident response</p>
           </div>
         </div>
+
+        {/* Warnings */}
+        <CreditsWarning remaining={rushCreditsRemaining} threshold={1} />
+        <SLAWarning breachRate={100 - (reliabilityScore?.sla_adherence_rate || 100)} slaAdherence={reliabilityScore?.sla_adherence_rate || 100} />
 
         {/* Coverage Status */}
         <Card className={`border-2 ${rushCreditsRemaining > 0 ? 'border-green-600' : 'border-orange-600'} bg-card`}>
