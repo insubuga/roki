@@ -7,6 +7,7 @@ import { Activity, Clock, MapPin, AlertTriangle, TrendingUp, Database, Radio, Ba
 import CycleTracker from '@/components/cycle/CycleTracker';
 import LockerQRCode from '@/components/locker/LockerQRCode';
 import DispatchAttachments from '@/components/cycle/DispatchAttachments';
+import CycleEnhancementsBanner from '@/components/cycle/CycleEnhancementsBanner';
 import LockerPanel from '@/components/locker/LockerPanel';
 import ReturnLockerPanel from '@/components/locker/ReturnLockerPanel';
 import { Button } from '@/components/ui/button';
@@ -422,6 +423,9 @@ export default function ActiveCycle() {
             </Card>
           )}
 
+          {/* Cycle Enhancements — above the fold */}
+          {activeCycle && <CycleEnhancementsBanner user={user} activeCycle={activeCycle} />}
+
           {/* Route & Node Allocation */}
           <Card className="bg-card border-border">
             <CardHeader className="pb-3">
@@ -531,8 +535,6 @@ export default function ActiveCycle() {
               </div>
             </CardContent>
           </Card>
-
-          <DispatchAttachments user={user} activeCycle={activeCycle} />
 
           {/* Recovery Protocol */}
           {activeCycle && variance < -60 && (
