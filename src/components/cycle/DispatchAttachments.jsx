@@ -35,7 +35,7 @@ export default function DispatchAttachments({ user, activeCycle, embedded = fals
 
   const isLocked = !activeCycle || activeCycle.status === 'ready';
 
-  const { data: existingAttachments = [] } = useQuery({
+  const { data: existingAttachmentsRaw } = useQuery({
     queryKey: ['cycleAttachments', activeCycle?.id],
     queryFn: () => base44.entities.AttachmentLog.filter({ cycle_id: activeCycle.id }),
     enabled: !!activeCycle?.id,
