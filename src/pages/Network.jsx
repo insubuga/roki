@@ -139,7 +139,7 @@ export default function Network() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="h-[300px] bg-gray-100 relative">
-            {gym ? (
+            {(gym || allGyms.length > 0) ? (
               <MapContainer 
                 center={mapCenter} 
                 zoom={12} 
