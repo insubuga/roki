@@ -254,16 +254,15 @@ export default function RiskRecovery() {
             <p className="text-muted-foreground text-xs font-mono">Uses 1 emergency credit. Triggers priority dispatch for laundry rush or attachment resupply.</p>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Link to={createPageUrl('LaundryOrder')}>
-              <Button 
-                variant="outline" 
-                className="w-full border-orange-600 text-orange-600 hover:bg-orange-600/10 font-mono text-xs h-12"
-                disabled={!activeCycle}
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                ACTIVATE RECOVERY PROTOCOL
-              </Button>
-            </Link>
+            <Button 
+              variant="outline" 
+              className="w-full border-orange-600 text-orange-600 hover:bg-orange-600/10 font-mono text-xs h-12 disabled:opacity-50 disabled:pointer-events-none"
+              disabled={!activeCycle}
+              onClick={() => activeCycle && window.location.assign(createPageUrl('LaundryOrder'))}
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              ACTIVATE RECOVERY PROTOCOL
+            </Button>
             <Link to={createPageUrl('Support')}>
               <Button 
                 variant="outline" 
