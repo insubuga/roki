@@ -227,7 +227,7 @@ export default function Network() {
               <div className="h-full flex items-center justify-center">
                 <div className="text-center">
                   <Map className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600 text-sm">Start a cycle to view your RCN node map</p>
+                  <p className="text-gray-600 text-sm">No network nodes found</p>
                 </div>
               </div>
             )}
