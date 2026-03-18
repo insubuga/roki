@@ -180,7 +180,7 @@ export default function ActiveCycle() {
         await base44.entities.CycleLockerAssignment.update(cycleAssignment.id, { status: 'expired' });
       }
       // Cancel the cycle
-      await base44.entities.Cycle.update(activeCycle.id, { status: 'picked_up' });
+      await base44.entities.Cycle.update(activeCycle.id, { status: 'cancelled' });
       // Notify user
       await base44.entities.Notification.create({
         user_email: user.email,
@@ -587,12 +587,12 @@ export default function ActiveCycle() {
                     <p className="text-foreground text-xl font-bold font-mono">{nodeUtilization}%</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground uppercase mb-1">Route Efficiency</p>
-                    <p className="text-green-600 text-xl font-bold font-mono">{nodeUtilization}%</p>
+                    <p className="text-muted-foreground uppercase mb-1">Gym Lockers</p>
+                    <p className="text-green-600 text-xl font-bold font-mono">{gymLockers.length}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground uppercase mb-1">Active Cycles</p>
-                    <p className="text-foreground text-xl font-bold font-mono">{allActiveCycles.length}</p>
+                    <p className="text-muted-foreground uppercase mb-1">Gym Load</p>
+                    <p className="text-foreground text-xl font-bold font-mono">{gymUtilization}%</p>
                   </div>
                 </div>
               </CardContent>
