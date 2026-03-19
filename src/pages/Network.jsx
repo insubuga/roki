@@ -185,7 +185,7 @@ export default function Network() {
                   <Popup>
                     <div className="text-xs">
                       <p className="font-bold text-green-600">Your Node</p>
-                      <p className="text-gray-900 font-semibold">{gym.name}</p>
+                      <p className="text-gray-900 font-semibold">{gym?.name || '—'}</p>
                       <p className="text-gray-600">{assignedLocker?.locker_number}</p>
                     </div>
                   </Popup>
