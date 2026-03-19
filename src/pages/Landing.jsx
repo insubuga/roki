@@ -54,6 +54,7 @@ export default function Landing() {
       <div className="pt-16">
         <HeroSection onJoinClick={scrollToWaitlist} />
         <ScenarioSection onJoinClick={scrollToWaitlist} />
+        <IdentitySection />
         <HowItWorksSection />
         <LockerVisualSection />
         <SystemReframeSection />
