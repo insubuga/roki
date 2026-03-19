@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import WaitlistSuccess from './WaitlistSuccess';
 
 const FREQUENCIES = ['1-2x/week', '3-4x/week', '5-6x/week', 'Every day'];
 
@@ -11,8 +12,16 @@ export default function WaitlistSection({ sectionRef }) {
   const [gym, setGym] = useState('');
   const [frequency, setFrequency] = useState('');
   const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const [successData, setSuccessData] = useState(null); // { entry, position, gymRank }
+
+  // Read referral code from URL
+  const [referredBy, setReferredBy] = useState('');
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) setReferredBy(ref);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,20 +29,54 @@ export default function WaitlistSection({ sectionRef }) {
     if (!gym) { setError('Gym name is required.'); return; }
     setLoading(true);
     setError('');
-    await base44.entities.Waitlist.create({
+
+    // 1. Create entry
+    const entry = await base44.entities.Waitlist.create({
       email,
       gym_name: gym,
       ...(frequency ? { workout_frequency: frequency } : {}),
+      ...(referredBy ? { referred_by: referredBy } : {}),
+      referral_count: 0,
+      tier: 'standard',
       status: 'pending',
     });
-    setDone(true);
+
+    // 2. Generate referral code from ID and update entry
+    const referralCode = entry.id.slice(-10).toUpperCase();
+    await base44.entities.Waitlist.update(entry.id, { referral_code: referralCode });
+
+    // 3. If referred, increment referrer's count and update tier
+    if (referredBy) {
+      const referrers = await base44.entities.Waitlist.filter({ referral_code: referredBy });
+      if (referrers.length > 0) {
+        const referrer = referrers[0];
+        const newCount = (referrer.referral_count || 0) + 1;
+        const tier = newCount >= 10 ? 'founding_member'
+          : newCount >= 5 ? 'first_cycle_free'
+          : newCount >= 3 ? 'priority'
+          : 'standard';
+        await base44.entities.Waitlist.update(referrer.id, { referral_count: newCount, tier });
+      }
+    }
+
+    // 4. Get position (total entries) and gym rank (rank within this gym)
+    const allEntries = await base44.entities.Waitlist.list('-created_date', 500);
+    const position = allEntries.length;
+    const gymEntries = allEntries.filter(e => e.gym_name?.toLowerCase() === gym.toLowerCase());
+    const gymRank = gymEntries.findIndex(e => e.id === entry.id) + 1 || gymEntries.length;
+
+    // 5. Show success
+    setSuccessData({
+      entry: { ...entry, referral_code: referralCode, gym_name: gym },
+      position,
+      gymRank,
+    });
     setLoading(false);
   };
 
   return (
     <section ref={sectionRef} className="py-24 px-4">
       <div className="max-w-xl mx-auto">
-        {/* Top divider glow */}
         <div className="w-px h-16 bg-gradient-to-b from-transparent to-green-500/50 mx-auto mb-16" />
 
         <div className="text-center mb-10">
@@ -46,14 +89,19 @@ export default function WaitlistSection({ sectionRef }) {
           </p>
         </div>
 
-        {done ? (
-          <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-10 text-center">
-            <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
-            <h3 className="text-white font-bold text-xl mb-2">You're on the list.</h3>
-            <p className="text-gray-400 text-sm">We'll reach out as soon as ROKI is live at a gym near you.</p>
-          </div>
+        {successData ? (
+          <WaitlistSuccess
+            entry={successData.entry}
+            position={successData.position}
+            gymRank={successData.gymRank}
+          />
         ) : (
           <form onSubmit={handleSubmit} className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-8 space-y-4">
+            {referredBy && (
+              <div className="bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-2.5 text-green-400 text-xs font-mono text-center">
+                ✓ Joining via referral — you'll both move up the list
+              </div>
+            )}
             <Input
               type="email"
               placeholder="Email address *"
@@ -69,8 +117,6 @@ export default function WaitlistSection({ sectionRef }) {
               className="bg-white/[0.05] border-white/10 text-white placeholder:text-gray-600 h-12 rounded-xl"
               required
             />
-
-            {/* Workout frequency — optional pill select */}
             <div>
               <p className="text-gray-500 text-xs mb-2 font-mono">How often do you train? <span className="text-gray-600">(optional)</span></p>
               <div className="flex flex-wrap gap-2">
@@ -90,7 +136,6 @@ export default function WaitlistSection({ sectionRef }) {
                 ))}
               </div>
             </div>
-
             {error && <p className="text-red-400 text-xs">{error}</p>}
             <Button
               type="submit"
