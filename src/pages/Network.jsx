@@ -307,7 +307,7 @@ export default function Network() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {nearbyNodes.map((node, idx) => {
+            {nearbyNodes.filter(node => node.gym).map((node, idx) => {
               const utilization = node.lockers.length > 0 
                 ? Math.round((node.lockers.filter(l => ['activated','softReserved','dropped'].includes(l.status)).length / node.lockers.length) * 100)
                 : 0;
