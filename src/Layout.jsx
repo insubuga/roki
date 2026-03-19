@@ -16,6 +16,8 @@ import {
   Shield,
   Settings
 } from 'lucide-react';
+
+const ROKI_LOGO = "https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c37d16942_LogoROKI.png";
 import NotificationDropdown from './components/notifications/NotificationDropdown';
 import AlertCenter from './components/alerts/AlertCenter';
 import FloatingAssistant from './components/assistant/FloatingAssistant';
