@@ -7,6 +7,7 @@ import HowItWorksSection from '@/components/landing/HowItWorksSection';
 import FeaturesSection from '@/components/landing/FeaturesSection';
 import TestimonialsSection from '@/components/landing/TestimonialsSection';
 import WaitlistSection from '@/components/landing/WaitlistSection';
+import ScenarioSection from '@/components/landing/ScenarioSection';
 
 export default function Landing() {
   const waitlistRef = useRef(null);
