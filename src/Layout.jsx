@@ -136,8 +136,13 @@ export default function Layout({ children, currentPageName }) {
           <div className={`flex justify-between items-center transition-all duration-300 ${scrolled ? 'h-12' : 'h-16'}`}>
             {/* Logo */}
             <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className={`bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md transition-all duration-300 ${scrolled ? 'w-7 h-7' : 'w-8 h-8'}`}>
-                <Zap className={`text-white transition-all duration-300 ${scrolled ? 'w-4 h-4' : 'w-5 h-5'}`} />
+              <div className={`flex items-center justify-center transition-all duration-300 ${scrolled ? 'w-7 h-7' : 'w-8 h-8'}`}>
+                <img
+                  src="https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c37d16942_LogoROKI.png"
+                  alt="ROKI"
+                  className="w-full h-full object-contain"
+                  style={{ mixBlendMode: 'screen' }}
+                />
               </div>
               <div className="flex flex-col">
                 <span className={`font-bold text-foreground leading-none transition-all duration-300 ${scrolled ? 'text-lg' : 'text-xl'}`}>ROKI</span>
