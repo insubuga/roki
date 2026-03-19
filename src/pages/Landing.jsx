@@ -56,6 +56,7 @@ export default function Landing() {
         <HowItWorksSection />
         <LockerVisualSection />
         <SystemReframeSection />
+        <ScarcitySection />
         <FeaturesSection />
         <TestimonialsSection />
         <WaitlistSection sectionRef={waitlistRef} />
