@@ -5,8 +5,8 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
 
 // Stripe price IDs for Roki subscription plans
 const SUBSCRIPTION_PRICE_MAP = {
-  'core':     'price_1TAjaTA10LjEPy7hBaL0t9zo',
-  'priority': 'price_1TAjaTA10LjEPy7hJU6Ekhok',
+  'core':     'price_1TCb2dA10LjEPy7hUbBvDB7y',
+  'priority': 'price_1TCb2dA10LjEPy7hwavZGPrk',
 };
 
 Deno.serve(async (req) => {
