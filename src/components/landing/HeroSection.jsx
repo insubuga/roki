@@ -54,8 +54,7 @@ export default function HeroSection({ onJoinClick }) {
             Join the Waitlist
           </Button>
           <Button
-            variant="outline"
-            className="border-white/20 text-white hover:bg-white/5 h-12 px-8 rounded-xl font-medium"
+            className="bg-white/10 border border-white/25 text-white hover:bg-white/20 hover:border-white/40 h-12 px-8 rounded-xl font-medium backdrop-blur-sm transition-all"
             onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
           >
             See How It Works
