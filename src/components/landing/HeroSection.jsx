@@ -21,11 +21,14 @@ export default function HeroSection({ onJoinClick }) {
 
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-10">
-          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30">
-            <Zap className="w-5 h-5 text-white" />
-          </div>
-          <span className="text-white text-2xl font-bold tracking-tight">ROKI</span>
+        <div className="flex items-center justify-center gap-3 mb-10">
+          <img
+            src={LOGO_URL}
+            alt="ROKI"
+            className="w-14 h-14 object-contain"
+            style={{ mixBlendMode: 'screen' }}
+          />
+          <span className="text-white text-3xl font-bold tracking-tight">ROKI</span>
         </div>
 
         {/* Badge */}

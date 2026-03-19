@@ -21,9 +21,12 @@ export default function Landing() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#080d14]/80 backdrop-blur-md border-b border-white/[0.05]">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
+            <img
+              src="https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c37d16942_LogoROKI.png"
+              alt="ROKI"
+              className="w-8 h-8 object-contain"
+              style={{ mixBlendMode: 'screen' }}
+            />
             <span className="text-white font-bold text-lg">ROKI</span>
           </div>
           <div className="flex items-center gap-3">
