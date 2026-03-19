@@ -7,7 +7,7 @@ const profiles = [
   },
   {
     label: 'The Parent',
-    description: 'Your laundry pile has a laundry pile. You train to stay sane. The last thing you need is one more thing to remember.',
+    description: "Your laundry pile has a laundry pile. You train to stay sane. The last thing you need is one more thing to remember.",
   },
   {
     label: 'The Rebuilder',
