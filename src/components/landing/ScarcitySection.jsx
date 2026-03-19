@@ -6,20 +6,42 @@ export default function ScarcitySection() {
   const [gymRankings, setGymRankings] = useState([]);
 
   useEffect(() => {
+    const FALLBACK_GYMS = [
+      '24 Hour Fitness',
+      'Equinox',
+      'Planet Fitness',
+      'Lifetime Fitness',
+      'Anytime Fitness',
+    ];
+
     const load = async () => {
       const entries = await base44.entities.Waitlist.list('-created_date', 500);
-      // Count entries per gym
+      // Count entries per gym (case-insensitive dedup, preserve first seen casing)
       const counts = {};
+      const displayNames = {};
       entries.forEach(e => {
         if (!e.gym_name) return;
-        const key = e.gym_name.trim();
+        const key = e.gym_name.trim().toLowerCase();
+        if (!displayNames[key]) displayNames[key] = e.gym_name.trim();
         counts[key] = (counts[key] || 0) + 1;
       });
-      // Sort by count descending, take top 5
-      const sorted = Object.entries(counts)
+
+      let sorted = Object.entries(counts)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5)
-        .map(([name, count], i) => ({ name, count, rank: i + 1 }));
+        .map(([key, count], i) => ({ name: displayNames[key], count, rank: i + 1 }));
+
+      // If fewer than 5 real gyms, pad with fallbacks
+      const realNames = new Set(sorted.map(g => g.name.toLowerCase()));
+      let fallbackIdx = 0;
+      while (sorted.length < 5 && fallbackIdx < FALLBACK_GYMS.length) {
+        const fb = FALLBACK_GYMS[fallbackIdx];
+        if (!realNames.has(fb.toLowerCase())) {
+          sorted.push({ name: fb, count: null, rank: sorted.length + 1 });
+        }
+        fallbackIdx++;
+      }
+
       setGymRankings(sorted);
     };
     load().catch(() => {});
