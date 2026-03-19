@@ -8,6 +8,7 @@ import FeaturesSection from '@/components/landing/FeaturesSection';
 import TestimonialsSection from '@/components/landing/TestimonialsSection';
 import WaitlistSection from '@/components/landing/WaitlistSection';
 import ScenarioSection from '@/components/landing/ScenarioSection';
+import LockerVisualSection from '@/components/landing/LockerVisualSection';
 
 export default function Landing() {
   const waitlistRef = useRef(null);
