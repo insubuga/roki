@@ -65,7 +65,13 @@ export default function WaitlistSection({ sectionRef }) {
     const gymEntries = allEntries.filter(e => e.gym_name?.toLowerCase() === gym.toLowerCase());
     const gymRank = gymEntries.findIndex(e => e.id === entry.id) + 1 || gymEntries.length;
 
-    // 5. Show success
+    // 5. Send email 1 (fire and forget)
+    base44.functions.invoke('sendWaitlistEmail', {
+      waitlist_id: entry.id,
+      email_type: 'email_1',
+    }).catch(() => {});
+
+    // 6. Show success
     setSuccessData({
       entry: { ...entry, referral_code: referralCode, gym_name: gym },
       position,
