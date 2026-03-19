@@ -54,6 +54,7 @@ export default function Landing() {
         <ScenarioSection onJoinClick={scrollToWaitlist} />
         <HowItWorksSection />
         <LockerVisualSection />
+        <SystemReframeSection />
         <FeaturesSection />
         <TestimonialsSection />
         <WaitlistSection sectionRef={waitlistRef} />
