@@ -3,7 +3,7 @@ import React from 'react';
 const profiles = [
   {
     label: 'The Busy Professional',
-    description: 'You're in back-to-back meetings until 7pm. Somehow you still make it to the gym. You don't have time to babysit your laundry too.',
+    description: "You're in back-to-back meetings until 7pm. Somehow you still make it to the gym. You don't have time to babysit your laundry too.",
   },
   {
     label: 'The Parent',
