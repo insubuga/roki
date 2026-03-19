@@ -11,7 +11,7 @@ const profiles = [
   },
   {
     label: 'The Rebuilder',
-    description: 'You're getting back into it. Consistency is fragile right now. Anything that removes friction between you and the gym stays.',
+    description: "You're getting back into it. Consistency is fragile right now. Anything that removes friction between you and the gym stays.",
   },
 ];
 
