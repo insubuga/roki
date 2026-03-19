@@ -81,10 +81,12 @@ export default function ScarcitySection() {
                   <MapPin className="w-3.5 h-3.5 text-gray-600 shrink-0" />
                   <span className="text-white font-semibold text-sm truncate">{gym.name}</span>
                 </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-green-400 font-mono text-xs">{gym.count} member{gym.count !== 1 ? 's' : ''}</span>
-                </div>
+                {gym.count !== null && (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                    <span className="text-green-400 font-mono text-xs">{gym.count} member{gym.count !== 1 ? 's' : ''}</span>
+                  </div>
+                )}
               </div>
             ))}
           </div>
