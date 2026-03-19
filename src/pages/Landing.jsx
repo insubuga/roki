@@ -58,9 +58,12 @@ export default function Landing() {
       <footer className="border-t border-white/[0.05] py-8 px-4">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-md flex items-center justify-center">
-              <Zap className="w-3 h-3 text-white" />
-            </div>
+            <img
+              src="https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c37d16942_LogoROKI.png"
+              alt="ROKI"
+              className="w-6 h-6 object-contain"
+              style={{ mixBlendMode: 'screen' }}
+            />
             <span className="text-white font-semibold text-sm">ROKI</span>
           </div>
           <p className="text-gray-600 text-xs">© 2026 ROKI. Readiness infrastructure for athletes.</p>
