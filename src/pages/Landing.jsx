@@ -52,6 +52,7 @@ export default function Landing() {
         <HeroSection onJoinClick={scrollToWaitlist} />
         <ScenarioSection onJoinClick={scrollToWaitlist} />
         <HowItWorksSection />
+        <LockerVisualSection />
         <FeaturesSection />
         <TestimonialsSection />
         <WaitlistSection sectionRef={waitlistRef} />
