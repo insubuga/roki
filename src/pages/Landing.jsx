@@ -49,6 +49,7 @@ export default function Landing() {
       {/* Sections */}
       <div className="pt-16">
         <HeroSection onJoinClick={scrollToWaitlist} />
+        <ScenarioSection onJoinClick={scrollToWaitlist} />
         <HowItWorksSection />
         <FeaturesSection />
         <TestimonialsSection />
