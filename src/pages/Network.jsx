@@ -195,7 +195,7 @@ export default function Network() {
                 </CircleMarker>
 
                 {/* Nearby Nodes */}
-                {nearbyNodes.slice(0, 8).map((node, idx) => {
+                {nearbyNodes.filter(node => node.gym).slice(0, 8).map((node, idx) => {
                   const lat = node.gym.latitude || (mapCenter[0] + Math.cos((idx / 8) * 2 * Math.PI) * 0.06);
                   const lng = node.gym.longitude || (mapCenter[1] + Math.sin((idx / 8) * 2 * Math.PI) * 0.06);
                   const utilization = node.lockers.length > 0 
