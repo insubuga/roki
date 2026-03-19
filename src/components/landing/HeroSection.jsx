@@ -1,5 +1,7 @@
 import React from 'react';
-import { Zap, ArrowDown } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
+
+const LOGO_URL = "https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c37d16942_LogoROKI.png";
 import { Button } from '@/components/ui/button';
 
 export default function HeroSection({ onJoinClick }) {

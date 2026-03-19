@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import HeroSection from '@/components/landing/HeroSection';
 import HowItWorksSection from '@/components/landing/HowItWorksSection';
