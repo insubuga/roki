@@ -4,20 +4,28 @@ import { CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
+const FREQUENCIES = ['1-2x/week', '3-4x/week', '5-6x/week', 'Every day'];
+
 export default function WaitlistSection({ sectionRef }) {
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
   const [gym, setGym] = useState('');
+  const [frequency, setFrequency] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) { setError('Email is required'); return; }
+    if (!email) { setError('Email is required.'); return; }
+    if (!gym) { setError('Gym name is required.'); return; }
     setLoading(true);
     setError('');
-    await base44.entities.Waitlist.create({ email, name, gym_name: gym, status: 'pending' });
+    await base44.entities.Waitlist.create({
+      email,
+      gym_name: gym,
+      ...(frequency ? { workout_frequency: frequency } : {}),
+      status: 'pending',
+    });
     setDone(true);
     setLoading(false);
   };
@@ -46,20 +54,6 @@ export default function WaitlistSection({ sectionRef }) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-8 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                placeholder="Your name"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                className="bg-white/[0.05] border-white/10 text-white placeholder:text-gray-600 h-12 rounded-xl"
-              />
-              <Input
-                placeholder="Your gym (optional)"
-                value={gym}
-                onChange={e => setGym(e.target.value)}
-                className="bg-white/[0.05] border-white/10 text-white placeholder:text-gray-600 h-12 rounded-xl"
-              />
-            </div>
             <Input
               type="email"
               placeholder="Email address *"
@@ -68,6 +62,35 @@ export default function WaitlistSection({ sectionRef }) {
               className="bg-white/[0.05] border-white/10 text-white placeholder:text-gray-600 h-12 rounded-xl"
               required
             />
+            <Input
+              placeholder="Gym name *"
+              value={gym}
+              onChange={e => setGym(e.target.value)}
+              className="bg-white/[0.05] border-white/10 text-white placeholder:text-gray-600 h-12 rounded-xl"
+              required
+            />
+
+            {/* Workout frequency — optional pill select */}
+            <div>
+              <p className="text-gray-500 text-xs mb-2 font-mono">How often do you train? <span className="text-gray-600">(optional)</span></p>
+              <div className="flex flex-wrap gap-2">
+                {FREQUENCIES.map(f => (
+                  <button
+                    key={f}
+                    type="button"
+                    onClick={() => setFrequency(freq => freq === f ? '' : f)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                      frequency === f
+                        ? 'bg-green-500 border-green-500 text-black'
+                        : 'border-white/10 text-gray-400 hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {error && <p className="text-red-400 text-xs">{error}</p>}
             <Button
               type="submit"
