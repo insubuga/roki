@@ -61,8 +61,8 @@ Deno.serve(async (req) => {
         },
       ],
       mode: 'subscription',
-      success_url: `${req.headers.get('origin')}/Subscription?payment=success`,
-      cancel_url: `${req.headers.get('origin')}/Subscription?payment=cancelled`,
+      success_url: `${req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0,3).join('/') || 'https://rokicyclenetwork.com'}/Subscription?payment=success`,
+      cancel_url: `${req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0,3).join('/') || 'https://rokicyclenetwork.com'}/Subscription?payment=cancelled`,
       metadata: {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
         user_email: user.email,
