@@ -132,7 +132,7 @@ export default function ReturnLockerLoad({ user }) {
         {unassignedCycles.map((cycle) => {
           const cycleEnhancements = allEnhancements.filter(e => e.cycle_id === cycle.id);
           return (
-          <Card key={cycle.id} className="border-l-4 border-l-orange-400">
+            <Card key={cycle.id} className="border-l-4 border-l-orange-400">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-mono font-bold text-sm text-gray-900">
