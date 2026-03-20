@@ -175,7 +175,8 @@ export default function ReturnLockerLoad({ user }) {
               </Button>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
 
         {/* Step 2: Locker assigned — driver loads gear and confirms */}
         {assignedPairs.map(({ cycle, assignment }) => {
