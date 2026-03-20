@@ -23,6 +23,12 @@ export default function WaitlistSection({ sectionRef }) {
     if (ref) setReferredBy(ref);
   }, []);
 
+  // Normalize gym name: title case each word, trim whitespace
+  const normalizeGym = (name) =>
+    name.trim().replace(/\s+/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) { setError('Email is required.'); return; }
@@ -30,12 +36,23 @@ export default function WaitlistSection({ sectionRef }) {
     setLoading(true);
     setError('');
 
+    // 0. Check for duplicate email
+    const existing = await base44.entities.Waitlist.filter({ email: email.toLowerCase().trim() });
+    if (existing.length > 0) {
+      setError('This email is already on the waitlist!');
+      setLoading(false);
+      return;
+    }
+
+    const normalizedGym = normalizeGym(gym);
+
     // 1. Create entry
     const entry = await base44.entities.Waitlist.create({
-      email,
-      gym_name: gym,
+      email: email.toLowerCase().trim(),
+      gym_name: normalizedGym,
       ...(frequency ? { workout_frequency: frequency } : {}),
       ...(referredBy ? { referred_by: referredBy } : {}),
+      // keep gym filter in sync with normalized name
       referral_count: 0,
       tier: 'standard',
       status: 'pending',
@@ -62,7 +79,7 @@ export default function WaitlistSection({ sectionRef }) {
     // 4. Get position (total entries) and gym rank (rank within this gym)
     const allEntries = await base44.entities.Waitlist.list('-created_date', 500);
     const position = allEntries.length;
-    const gymEntries = allEntries.filter(e => e.gym_name?.toLowerCase() === gym.toLowerCase());
+    const gymEntries = allEntries.filter(e => e.gym_name?.toLowerCase() === normalizedGym.toLowerCase());
     const gymRank = gymEntries.findIndex(e => e.id === entry.id) + 1 || gymEntries.length;
 
     // 5. Send email 1 (fire and forget)
@@ -73,7 +90,7 @@ export default function WaitlistSection({ sectionRef }) {
 
     // 6. Show success
     setSuccessData({
-      entry: { ...entry, referral_code: referralCode, gym_name: gym },
+      entry: { ...entry, referral_code: referralCode, gym_name: normalizedGym },
       position,
       gymRank,
     });
