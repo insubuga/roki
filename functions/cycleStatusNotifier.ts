@@ -109,14 +109,14 @@ Deno.serve(async (req) => {
       title = '✅ Cycle complete — reset ready';
       message = `Order ${orderNumber} collected. Your reset cycle is complete.`;
       emailBody = `
-        <h2 style="color:#fff;font-size:22px;font-weight:900;margin:0 0 12px;">Reset cycle complete!</h2>
-        <p style="color:#9ca3af;line-height:1.7;margin:0 0 16px;">You've successfully collected order <strong style="color:#10b981;">${orderNumber}</strong>. Your locker is now ready for your next reset cycle.</p>
-        <div style="background:#0d1a2a;border:1px solid #10b981;border-radius:10px;padding:16px;margin:20px 0;text-align:center;">
-          <p style="color:#10b981;font-size:28px;margin:0;">✓</p>
-          <p style="color:#10b981;font-weight:bold;margin:4px 0 0;">Cycle Complete</p>
-          <p style="color:#6b7280;font-size:12px;margin:4px 0 0;">${orderNumber}</p>
+        <h2 style="color:#111827;font-size:22px;font-weight:900;margin:0 0 12px;font-family:Arial,sans-serif;">Reset cycle complete! ✅</h2>
+        <p style="color:#4b5563;line-height:1.7;margin:0 0 16px;font-family:Arial,sans-serif;">You've successfully collected order <strong style="color:#059669;">${orderNumber}</strong>. Your locker is now ready for your next reset cycle.</p>
+        <div style="background:#f0fdf4;border:1px solid #10b981;border-radius:10px;padding:20px;margin:20px 0;text-align:center;">
+          <p style="color:#10b981;font-size:36px;margin:0;">✓</p>
+          <p style="color:#059669;font-weight:bold;font-size:16px;margin:6px 0 0;font-family:Arial,sans-serif;">Cycle Complete</p>
+          <p style="color:#6b7280;font-size:13px;margin:4px 0 0;font-family:Arial,sans-serif;letter-spacing:1px;">${orderNumber}</p>
         </div>
-        <p style="color:#6b7280;font-size:12px;">Thanks for using ROKI Readiness OS. See you next cycle.</p>
+        <p style="color:#6b7280;font-size:12px;font-family:Arial,sans-serif;">Thanks for using ROKI Readiness OS. See you next cycle.</p>
       `;
     } else if (newStatus === 'cancelled') {
       title = '⚠️ Cycle cancelled';
