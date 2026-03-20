@@ -84,13 +84,14 @@ Deno.serve(async (req) => {
       title = '🚀 Your gear is in transit';
       message = `Order ${orderNumber} has been picked up and is now in the Roki Network.`;
       emailBody = `
-        <h2 style="color:#fff;font-size:22px;font-weight:900;margin:0 0 12px;">Your gear is in the Roki Network</h2>
-        <p style="color:#9ca3af;line-height:1.7;margin:0 0 16px;">Order <strong style="color:#10b981;">${orderNumber}</strong> has been picked up from ${gymLocation} and is currently being cleaned.</p>
-        <div style="background:#0d1a2a;border:1px solid #1f2937;border-radius:10px;padding:16px;margin:20px 0;">
-          <p style="color:#6b7280;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px;">Status</p>
-          <p style="color:#f59e0b;font-weight:bold;margin:0;">⚡ In Transit</p>
+        <h2 style="color:#111827;font-size:22px;font-weight:900;margin:0 0 12px;font-family:Arial,sans-serif;">Your gear is in the ROKI Network 🚀</h2>
+        <p style="color:#4b5563;line-height:1.7;margin:0 0 16px;font-family:Arial,sans-serif;">Order <strong style="color:#059669;">${orderNumber}</strong> has been picked up from <strong style="color:#111827;">${gymLocation}</strong> and is currently being cleaned.</p>
+        <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:10px;padding:16px;margin:20px 0;">
+          <p style="color:#92400e;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px;font-family:Arial,sans-serif;font-weight:bold;">Status</p>
+          <p style="color:#d97706;font-weight:bold;margin:0;font-family:Arial,sans-serif;font-size:15px;">⚡ In Transit</p>
+          <p style="color:#6b7280;font-size:12px;margin:4px 0 0;font-family:Arial,sans-serif;">Order ${orderNumber}</p>
         </div>
-        <p style="color:#6b7280;font-size:12px;">We'll notify you when your gear is ready for pickup.</p>
+        <p style="color:#6b7280;font-size:12px;font-family:Arial,sans-serif;">We'll notify you when your gear is ready for pickup.</p>
       `;
     } else if (newStatus === 'drying') {
       title = '⚡ Gear processing — almost ready';
