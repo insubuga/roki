@@ -3,18 +3,25 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 const LOGO_URL = 'https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c37d16942_LogoROKI.png';
 
 const emailHeader = () => `
-  <div style="background:#080d14;padding:24px 32px;border-bottom:1px solid #1a2332;text-align:center;">
-    <img src="${LOGO_URL}" alt="ROKI" style="height:48px;width:48px;object-fit:contain;display:inline-block;vertical-align:middle;margin-right:10px;"/>
-    <span style="color:#ffffff;font-weight:900;font-size:22px;letter-spacing:3px;vertical-align:middle;">ROKI</span>
-    <p style="color:#10b981;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin:4px 0 0;">Readiness Infrastructure</p>
+  <div style="background:#111827;padding:28px 32px;text-align:center;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+      <img src="${LOGO_URL}" alt="ROKI" width="52" height="52" style="display:inline-block;vertical-align:middle;margin-right:12px;border:0;"/>
+      <span style="color:#ffffff;font-weight:900;font-size:26px;letter-spacing:4px;vertical-align:middle;font-family:Arial,sans-serif;">ROKI</span>
+    </td></tr><tr><td align="center">
+      <p style="color:#10b981;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin:6px 0 0;font-family:Arial,sans-serif;">Readiness Infrastructure</p>
+    </td></tr></table>
   </div>
+  <div style="height:4px;background:linear-gradient(90deg,#10b981,#059669);"></div>
 `;
 
 const emailFooter = () => `
-  <div style="background:#040810;border-top:1px solid #1a2332;padding:20px 32px;text-align:center;">
-    <img src="${LOGO_URL}" alt="ROKI" style="height:24px;width:24px;object-fit:contain;display:inline-block;vertical-align:middle;margin-right:6px;opacity:0.6;"/>
-    <span style="color:#374151;font-size:11px;vertical-align:middle;letter-spacing:2px;">ROKI · Readiness OS</span>
-    <p style="color:#1f2937;font-size:10px;margin:8px 0 0;">You're receiving this because you have an active ROKI subscription. Visit the app to manage preferences.</p>
+  <div style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:24px 32px;text-align:center;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+      <img src="${LOGO_URL}" alt="ROKI" width="28" height="28" style="display:inline-block;vertical-align:middle;margin-right:8px;border:0;opacity:0.7;"/>
+      <span style="color:#6b7280;font-size:12px;vertical-align:middle;font-family:Arial,sans-serif;letter-spacing:2px;font-weight:bold;">ROKI · Readiness OS</span>
+    </td></tr><tr><td align="center">
+      <p style="color:#9ca3af;font-size:11px;margin:10px 0 0;font-family:Arial,sans-serif;line-height:1.6;">You're receiving this because you have an active ROKI subscription.<br/>Visit the app to manage your notification preferences.</p>
+    </td></tr></table>
   </div>
 `;
 
