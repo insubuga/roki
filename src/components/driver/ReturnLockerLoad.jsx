@@ -178,6 +178,7 @@ export default function ReturnLockerLoad({ user }) {
           );
         })}
 
+
         {/* Step 2: Locker assigned — driver loads gear and confirms */}
         {assignedPairs.map(({ cycle, assignment }) => {
           const locker = allLockers.find(l => l.id === assignment.locker_id);
