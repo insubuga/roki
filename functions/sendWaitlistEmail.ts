@@ -164,7 +164,11 @@ Deno.serve(async (req) => {
       ? `${appUrl}/?ref=${entry.referral_code}`
       : appUrl;
 
-    const enriched = { ...entry, referralUrl, position: entry.position };
+    // Calculate global waitlist position (how many signed up before this entry)
+    const allEntries = await base44.asServiceRole.entities.Waitlist.list('created_date', 10000);
+    const position = allEntries.findIndex(e => e.id === entry.id) + 1;
+
+    const enriched = { ...entry, referralUrl, position: position || '—' };
     const template = EMAIL_TEMPLATES[email_type]?.(enriched);
 
     if (!template) return Response.json({ error: 'Unknown email type' }, { status: 400 });
