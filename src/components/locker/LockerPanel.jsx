@@ -22,6 +22,7 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
   const queryClient = useQueryClient();
   const [checkingGeo, setCheckingGeo] = useState(false);
   const [geoError, setGeoError] = useState(null);
+  const [localAssignmentOverride, setLocalAssignment] = useState(null);
 
   // Real-time subscription for assignment status changes
   const { assignment: liveAssignment } = useLockerAssignmentSubscription(assignment?.cycle_id, assignment?.user_id);
