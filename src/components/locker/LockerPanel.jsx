@@ -75,16 +75,13 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
 
   const confirmDropMutation = useMutation({
     mutationFn: async () => {
-      // Optimistic update
-      setLocalAssignment(prev => ({ ...prev, status: 'dropped', dropped_at: new Date().toISOString() }));
-      
+      setLocalAssignment({ ...localAssignment, status: 'dropped', dropped_at: new Date().toISOString() });
       await base44.entities.CycleLockerAssignment.update(assignment.id, {
         status: 'dropped',
         dropped_at: new Date().toISOString(),
       });
       await base44.entities.Locker.update(locker.id, { status: 'dropped' });
       await base44.entities.Cycle.update(assignment.cycle_id, { status: 'awaiting_pickup' });
-      // Cycle enters active logistics on drop confirmation
     },
     onSuccess: () => {
       toast.success('Drop confirmed · Driver notified for pickup');
@@ -93,7 +90,7 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
       if (onStatusChange) onStatusChange('dropped');
     },
     onError: () => {
-      setLocalAssignment(assignment);
+      setLocalAssignment(null);
       toast.error('Failed to confirm drop');
     },
   });
