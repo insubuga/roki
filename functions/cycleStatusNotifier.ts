@@ -122,13 +122,14 @@ Deno.serve(async (req) => {
       title = '⚠️ Cycle cancelled';
       message = `Order ${orderNumber} has been cancelled.`;
       emailBody = `
-        <h2 style="color:#fff;font-size:22px;font-weight:900;margin:0 0 12px;">Your reset cycle was cancelled</h2>
-        <p style="color:#9ca3af;line-height:1.7;margin:0 0 16px;">Order <strong style="color:#f59e0b;">${orderNumber}</strong> has been cancelled. If you did not request this, please contact ROKI support immediately.</p>
-        <div style="background:#1a0a0a;border:1px solid #7f1d1d;border-radius:10px;padding:16px;margin:20px 0;">
-          <p style="color:#ef4444;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px;">Cancellation Notice</p>
-          <p style="color:#fff;font-weight:bold;margin:0;">${orderNumber}</p>
-          <p style="color:#6b7280;font-size:12px;margin:4px 0 0;">📍 ${gymLocation}</p>
+        <h2 style="color:#111827;font-size:22px;font-weight:900;margin:0 0 12px;font-family:Arial,sans-serif;">Your reset cycle was cancelled ⚠️</h2>
+        <p style="color:#4b5563;line-height:1.7;margin:0 0 16px;font-family:Arial,sans-serif;">Order <strong style="color:#d97706;">${orderNumber}</strong> has been cancelled. If you did not request this, please contact ROKI support immediately.</p>
+        <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:16px;margin:20px 0;">
+          <p style="color:#991b1b;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px;font-family:Arial,sans-serif;font-weight:bold;">Cancellation Notice</p>
+          <p style="color:#111827;font-weight:bold;font-size:16px;margin:0;font-family:Arial,sans-serif;letter-spacing:1px;">${orderNumber}</p>
+          <p style="color:#6b7280;font-size:12px;margin:4px 0 0;font-family:Arial,sans-serif;">📍 ${gymLocation}</p>
         </div>
+        <p style="color:#6b7280;font-size:12px;font-family:Arial,sans-serif;">Need help? Reply to this email or visit the ROKI app to contact support.</p>
       `;
     }
 
