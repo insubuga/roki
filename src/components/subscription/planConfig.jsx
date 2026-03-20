@@ -1,7 +1,14 @@
 // Single source of truth for subscription plans across the app
+// Stripe Price IDs (test mode)
+export const STRIPE_PRICE_IDS = {
+  core: 'price_1TCvGHA10LjEPy7hjgahMk9h',
+  priority: 'price_1TCvGHA10LjEPy7hK7pvGjNH',
+};
+
 export const SUBSCRIPTION_PLANS = {
   core: {
     id: 'core',
+    stripePriceId: 'price_1TCvGHA10LjEPy7hjgahMk9h',
     name: 'Core Readiness',
     price: 39,
     description: 'For the consistent trainer',
@@ -23,6 +30,7 @@ export const SUBSCRIPTION_PLANS = {
   },
   priority: {
     id: 'priority',
+    stripePriceId: 'price_1TCvGHA10LjEPy7hK7pvGjNH',
     name: 'Priority Readiness',
     price: 59,
     description: 'For the serious athlete',
