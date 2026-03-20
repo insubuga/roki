@@ -181,6 +181,7 @@ export default function ReturnLockerLoad({ user }) {
         {/* Step 2: Locker assigned — driver loads gear and confirms */}
         {assignedPairs.map(({ cycle, assignment }) => {
           const locker = allLockers.find(l => l.id === assignment.locker_id);
+          const cycleEnhancements = allEnhancements.filter(e => e.cycle_id === cycle.id);
           return (
             <Card key={cycle.id} className="border-l-4 border-l-blue-500">
               <CardContent className="p-4">
@@ -201,6 +202,23 @@ export default function ReturnLockerLoad({ user }) {
                     {assignment.access_code}
                   </span>
                 </div>
+
+                {cycleEnhancements.length > 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Sparkles className="w-3 h-3 text-green-600" />
+                      <p className="text-green-700 font-mono text-xs font-bold uppercase">Also pack in locker ({cycleEnhancements.length} item{cycleEnhancements.length > 1 ? 's' : ''})</p>
+                    </div>
+                    <div className="space-y-1">
+                      {cycleEnhancements.map(e => (
+                        <div key={e.id} className="flex items-center justify-between text-xs font-mono">
+                          <span className="text-gray-700">{e.attachment_name}</span>
+                          <span className="text-gray-500">× {e.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {cycle.gym_location && (
                   <div className="flex items-center gap-1 text-xs text-gray-500 font-mono mb-3">
