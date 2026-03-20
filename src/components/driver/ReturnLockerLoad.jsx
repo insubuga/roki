@@ -129,7 +129,9 @@ export default function ReturnLockerLoad({ user }) {
 
       <div className="space-y-3">
         {/* Step 1: Unassigned cycles — driver needs to claim a locker */}
-        {unassignedCycles.map((cycle) => (
+        {unassignedCycles.map((cycle) => {
+          const cycleEnhancements = allEnhancements.filter(e => e.cycle_id === cycle.id);
+          return (
           <Card key={cycle.id} className="border-l-4 border-l-orange-400">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
@@ -147,6 +149,22 @@ export default function ReturnLockerLoad({ user }) {
                 </div>
               )}
               <p className="text-gray-400 font-mono text-xs mb-3">Member: {cycle.user_email}</p>
+              {cycleEnhancements.length > 0 && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Sparkles className="w-3 h-3 text-green-600" />
+                    <p className="text-green-700 font-mono text-xs font-bold uppercase">Pack with gear ({cycleEnhancements.length} item{cycleEnhancements.length > 1 ? 's' : ''})</p>
+                  </div>
+                  <div className="space-y-1">
+                    {cycleEnhancements.map(e => (
+                      <div key={e.id} className="flex items-center justify-between text-xs font-mono">
+                        <span className="text-gray-700">{e.attachment_name}</span>
+                        <span className="text-gray-500">× {e.quantity}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <Button
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white font-mono text-sm font-bold"
                 onClick={() => assignLockerMutation.mutate(cycle)}
