@@ -148,13 +148,17 @@ Deno.serve(async (req) => {
       to: userEmail,
       subject: `ROKI: ${statusLabel} — Order ${orderNumber}`,
       body: `
-        <div style="font-family:monospace;background:#0a0f1a;max-width:560px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #1a2332;">
-          ${emailHeader()}
-          <div style="padding:32px;">
-            ${emailBody}
-          </div>
-          ${emailFooter()}
-        </div>
+        <!DOCTYPE html>
+        <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+        <body style="margin:0;padding:20px;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+            <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+              <tr><td>${emailHeader()}</td></tr>
+              <tr><td style="padding:32px 36px;background:#ffffff;">${emailBody}</td></tr>
+              <tr><td>${emailFooter()}</td></tr>
+            </table>
+          </td></tr></table>
+        </body></html>
       `,
     });
 
