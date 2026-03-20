@@ -55,15 +55,17 @@ const AuthenticatedApp = () => {
           key={path}
           path={`/${path}`}
           element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
+            <ProtectedRoute>
+              <LayoutWrapper currentPageName={path}>
+                <Page />
+              </LayoutWrapper>
+            </ProtectedRoute>
           }
         />
       ))}
-      <Route path="/Notifications" element={<LayoutWrapper currentPageName="Notifications"><Notifications /></LayoutWrapper>} />
-      <Route path="/ActiveCycle" element={<LayoutWrapper currentPageName="ActiveCycle"><ActiveCycle /></LayoutWrapper>} />
-      <Route path="/WaitlistDashboard" element={<WaitlistDashboard />} />
+      <Route path="/Notifications" element={<ProtectedRoute><LayoutWrapper currentPageName="Notifications"><Notifications /></LayoutWrapper></ProtectedRoute>} />
+      <Route path="/ActiveCycle" element={<ProtectedRoute><LayoutWrapper currentPageName="ActiveCycle"><ActiveCycle /></LayoutWrapper></ProtectedRoute>} />
+      <Route path="/WaitlistDashboard" element={<ProtectedRoute><WaitlistDashboard /></ProtectedRoute>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
