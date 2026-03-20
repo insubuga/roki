@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Package, CheckCircle2, Lock, MapPin } from 'lucide-react';
+import { Package, CheckCircle2, Lock, MapPin, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 function generateCode() {
