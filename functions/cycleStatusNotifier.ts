@@ -97,11 +97,12 @@ Deno.serve(async (req) => {
       title = '⚡ Gear processing — almost ready';
       message = `Order ${orderNumber} is in final processing. Almost reset.`;
       emailBody = `
-        <h2 style="color:#fff;font-size:22px;font-weight:900;margin:0 0 12px;">Almost ready.</h2>
-        <p style="color:#9ca3af;line-height:1.7;margin:0 0 16px;">Order <strong style="color:#10b981;">${orderNumber}</strong> is in final processing. We'll send you a notification when it's back at <strong style="color:#fff;">${gymLocation}</strong>.</p>
-        <div style="background:#0d1a2a;border:1px solid #1f2937;border-radius:10px;padding:16px;margin:20px 0;">
-          <p style="color:#6b7280;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px;">Status</p>
-          <p style="color:#a855f7;font-weight:bold;margin:0;">🔄 Final Processing</p>
+        <h2 style="color:#111827;font-size:22px;font-weight:900;margin:0 0 12px;font-family:Arial,sans-serif;">Almost ready. ⚡</h2>
+        <p style="color:#4b5563;line-height:1.7;margin:0 0 16px;font-family:Arial,sans-serif;">Order <strong style="color:#059669;">${orderNumber}</strong> is in final processing. We'll notify you when it's back at <strong style="color:#111827;">${gymLocation}</strong>.</p>
+        <div style="background:#faf5ff;border:1px solid #a855f7;border-radius:10px;padding:16px;margin:20px 0;">
+          <p style="color:#6b21a8;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px;font-family:Arial,sans-serif;font-weight:bold;">Status</p>
+          <p style="color:#9333ea;font-weight:bold;margin:0;font-family:Arial,sans-serif;font-size:15px;">🔄 Final Processing</p>
+          <p style="color:#6b7280;font-size:12px;margin:4px 0 0;font-family:Arial,sans-serif;">Order ${orderNumber}</p>
         </div>
       `;
     } else if (newStatus === 'picked_up') {
