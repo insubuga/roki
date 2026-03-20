@@ -26,7 +26,7 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
 
   // Real-time subscription for assignment status changes
   const { assignment: liveAssignment } = useLockerAssignmentSubscription(assignment?.cycle_id, assignment?.user_id);
-  const localAssignment = liveAssignment || assignment;
+  const localAssignment = localAssignmentOverride || liveAssignment || assignment;
 
   // Check expiration on mount / every minute
   const [isExpired, setIsExpired] = useState(false);
