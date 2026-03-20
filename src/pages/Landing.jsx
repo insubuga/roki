@@ -67,7 +67,7 @@ export default function Landing() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-white/[0.05] py-8 px-4">
+      <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.05] bg-[#080d14]/90 backdrop-blur-md py-4 px-4">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <img
