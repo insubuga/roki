@@ -71,14 +71,14 @@ Deno.serve(async (req) => {
       title = '🎯 Your gear is reset and ready!';
       message = `Order ${orderNumber} is reset and ready at ${gymLocation}. Head to your locker to collect your gear.`;
       emailBody = `
-        <h2 style="color:#fff;font-size:22px;font-weight:900;margin:0 0 12px;">Your gear is reset and ready!</h2>
-        <p style="color:#9ca3af;line-height:1.7;margin:0 0 16px;">Your ROKI cycle <strong style="color:#10b981;">${orderNumber}</strong> has been processed. Your fresh gear is waiting in your locker at <strong style="color:#fff;">${gymLocation}</strong>.</p>
-        <div style="background:#0d1a2a;border:1px solid #10b981;border-radius:10px;padding:16px;margin:20px 0;">
-          <p style="color:#10b981;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px;">Order Receipt</p>
-          <p style="color:#fff;font-weight:bold;font-size:16px;margin:0;">${orderNumber}</p>
-          <p style="color:#6b7280;font-size:12px;margin:4px 0 0;">📍 ${gymLocation}</p>
+        <h2 style="color:#111827;font-size:22px;font-weight:900;margin:0 0 12px;font-family:Arial,sans-serif;">Your gear is reset and ready! 🎯</h2>
+        <p style="color:#4b5563;line-height:1.7;margin:0 0 16px;font-family:Arial,sans-serif;">Your ROKI cycle <strong style="color:#059669;">${orderNumber}</strong> has been processed. Your fresh gear is waiting in your locker at <strong style="color:#111827;">${gymLocation}</strong>.</p>
+        <div style="background:#f0fdf4;border:1px solid #10b981;border-radius:10px;padding:16px;margin:20px 0;">
+          <p style="color:#059669;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px;font-family:Arial,sans-serif;font-weight:bold;">Order</p>
+          <p style="color:#111827;font-weight:bold;font-size:18px;margin:0;font-family:Arial,sans-serif;letter-spacing:1px;">${orderNumber}</p>
+          <p style="color:#6b7280;font-size:12px;margin:6px 0 0;font-family:Arial,sans-serif;">📍 ${gymLocation}</p>
         </div>
-        <p style="color:#6b7280;font-size:12px;">Your locker access code is available in the ROKI app under Active Cycle.</p>
+        <p style="color:#6b7280;font-size:12px;font-family:Arial,sans-serif;">Your locker access code is available in the ROKI app under Active Cycle.</p>
       `;
     } else if (newStatus === 'washing') {
       title = '🚀 Your gear is in transit';
