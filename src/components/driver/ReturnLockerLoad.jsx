@@ -40,6 +40,19 @@ export default function ReturnLockerLoad({ user }) {
     enabled: returnAssignments.length > 0,
   });
 
+  // Fetch all scheduled enhancements for ready cycles
+  const readyCycleIds = readyCycles.map(c => c.id);
+  const { data: allEnhancements = [] } = useQuery({
+    queryKey: ['driver-enhancements', readyCycleIds.join(',')],
+    queryFn: async () => {
+      const results = await Promise.all(
+        readyCycleIds.map(id => base44.entities.AttachmentLog.filter({ cycle_id: id, status: 'scheduled' }))
+      );
+      return results.flat();
+    },
+    enabled: readyCycleIds.length > 0,
+  });
+
   // Assign a locker to a ready cycle (driver at facility, picking up gear)
   const assignLockerMutation = useMutation({
     mutationFn: async (cycle) => {
