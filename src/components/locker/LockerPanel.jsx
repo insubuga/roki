@@ -45,14 +45,22 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
 
   const activateMutation = useMutation({
     mutationFn: async () => {
-      // Optimistic update
-      setLocalAssignment(prev => ({ ...prev, status: 'activated', activated_at: new Date().toISOString() }));
-      
+      setLocalAssignment({ ...localAssignment, status: 'activated', activated_at: new Date().toISOString() });
       await base44.entities.CycleLockerAssignment.update(assignment.id, {
         status: 'activated',
         activated_at: new Date().toISOString(),
       });
       await base44.entities.Locker.update(locker.id, { status: 'activated' });
+      // Notify admins via in-app notification
+      await base44.entities.Notification.create({
+        user_email: assignment.user_id,
+        type: 'laundry',
+        title: '✅ Locker Activated',
+        message: `Your locker #${locker.locker_number} is now active. Use code ${assignment.access_code} to drop your gear.`,
+        action_url: '/ActiveCycle',
+        priority: 'high',
+        read: false,
+      });
     },
     onSuccess: () => {
       toast.success('Locker Activated — You may now drop your gear');
@@ -60,8 +68,8 @@ export default function LockerPanel({ assignment, locker, gym, onStatusChange })
       if (onStatusChange) onStatusChange('activated');
     },
     onError: () => {
-      setLocalAssignment(assignment);
-      toast.error('Activation failed');
+      setLocalAssignment(null);
+      toast.error('Activation failed — please try again');
     },
   });
 
