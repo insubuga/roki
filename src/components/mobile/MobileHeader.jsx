@@ -22,9 +22,10 @@ export default function MobileHeader({ title, subtitle, icon: Icon, iconColor = 
           variant="ghost" 
           size="icon" 
           onClick={handleBack}
+          aria-label="Go back"
           className="text-foreground hover:text-green-600 select-none -ml-2 flex-shrink-0"
         >
-          <ArrowLeft className="w-5 h-5 select-none" />
+          <ArrowLeft className="w-5 h-5 select-none" aria-hidden="true" />
         </Button>
       )}
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${iconColor === 'text-[var(--color-primary)]' ? 'bg-green-600/20' : 'bg-gray-100'}`}>

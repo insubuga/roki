@@ -47,7 +47,7 @@ export default function BottomSheet({
               )}
             </DrawerHeader>
           )}
-          <div className="overflow-y-auto overscroll-contain max-h-[70vh] px-4 pb-4">
+          <div className="scroll-container max-h-[70vh] px-4 pb-4">
             {children}
           </div>
         </DrawerContent>
