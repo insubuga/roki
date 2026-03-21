@@ -245,7 +245,7 @@ export default function ActiveCycle() {
   const creditsRemaining = subscription
     ? Math.max(0, (subscription.laundry_credits || 0) - (subscription.laundry_credits_used || 0))
     : null;
-  const outOfCredits = creditsRemaining !== null && creditsRemaining === 0;
+  const outOfCredits = !subscription || creditsRemaining === 0;
 
   const getCycleState = (status) => {
     const stateMap = {
