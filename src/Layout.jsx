@@ -338,7 +338,7 @@ export default function Layout({ children, currentPageName }) {
                 onClick={(e) => handleTabClick(e, item.page, path)}
                 aria-label={`Navigate to ${item.name}`}
                 aria-current={isActive ? 'page' : undefined}
-                className={`flex flex-col items-center justify-center gap-0.5 select-none transition-opacity duration-150 min-h-[44px] ${isLoading ? 'opacity-40' : 'opacity-100'}`}
+                className={`flex flex-col items-center justify-center gap-0.5 select-none transition-all duration-150 active:scale-95 min-h-[44px] ${isLoading ? 'opacity-40' : 'opacity-100'}`}
               >
                 {/* Pill indicator */}
                 <div className={`relative flex items-center justify-center rounded-full transition-all duration-200 ${isActive ? 'bg-green-500/15 w-14 h-7' : 'w-10 h-7'}`}>

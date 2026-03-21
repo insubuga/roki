@@ -17,7 +17,8 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import MobileSelect from '@/components/mobile/MobileSelect';
+import { BottomSheetSelect } from '@/components/mobile/BottomSheet';
+import { useOptimisticMutation } from '@/components/hooks/useOptimisticUpdate';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 
 const cycleStates = {
