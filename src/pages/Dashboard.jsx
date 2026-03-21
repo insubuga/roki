@@ -135,7 +135,6 @@ export default function Dashboard() {
   const networkPerformance = reliabilityScore?.network_contribution_score || 0;
   const rushCreditsRemaining = (subscription?.rush_deliveries_included || 0) - (subscription?.rush_deliveries_used || 0);
   const clusterLoad = Math.min(85, (preferences?.total_cycles_completed || 0) * 8);
-  const routeCapacity = 100 - 92;
   const slaTarget = subscription?.laundry_turnaround_hours ?? 48;
   const resetCycleFrequency = preferences?.laundry_schedule?.replace('weekly_', '').toUpperCase() || 'NOT SET';
   const activeAlerts = incidentFreeStreak === 0 || rushCreditsRemaining === 0 ? 1 : 0;

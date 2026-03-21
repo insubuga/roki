@@ -172,7 +172,7 @@ export default function Performance() {
             <CardContent>
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={logChartData} barSize={16}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="name" fontSize={10} />
                   <YAxis fontSize={10} />
                   <Tooltip
