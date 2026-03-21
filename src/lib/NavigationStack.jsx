@@ -54,11 +54,13 @@ export function NavigationStackProvider({ children }) {
   // they update atomically in the same render cycle.
   }, [location.pathname, navType]);
 
-  const goBack = useCallback(() => {
+  // goBack: navigates back in the managed stack. Accepts an optional fallback route
+  // if the stack is empty (first page load, direct URL access, etc.)
+  const goBack = useCallback((fallback = '/Dashboard') => {
     if (stackRef.current.length > 1) {
       navigate(-1);
     } else {
-      navigate('/Dashboard', { replace: true });
+      navigate(fallback, { replace: true });
     }
   }, [navigate]);
 

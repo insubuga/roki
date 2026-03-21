@@ -72,7 +72,7 @@ export default function Layout({ children, currentPageName }) {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  // ── Active cycle badge ───────────────────────────────────────────────────
+  // ── Active cycle badge — event-driven via subscription ──────────────────
   const { data: hasActiveCycle } = useQuery({
     queryKey: ['hasActiveCycle', user?.email],
     queryFn: async () => {
@@ -83,8 +83,19 @@ export default function Layout({ children, currentPageName }) {
       return cycles.length > 0;
     },
     enabled: !!user?.email,
-    refetchInterval: 60_000,
+    staleTime: 5 * 60_000, // cache for 5 min; subscription keeps it fresh
   });
+
+  // Subscribe to Cycle changes to keep the tab badge live without polling
+  useEffect(() => {
+    if (!user?.email) return;
+    const unsub = base44.entities.Cycle.subscribe((event) => {
+      if (event.data?.user_email === user.email) {
+        queryClient.invalidateQueries({ queryKey: ['hasActiveCycle', user.email] });
+      }
+    });
+    return unsub;
+  }, [user?.email, queryClient]);
 
   // ── Mobile header: hide on scroll-down, show on scroll-up ────────────────
   useEffect(() => {

@@ -38,7 +38,8 @@ export default function NotificationDropdown({ user }) {
     queryKey: ['notifications', user?.email],
     queryFn: () => base44.entities.Notification.filter({ user_email: user?.email }, '-created_date', 20),
     enabled: !!user?.email,
-    refetchInterval: 10000,
+    // Real-time subscription below handles live updates — no polling needed
+    staleTime: 60_000,
   });
 
   // Subscribe to real-time updates
