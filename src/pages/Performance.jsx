@@ -224,6 +224,5 @@ export default function Performance() {
           </Card>
         )}
       </div>
-    </PullToRefresh>
   );
 }

@@ -312,6 +312,5 @@ export default function RiskRecovery() {
           </CardContent>
         </Card>
       </div>
-    </PullToRefresh>
   );
 }
