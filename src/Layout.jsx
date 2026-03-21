@@ -40,6 +40,11 @@ export default function Layout({ children, currentPageName }) {
   const lastScrollY = useRef(0);
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handleGlobalRefresh = async () => {
+    await queryClient.invalidateQueries();
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -255,16 +260,18 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Main Content */}
       <main
-        className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6"
+        className="w-full mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6 md:max-w-7xl"
         style={{ marginTop: '64px', paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }}
         id="main-content"
         tabIndex="-1"
       >
-        <PageTransition pageKey={location.pathname}>
-          <ErrorBoundary label="Page failed to load. Please retry.">
-            {children}
-          </ErrorBoundary>
-        </PageTransition>
+        <PullToRefresh onRefresh={handleGlobalRefresh}>
+          <PageTransition pageKey={location.pathname}>
+            <ErrorBoundary label="Page failed to load. Please retry.">
+              {children}
+            </ErrorBoundary>
+          </PageTransition>
+        </PullToRefresh>
       </main>
 
 
