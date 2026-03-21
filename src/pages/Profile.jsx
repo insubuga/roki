@@ -293,26 +293,38 @@ export default function Profile() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Select value={formData.preferred_gym} onValueChange={(v) => setFormData({ ...formData, preferred_gym: v })}>
-                    <SelectTrigger className="bg-muted border-border text-foreground font-mono text-sm focus:ring-green-600">
-                      <SelectValue placeholder="Select a gym" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border max-h-72">
-                      {gymsWithKey.map((gym, idx) => (
-                        <SelectItem key={gym.gymKey} value={gym.gymKey} className="text-foreground font-mono py-3">
-                          <div className="flex items-center justify-between w-full gap-4">
-                            <div>
-                              <div className="font-semibold text-sm">{gym.name}</div>
-                              <div className="text-muted-foreground text-xs">{gym.city || gym.address}</div>
-                            </div>
-                            {gym.distance_miles != null && (
-                              <span className="text-green-600 text-xs font-mono flex-shrink-0">{gym.distance_miles.toFixed(1)} mi</span>
-                            )}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <MobileSelect
+                    options={gymsWithKey.map(gym => ({
+                      value: gym.gymKey,
+                      label: gym.name,
+                      subtitle: [gym.city || gym.address, gym.distance_miles != null ? `${gym.distance_miles.toFixed(1)} mi` : null].filter(Boolean).join(' · '),
+                    }))}
+                    value={formData.preferred_gym}
+                    onValueChange={(v) => setFormData({ ...formData, preferred_gym: v })}
+                    placeholder="Select a gym"
+                    trigger={
+                      <Select value={formData.preferred_gym} onValueChange={(v) => setFormData({ ...formData, preferred_gym: v })}>
+                        <SelectTrigger className="bg-muted border-border text-foreground font-mono text-sm focus:ring-green-600">
+                          <SelectValue placeholder="Select a gym" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border max-h-72">
+                          {gymsWithKey.map((gym) => (
+                            <SelectItem key={gym.gymKey} value={gym.gymKey} className="text-foreground font-mono py-3">
+                              <div className="flex items-center justify-between w-full gap-4">
+                                <div>
+                                  <div className="font-semibold text-sm">{gym.name}</div>
+                                  <div className="text-muted-foreground text-xs">{gym.city || gym.address}</div>
+                                </div>
+                                {gym.distance_miles != null && (
+                                  <span className="text-green-600 text-xs font-mono flex-shrink-0">{gym.distance_miles.toFixed(1)} mi</span>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    }
+                  />
                   {selectedGym && (
                     <p className="text-muted-foreground font-mono text-xs flex items-center gap-1">
                       <MapPin className="w-3 h-3 text-green-600" />
