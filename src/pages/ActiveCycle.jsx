@@ -169,19 +169,16 @@ export default function ActiveCycle() {
     onError: (err) => toast.error(err.message),
   });
 
-  const cancelCycleMutation = useMutation({
+  const cancelCycleMutation = useOptimisticMutation({
+    queryKey: ['activeCycle', user?.email],
     mutationFn: async () => {
-      // Release the locker back to available
       if (cycleAssignment?.locker_id) {
         await base44.entities.Locker.update(cycleAssignment.locker_id, { status: 'available' });
       }
-      // Mark assignment as expired
       if (cycleAssignment?.id) {
         await base44.entities.CycleLockerAssignment.update(cycleAssignment.id, { status: 'expired' });
       }
-      // Cancel the cycle
       await base44.entities.Cycle.update(activeCycle.id, { status: 'cancelled' });
-      // Notify user
       await base44.entities.Notification.create({
         user_email: user.email,
         type: 'system',
@@ -191,16 +188,17 @@ export default function ActiveCycle() {
         read: false,
       });
     },
+    // Optimistically clear the active cycle immediately
+    optimisticUpdate: () => null,
+    successMessage: 'Cycle cancelled — locker released',
     onSuccess: () => {
-      toast.success('Cycle cancelled — locker released');
       setShowCancelDialog(false);
-      queryClient.invalidateQueries(['activeCycle']);
-      queryClient.invalidateQueries(['cycleAssignment']);
+      queryClient.invalidateQueries({ queryKey: ['cycleAssignment'] });
     },
-    onError: () => toast.error('Failed to cancel cycle'),
   });
 
-  const activateRecoveryMutation = useMutation({
+  const activateRecoveryMutation = useOptimisticMutation({
+    queryKey: ['activeCycle', user?.email],
     mutationFn: async () => {
       if (!activeCycle) return;
       await base44.entities.Cycle.update(activeCycle.id, { ...activeCycle, status: 'drying' });
@@ -210,11 +208,10 @@ export default function ActiveCycle() {
         order_id: activeCycle.id,
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['activeCycle']);
-      toast.success('Recovery Protocol Activated');
-      setShowRecoveryDialog(false);
-    },
+    // Optimistically mark cycle as drying
+    optimisticUpdate: (old) => old ? { ...old, status: 'drying' } : old,
+    successMessage: 'Recovery Protocol Activated',
+    onSuccess: () => setShowRecoveryDialog(false),
   });
 
   const handleRefresh = async () => {
@@ -617,11 +614,12 @@ export default function ActiveCycle() {
             <div className="space-y-4 py-4">
               <div>
                 <p className="text-muted-foreground text-xs uppercase mb-2">Batch Volume</p>
-                <MobileSelect
+                <BottomSheetSelect
                   options={gearVolumeOptions.map(opt => ({ value: opt.value, label: opt.label }))}
                   value={gearVolume}
                   onValueChange={setGearVolume}
                   placeholder="Select Batch Volume"
+                  title="Batch Volume"
                   trigger={
                     <Select value={gearVolume} onValueChange={setGearVolume}>
                       <SelectTrigger className="bg-muted border-border text-foreground font-mono text-sm">
