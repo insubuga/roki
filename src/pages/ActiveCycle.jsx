@@ -658,6 +658,12 @@ export default function ActiveCycle() {
                   <p className="text-red-400 font-mono text-xs">Your gym is at full capacity. New cycles are temporarily paused. Check back shortly.</p>
                 </div>
               )}
+              {outOfCredits && (
+                <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded p-3">
+                  <AlertTriangle className="w-3 h-3 text-red-500 mt-0.5 shrink-0" />
+                  <p className="text-red-400 font-mono text-xs">No cycle credits remaining. Upgrade your plan or wait for your renewal date.</p>
+                </div>
+              )}
               {gymUtilization >= 85 && !gymAtCapacity && (
                 <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded p-3">
                   <AlertTriangle className="w-3 h-3 text-amber-400 mt-0.5 shrink-0" />
