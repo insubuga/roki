@@ -13,6 +13,7 @@ import SLAWarning from '@/components/warnings/SLAWarning';
 
 export default function RiskRecovery() {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -257,7 +258,7 @@ export default function RiskRecovery() {
               variant="outline" 
               className="w-full border-orange-600 text-orange-600 hover:bg-orange-600/10 font-mono text-xs h-12 disabled:opacity-50 disabled:pointer-events-none"
               disabled={!activeCycle}
-              onClick={() => activeCycle && window.location.assign(createPageUrl('LaundryOrder'))}
+              onClick={() => activeCycle && navigate(createPageUrl('LaundryOrder'))}
             >
               <Zap className="w-4 h-4 mr-2" />
               ACTIVATE RECOVERY PROTOCOL

@@ -160,9 +160,9 @@ export default function ActiveCycle() {
       if (!res.data?.success) throw new Error(res.data?.error || 'Activation failed');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['activeCycle']);
-      queryClient.invalidateQueries(['cycleAssignment']);
-      queryClient.invalidateQueries(['subscription']);
+      queryClient.invalidateQueries({ queryKey: ['activeCycle'] });
+      queryClient.invalidateQueries({ queryKey: ['cycleAssignment'] });
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
       toast.success('Cycle Activated — Locker Soft Reserved');
       setShowActivateDialog(false);
     },
@@ -215,7 +215,7 @@ export default function ActiveCycle() {
   });
 
   const handleRefresh = async () => {
-    await queryClient.invalidateQueries(['activeCycle']);
+    await queryClient.invalidateQueries({ queryKey: ['activeCycle'] });
   };
 
   if (!user) {
