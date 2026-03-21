@@ -762,6 +762,5 @@ export default function ActiveCycle() {
           </DialogContent>
         </Dialog>
       </div>
-    </PullToRefresh>
   );
 }

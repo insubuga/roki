@@ -137,6 +137,5 @@ export default function AdminOps() {
           Refresh All Metrics
         </Button>
       </div>
-    </PullToRefresh>
   );
 }
