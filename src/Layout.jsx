@@ -201,7 +201,7 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Right side: notifications + user avatar */}
           <div className="flex items-center gap-2">
-            {user && <NotificationDropdown user={user} />}
+            {user && <NotificationDropdown user={user} aria-label="View notifications" />}
 
             {user ? (
               <DropdownMenu>
@@ -287,7 +287,7 @@ export default function Layout({ children, currentPageName }) {
               <button
                 key={item.page}
                 onClick={(e) => handleTabClick(e, item.page, path)}
-                aria-label={item.name}
+                aria-label={`Navigate to ${item.name}`}
                 aria-current={isActive ? 'page' : undefined}
                 className={`flex flex-col items-center justify-center gap-0.5 select-none transition-opacity duration-150 min-h-[44px] ${isLoading ? 'opacity-40' : 'opacity-100'}`}
               >
