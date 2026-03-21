@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CreditCard, Zap, Calendar, RotateCcw } from 'lucide-react';
-import { differenceInDays, parseISO } from 'date-fns';
+import { differenceInDays, parseISO, format } from 'date-fns';
 
 export default function SubscriptionUsageCard({ subscription }) {
   if (!subscription) return null;
