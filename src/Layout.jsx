@@ -38,6 +38,8 @@ export default function Layout({ children, currentPageName }) {
   const [pendingTab, setPendingTab] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const lastScrollY = useRef(0);
+  // Per-tab history stacks: { tabPage: ['/path1', '/path2', ...] }
+  const tabHistoryRef = useRef({});
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -119,16 +121,38 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Settings', page: 'Configuration', icon: Settings },
   ];
 
+  // Track current path into the tab's per-stack history
+  useEffect(() => {
+    if (!currentPageName) return;
+    // Find which tab "owns" this page
+    const ownerTab = bottomNavItems.find(t => {
+      const tabStack = tabHistoryRef.current[t.page];
+      return t.page === currentPageName || (tabStack && tabStack.includes(location.pathname));
+    });
+    if (ownerTab) {
+      const stack = tabHistoryRef.current[ownerTab.page] || [createPageUrl(ownerTab.page)];
+      // Avoid duplicates
+      if (stack[stack.length - 1] !== location.pathname) {
+        tabHistoryRef.current[ownerTab.page] = [...stack, location.pathname];
+      }
+    }
+  }, [location.pathname, currentPageName]);
+
   const handleTabClick = (e, page, path) => {
     e.preventDefault();
     if (currentPageName === page) {
-      // Already on this tab - scroll to top
+      // Re-select active tab → reset to root + scroll to top
+      tabHistoryRef.current[page] = [path];
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (location.pathname !== path) navigate(path, { replace: true });
     } else {
-      // Replace history so back button doesn't cycle through tabs
+      // Switch tab: restore last position in that tab's stack if available
+      const tabStack = tabHistoryRef.current[page];
+      const targetPath = (tabStack && tabStack.length > 0)
+        ? tabStack[tabStack.length - 1]
+        : path;
       setPendingTab(page);
-      navigate(path, { replace: true });
-      // Clear pending state after animation completes
+      navigate(targetPath, { replace: true });
       setTimeout(() => setPendingTab(null), 400);
     }
   };
