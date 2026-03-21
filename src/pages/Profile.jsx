@@ -366,7 +366,7 @@ export default function Profile() {
         <Button
           className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-mono text-sm font-bold select-none h-12"
           onClick={() => updateProfileMutation.mutate(formData)}
-          disabled={updateProfileMutation.isPending}
+          disabled={updateProfileMutation.isPending || !hasChanges}
         >
           {updateProfileMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2 select-none" />}
           SAVE CHANGES
