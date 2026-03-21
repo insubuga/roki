@@ -12,15 +12,17 @@ Deno.serve(async (req) => {
     const { gymId, gearVolume, preferredGymName } = await req.json();
     if (!gymId) return Response.json({ error: 'gymId is required' }, { status: 400 });
 
-    // 1. Subscription credit check
+    // 1. Subscription credit check — require active subscription
     const subs = await base44.asServiceRole.entities.Subscription.filter({ user_email: user.email });
     const sub = subs[0];
-    if (sub) {
-      const creditsRemaining = (sub.laundry_credits || 0) - (sub.laundry_credits_used || 0);
-      if (creditsRemaining <= 0) {
-        console.warn(`Credit exhausted for ${user.email}`);
-        return Response.json({ error: 'No laundry credits remaining. Upgrade your plan to continue.' }, { status: 402 });
-      }
+    if (!sub) {
+      console.warn(`No subscription found for ${user.email}`);
+      return Response.json({ error: 'No active subscription. Subscribe to a plan to activate cycles.' }, { status: 402 });
+    }
+    const creditsRemaining = (sub.laundry_credits || 0) - (sub.laundry_credits_used || 0);
+    if (creditsRemaining <= 0) {
+      console.warn(`Credit exhausted for ${user.email}`);
+      return Response.json({ error: 'No laundry credits remaining. Upgrade your plan to continue.' }, { status: 402 });
     }
 
     // 2. Prevent duplicate active cycles
