@@ -417,12 +417,15 @@ export default function ActiveCycle() {
                 <Button
                   onClick={() => setShowActivateDialog(true)}
                   className="bg-green-600 hover:bg-green-700 text-white font-mono text-sm"
-                  disabled={!user?.preferred_gym}
+                  disabled={!user?.preferred_gym || outOfCredits}
                 >
                   ACTIVATE NEW CYCLE
                 </Button>
                 {!user?.preferred_gym && (
                   <p className="text-xs text-muted-foreground mt-2">Set your home gym in Profile to activate</p>
+                )}
+                {outOfCredits && (
+                  <p className="text-xs text-red-500 mt-2 font-mono">No credits remaining — upgrade or wait for renewal</p>
                 )}
               </CardContent>
             </Card>
