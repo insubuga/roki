@@ -2,29 +2,45 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigationDirection } from '@/lib/NavigationStack';
 
-const DURATION = 0.22;
-const DISTANCE = 40; // px — subtle, not full-screen, feels native
+// iOS-native feel: forward = slide in from right, back = slide in from left with parallax
+const DURATION = 0.32;
+const SPRING = { type: 'tween', duration: DURATION, ease: [0.32, 0.72, 0, 1] };
 
 export default function PageTransition({ children, pageKey }) {
   const { direction } = useNavigationDirection();
 
   const variants = {
-    enter: { opacity: 0, x: direction * DISTANCE },
-    center: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: direction * -DISTANCE },
+    // Entering page: slides in from right (forward) or left (back)
+    enter: (dir) => ({
+      x: dir > 0 ? '100%' : '-28%',
+      opacity: dir > 0 ? 1 : 0.6,
+      zIndex: dir > 0 ? 2 : 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      zIndex: 1,
+    },
+    // Exiting page: slides out to left (forward) or right (back) with parallax
+    exit: (dir) => ({
+      x: dir > 0 ? '-28%' : '100%',
+      opacity: dir > 0 ? 0.6 : 1,
+      zIndex: dir > 0 ? 0 : 2,
+    }),
   };
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="wait" initial={false} custom={direction}>
       <motion.div
         key={pageKey}
+        custom={direction}
         variants={variants}
         initial="enter"
         animate="center"
         exit="exit"
-        transition={{ duration: DURATION, ease: [0.25, 0.46, 0.45, 0.94] }}
+        transition={SPRING}
         className="w-full"
-        style={{ willChange: 'transform, opacity' }}
+        style={{ willChange: 'transform, opacity', position: 'relative' }}
       >
         {children}
       </motion.div>
