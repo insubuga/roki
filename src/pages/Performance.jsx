@@ -6,7 +6,6 @@ import { TrendingUp, TrendingDown, Activity, Zap, Star, CheckCircle2, Clock, Min
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import MobileHeader from '../components/mobile/MobileHeader';
-import PullToRefresh from '../components/mobile/PullToRefresh';
 
 export default function Performance() {
   const [user, setUser] = useState(null);

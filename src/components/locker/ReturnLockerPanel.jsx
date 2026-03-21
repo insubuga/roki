@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useOptimisticUpdate } from '@/components/hooks/useOptimisticUpdate';
 import { Shirt, CheckCircle, Lock, Key, Star, Sparkles } from 'lucide-react';
 import LockerQRCode from './LockerQRCode';
 import { Button } from '@/components/ui/button';
