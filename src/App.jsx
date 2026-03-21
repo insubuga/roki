@@ -5,6 +5,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import AndroidBackHandler from '@/lib/AndroidBackHandler'
+import { NavigationStackProvider } from '@/lib/NavigationStack'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
@@ -18,7 +19,6 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
-const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
@@ -36,12 +36,8 @@ const AuthenticatedApp = () => {
   }
 
   if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      navigateToLogin();
-      return null;
-    }
+    if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
+    if (authError.type === 'auth_required') { navigateToLogin(); return null; }
   }
 
   return (
@@ -75,16 +71,16 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <NavigationStackProvider>
-          <NavigationTracker />
-          <AndroidBackHandler />
-          <AuthenticatedApp />
+            <NavigationTracker />
+            <AndroidBackHandler />
+            <AuthenticatedApp />
           </NavigationStackProvider>
         </Router>
         <Toaster />
         <VisualEditAgent />
       </QueryClientProvider>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;
