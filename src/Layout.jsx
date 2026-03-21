@@ -302,11 +302,14 @@ export default function Layout({ children, currentPageName }) {
         tabIndex="-1"
         className="w-full mx-auto scroll-container"
         style={{
-          paddingTop: 'calc(3.5rem + env(safe-area-inset-top))',    // 56px header
-          paddingBottom: 'calc(4.5rem + env(safe-area-inset-bottom))', // 72px tab bar
+          paddingTop: 'calc(3.5rem + env(safe-area-inset-top))',
+          // Mobile: reserve space for fixed 4.5rem tab bar + safe-area notch
+          // Desktop: just safe-area (usually 0) + standard margin
+          paddingBottom: isMobile
+            ? 'calc(4.5rem + env(safe-area-inset-bottom))'
+            : 'max(1.5rem, env(safe-area-inset-bottom))',
           paddingLeft:  'max(1rem, env(safe-area-inset-left))',
           paddingRight: 'max(1rem, env(safe-area-inset-right))',
-          // Desktop: no bottom tab, max width
           maxWidth: '80rem',
         }}
       >

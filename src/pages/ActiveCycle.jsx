@@ -364,8 +364,8 @@ export default function ActiveCycle() {
                     locker={cycleLocker}
                     gym={preferredGym}
                     onStatusChange={() => {
-                      queryClient.invalidateQueries(['cycleAssignment']);
-                      queryClient.invalidateQueries(['activeCycle']);
+                      queryClient.invalidateQueries({ queryKey: ['cycleAssignment'] });
+                      queryClient.invalidateQueries({ queryKey: ['activeCycle', user?.email] });
                     }}
                   />
                 )}
