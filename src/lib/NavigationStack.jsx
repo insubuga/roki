@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const SESSION_KEY = 'roki_nav_stack';
