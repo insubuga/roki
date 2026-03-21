@@ -85,10 +85,15 @@ export default function NotificationDropdown({ user }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="bg-transparent border-gray-700 hover:bg-gray-800 relative">
-          <Bell className="w-5 h-5 text-gray-300" />
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label={unreadCount > 0 ? `Notifications — ${unreadCount} unread` : 'Notifications'}
+          className="bg-transparent border-gray-700 hover:bg-gray-800 relative"
+        >
+          <Bell className="w-5 h-5 text-gray-300" aria-hidden="true" />
           {unreadCount > 0 && (
-            <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs h-5 w-5 flex items-center justify-center p-0">
+            <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs h-5 w-5 flex items-center justify-center p-0" aria-hidden="true">
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
@@ -170,19 +175,21 @@ export default function NotificationDropdown({ user }) {
                               <Button
                                 size="sm"
                                 variant="ghost"
+                                aria-label="Mark as read"
                                 className="text-gray-400 hover:text-white text-xs h-6 px-2"
                                 onClick={() => markAsReadMutation.mutate(notif.id)}
                               >
-                                <Check className="w-3 h-3" />
+                                <Check className="w-3 h-3" aria-hidden="true" />
                               </Button>
                             )}
                             <Button
                               size="sm"
                               variant="ghost"
+                              aria-label="Dismiss notification"
                               className="text-gray-400 hover:text-red-400 text-xs h-6 px-2"
                               onClick={() => deleteNotificationMutation.mutate(notif.id)}
                             >
-                              <X className="w-3 h-3" />
+                              <X className="w-3 h-3" aria-hidden="true" />
                             </Button>
                           </div>
                         </div>

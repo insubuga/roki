@@ -111,18 +111,24 @@ export default function Layout({ children, currentPageName }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // ── Per-tab history tracking ─────────────────────────────────────────────
+  // ── Per-tab history tracking — strictly tied to React Router location updates ─
   useEffect(() => {
     if (!currentPageName) return;
-    const ownerTab = BOTTOM_NAV.find(t => {
-      const tabStack = tabHistoryRef.current[t.page];
-      return t.page === currentPageName || (tabStack && tabStack.includes(location.pathname));
-    });
-    if (ownerTab) {
-      const stack = tabHistoryRef.current[ownerTab.page] || [createPageUrl(ownerTab.page)];
-      if (stack[stack.length - 1] !== location.pathname) {
-        tabHistoryRef.current[ownerTab.page] = [...stack, location.pathname];
-      }
+
+    // Strict priority: prefer exact page name match over stack-inclusion lookup
+    const ownerTab =
+      BOTTOM_NAV.find(t => t.page === currentPageName) ||
+      BOTTOM_NAV.find(t => {
+        const tabStack = tabHistoryRef.current[t.page];
+        return tabStack && tabStack.includes(location.pathname);
+      });
+
+    if (!ownerTab) return;
+
+    const stack = tabHistoryRef.current[ownerTab.page] || [createPageUrl(ownerTab.page)];
+    // Only push if the pathname is genuinely new (no duplicates)
+    if (stack[stack.length - 1] !== location.pathname) {
+      tabHistoryRef.current[ownerTab.page] = [...stack, location.pathname];
     }
   }, [location.pathname, currentPageName]);
 

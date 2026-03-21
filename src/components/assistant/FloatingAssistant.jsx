@@ -128,6 +128,8 @@ export default function FloatingAssistant({ user }) {
       >
         <Button
           onClick={isOpen ? () => setIsOpen(false) : openChat}
+          aria-label={isOpen ? 'Close assistant' : 'Open assistant'}
+          aria-expanded={isOpen}
           className="h-14 w-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-xl transition-all relative"
         >
           <AnimatePresence mode="wait">
@@ -169,10 +171,10 @@ export default function FloatingAssistant({ user }) {
               {hasMessages && (
                 <button
                   onClick={handleClear}
+                  aria-label="Clear conversation"
                   className="text-white/60 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10"
-                  title="Clear chat"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
                 </button>
               )}
             </div>
@@ -243,6 +245,8 @@ export default function FloatingAssistant({ user }) {
             <div className="border-t border-border p-3 bg-card flex gap-2 flex-shrink-0">
               <input
                 ref={inputRef}
+                id="rokibot-input"
+                aria-label="Message RokiBot"
                 className="flex-1 bg-muted border-0 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none"
                 placeholder="Ask RokiBot..."
                 value={input}
@@ -252,11 +256,12 @@ export default function FloatingAssistant({ user }) {
               />
               <Button
                 size="icon"
+                aria-label="Send message"
                 className="bg-green-600 hover:bg-green-700 h-10 w-10 rounded-xl flex-shrink-0"
                 onClick={() => handleSend()}
                 disabled={!input.trim() || isSending || !conversation}
               >
-                <Send className="w-4 h-4 text-white" />
+                <Send className="w-4 h-4 text-white" aria-hidden="true" />
               </Button>
             </div>
           </motion.div>
