@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useOptimisticMutation } from '@/components/hooks/useOptimisticUpdate';
 import {
   User, Mail, Lock, Save, MapPin, Navigation, Loader2, Map,
   Upload, Trash2, AlertTriangle, Phone,
