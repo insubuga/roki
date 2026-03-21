@@ -115,7 +115,7 @@ export default function Network() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -164,7 +164,7 @@ export default function Network() {
                   >
                     <Popup>
                       <div className="text-xs">
-                        <p className="font-bold text-blue-600">Your Location</p>
+                        <p className="font-bold" style={{color:'#2563eb'}}>Your Location</p>
                       </div>
                     </Popup>
                     <Tooltip permanent direction="top" offset={[0, -10]}>
@@ -184,10 +184,10 @@ export default function Network() {
                 >
                   <Popup>
                     <div className="text-xs">
-                      <p className="font-bold text-green-600">Your Node</p>
-                      <p className="text-gray-900 font-semibold">{gym?.name || '—'}</p>
-                      <p className="text-gray-600">{assignedLocker?.locker_number}</p>
-                    </div>
+                        <p className="font-bold" style={{color:'#059669'}}>Your Node</p>
+                        <p className="font-semibold">{gym?.name || '—'}</p>
+                        <p style={{color:'#6b7280'}}>{assignedLocker?.locker_number}</p>
+                      </div>
                   </Popup>
                   <Tooltip permanent direction="top" offset={[0, -10]}>
                     <span className="text-xs font-bold">PRIMARY</span>
@@ -214,9 +214,9 @@ export default function Network() {
                     >
                       <Popup>
                         <div className="text-xs">
-                          <p className="font-semibold text-gray-900">{node.gym.name}</p>
-                          <p className="text-gray-600">{node.gym.city || ''}</p>
-                          <p className="text-gray-600">{utilization}% utilized</p>
+                          <p className="font-semibold">{node.gym.name}</p>
+                          <p style={{color:'#6b7280'}}>{node.gym.city || ''}</p>
+                          <p style={{color:'#6b7280'}}>{utilization}% utilized</p>
                         </div>
                       </Popup>
                     </CircleMarker>
@@ -226,8 +226,8 @@ export default function Network() {
             ) : (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center">
-                  <Map className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600 text-sm">No network nodes found</p>
+                  <Map className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-muted-foreground text-sm">No network nodes found</p>
                 </div>
               </div>
             )}
