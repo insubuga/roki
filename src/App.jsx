@@ -74,9 +74,11 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
+          <NavigationStackProvider>
           <NavigationTracker />
           <AndroidBackHandler />
           <AuthenticatedApp />
+          </NavigationStackProvider>
         </Router>
         <Toaster />
         <VisualEditAgent />
