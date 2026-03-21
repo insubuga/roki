@@ -71,7 +71,7 @@ function buildForecast(user, preferences) {
   };
 }
 
-export default function CycleForecastWidget({ user, preferences, preferredGym }) {
+export default function CycleForecastWidget({ user, preferences, preferredGym, subscription }) {
   const queryClient = useQueryClient();
   const [showReschedule, setShowReschedule] = useState(false);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);

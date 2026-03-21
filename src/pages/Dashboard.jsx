@@ -305,7 +305,7 @@ export default function Dashboard() {
         <OnboardingGate user={user} subscription={subscription} preferences={preferences} />
         {subscription && <SubscriptionUsageCard subscription={subscription} />}
         <InfrastructureMetrics userEmail={user?.email} />
-        <CycleForecastWidget user={user} preferences={preferences} preferredGym={preferredGym} />
+        <CycleForecastWidget user={user} preferences={preferences} preferredGym={preferredGym} subscription={subscription} />
 
         {/* ── MODULE NAVIGATION GRID ── */}
         <div>
