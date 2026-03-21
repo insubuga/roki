@@ -220,7 +220,7 @@ export default function CycleForecastWidget({ user, preferences, preferredGym, s
           <Button
             className="bg-green-600 hover:bg-green-700 text-white font-mono text-xs h-9 col-span-1"
             onClick={() => confirmCycleMutation.mutate()}
-            disabled={confirmCycleMutation.isPending || !user?.preferred_gym}
+            disabled={confirmCycleMutation.isPending || !user?.preferred_gym || outOfCredits}
           >
             {confirmCycleMutation.isPending
               ? <Loader2 className="w-3 h-3 animate-spin" />
