@@ -77,10 +77,10 @@ export default function SubscriptionUsageCard({ subscription }) {
           <div className="mt-3 bg-red-600/10 border border-red-600/30 rounded-lg p-2 space-y-1">
             <p className="text-red-600 font-mono text-xs font-bold text-center">NO CREDITS REMAINING</p>
             <p className="text-muted-foreground font-mono text-xs text-center">
-              {daysUntilRenewal !== null
+              {renewalDateStr
                 ? daysUntilRenewal === 0
                   ? 'Credits renew today!'
-                  : `Credits renew in ${daysUntilRenewal} day${daysUntilRenewal === 1 ? '' : 's'}`
+                  : `Credits renew ${format(parseISO(renewalDateStr), 'MMMM d, yyyy')}`
                 : 'Upgrade your plan to get more credits'}
             </p>
           </div>
