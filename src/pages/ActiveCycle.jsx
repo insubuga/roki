@@ -270,6 +270,7 @@ export default function ActiveCycle() {
 
   return (
     <div className="min-h-screen bg-background pb-6">
+
         {/* System State Band */}
         <div className="bg-card border-b border-border px-4 py-3 mb-6">
           <div className="flex items-center gap-3 mb-3">
