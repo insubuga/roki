@@ -8,21 +8,22 @@ import { useNavigate, useLocation } from 'react-router-dom';
  */
 export default function AndroidBackHandler() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
-    // Push a sentinel state so the back button fires popstate instead of exiting
+    // Push a single sentinel state once on mount so the Android back button
+    // fires popstate instead of exiting the app.
     window.history.pushState({ androidBackHandled: true }, '');
 
     const handlePopState = (e) => {
-      // Re-push sentinel so subsequent back presses are also caught
-      window.history.pushState({ androidBackHandled: true }, '');
-      navigate(-1);
+      // Only handle our sentinel — ignore browser-native pops
+      if (e.state?.androidBackHandled) {
+        navigate(-1);
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [location.pathname]); // re-register on route change
+  }, []); // mount-only — re-registering on every route change caused the pushState loop
 
   return null;
 }
