@@ -20,13 +20,19 @@ export default function IssueManagement() {
     queryFn: () => base44.entities.LockerIssue.list('-created_date'),
   });
 
-  const updateIssueMutation = useMutation({
-    mutationFn: ({ issueId, status }) => base44.entities.LockerIssue.update(issueId, { status }),
-    onSuccess: () => {
-      toast.success('Issue updated');
-      queryClient.invalidateQueries({ queryKey: ['allIssues'] });
-    },
-  });
+  const { isPending: isUpdatingIssue, execute: optimisticUpdateIssue } = useOptimisticUpdate(
+    ['allIssues'],
+    ({ issueId, status }) => base44.entities.LockerIssue.update(issueId, { status })
+  );
+
+  const handleIssueStatusChange = (issueId, status) => {
+    const oldIssues = issues;
+    const newIssues = issues.map(i => i.id === issueId ? { ...i, status } : i);
+    optimisticUpdateIssue(oldIssues, newIssues, 'Issue updated');
+  };
+
+  // Legacy alias kept in case any other caller uses it
+  const updateIssueMutation = { mutate: ({ issueId, status }) => handleIssueStatusChange(issueId, status) };
 
   const statusConfig = {
     open: { icon: AlertTriangle, color: 'bg-red-500/20 text-red-500', label: 'Open' },
