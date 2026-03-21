@@ -131,6 +131,8 @@ export default function Initialize() {
 
       // Create subscription from shared config
        const planConfig = getPlanConfig(subscriptionTier);
+       const renewalDate = new Date();
+       renewalDate.setDate(renewalDate.getDate() + 30);
        await base44.entities.Subscription.create({
          user_email: user.email,
          plan: subscriptionTier,
@@ -146,6 +148,7 @@ export default function Initialize() {
          rush_delivery_fee: planConfig.rushDeliveryFee,
          priority_dispatch: planConfig.priorityDispatch,
          priority_locker: planConfig.priorityLocker,
+         renewal_date: renewalDate.toISOString().split('T')[0],
        });
 
       // Update user's preferred gym
