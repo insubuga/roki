@@ -138,6 +138,7 @@ export default function Initialize() {
          plan: subscriptionTier,
          status: 'active',
          monthly_price: planConfig.price,
+         renewal_date: renewalDate.toISOString().split('T')[0],
          laundry_credits: planConfig.laundryCredits,
          laundry_credits_used: 0,
          laundry_turnaround_hours: planConfig.turnaroundHours,
@@ -148,7 +149,6 @@ export default function Initialize() {
          rush_delivery_fee: planConfig.rushDeliveryFee,
          priority_dispatch: planConfig.priorityDispatch,
          priority_locker: planConfig.priorityLocker,
-         renewal_date: renewalDate.toISOString().split('T')[0],
        });
 
       // Update user's preferred gym
