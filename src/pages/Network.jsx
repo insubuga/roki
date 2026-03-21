@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,14 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Users, TrendingUp, Lock, Map, Radio, Activity, Layers } from 'lucide-react';
 import LockerDemandForecastCard from '../components/network/LockerDemandForecastCard';
 import MobileHeader from '../components/mobile/MobileHeader';
-import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 
-function RecenterMap({ center }) {
-  const map = useMap();
-  useEffect(() => { map.setView(center, map.getZoom()); }, [center]);
-  return null;
-}
+const NetworkMap = lazy(() => import('../components/network/NetworkMap'));
 
 export default function Network() {
   const [user, setUser] = useState(null);
