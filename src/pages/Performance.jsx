@@ -85,8 +85,7 @@ export default function Performance() {
     : 0;
 
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
-      <div className="space-y-4">
+    <div className="space-y-4">
         <MobileHeader
           title="Performance"
           subtitle="Your service analytics"

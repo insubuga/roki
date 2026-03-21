@@ -84,8 +84,7 @@ export default function RiskRecovery() {
   const mttr = reliabilityScore?.mean_time_to_recovery_minutes || 0;
 
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
-      <div className="space-y-4">
+    <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center gap-3">
           <Link to="/Dashboard">

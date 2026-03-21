@@ -153,8 +153,7 @@ export default function Dashboard() {
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
-      <div className="space-y-5 pb-4">
+    <div className="space-y-5 pb-4">
 
         {/* ── GREETING HEADER ── */}
         <div className="flex items-center justify-between pt-1">

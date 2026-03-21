@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import PullToRefresh from './components/mobile/PullToRefresh';
 import { createPageUrl } from './utils';
 import PageTransition from './components/mobile/PageTransition';
 import { base44 } from '@/api/base44Client';
