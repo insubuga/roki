@@ -11,27 +11,33 @@ import { toast } from 'sonner';
 export default function ReturnLockerPanel({ returnAssignment, locker, gym, cycleId }) {
   const queryClient = useQueryClient();
   const [confirmed, setConfirmed] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [showRating, setShowRating] = useState(false);
   const [rating, setRating] = useState(0);
 
-  const collectMutation = useMutation({
-    mutationFn: async () => {
-      await base44.entities.ReturnLockerAssignment.update(returnAssignment.id, {
-        status: 'collected',
-      });
+  const handleCollect = async () => {
+    // Optimistic: show success immediately
+    setConfirmed(true);
+    setShowRating(true);
+    setIsPending(true);
+    try {
+      await base44.entities.ReturnLockerAssignment.update(returnAssignment.id, { status: 'collected' });
       await base44.entities.Locker.update(locker.id, { status: 'resetPending' });
-      if (cycleId) {
-        await base44.entities.Cycle.update(cycleId, { status: 'picked_up' });
-      }
-    },
-    onSuccess: () => {
-      setConfirmed(true);
-      setShowRating(true);
+      if (cycleId) await base44.entities.Cycle.update(cycleId, { status: 'picked_up' });
       queryClient.invalidateQueries({ queryKey: ['returnAssignment'] });
       queryClient.invalidateQueries({ queryKey: ['activeCycle'] });
-    },
-    onError: () => toast.error('Failed to confirm collection'),
-  });
+    } catch {
+      // rollback
+      setConfirmed(false);
+      setShowRating(false);
+      toast.error('Failed to confirm collection');
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  // Keep collectMutation alias for isPending check in UI
+  const collectMutation = { isPending };
 
   const submitRatingMutation = useMutation({
     mutationFn: async (stars) => {
