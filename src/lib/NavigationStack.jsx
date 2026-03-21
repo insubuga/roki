@@ -1,83 +1,58 @@
-import { createContext, useContext, useRef, useState, useEffect, useCallback, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { createContext, useContext, useRef, useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 
-const SESSION_KEY = 'roki_nav_stack';
-
-function getPersistedStack() {
-  try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function persistStack(stack) {
-  try {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(stack));
-  } catch {}
-}
-
-const NavigationStackContext = createContext({
-  direction: 1,
-  stackDepth: 0,
-  canGoBack: false,
-  goBack: () => {},
-});
+// Direction: 1=forward (push), -1=back (pop), 0=replace/tab-switch
+const NavigationStackContext = createContext({ direction: 1, canGoBack: false, goBack: () => {} });
 
 export function NavigationStackProvider({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  
-  // Restore stack from session so back works after refresh
-  const stackRef = useRef(getPersistedStack() || [location.pathname]);
-  const [state, setState] = useState({
-    direction: 1,
-    stackDepth: stackRef.current.length - 1,
-    canGoBack: stackRef.current.length > 1,
-  });
+  const navType = useNavigationType(); // 'PUSH' | 'POP' | 'REPLACE' — from react-router
+
+  const stackRef = useRef([location.pathname]);
+  const [direction, setDirection] = useState(1);
 
   useEffect(() => {
-    const stack = stackRef.current;
     const current = location.pathname;
-    const prevIndex = stack.lastIndexOf(current);
+    const stack = stackRef.current;
+    const top = stack[stack.length - 1];
 
-    let newStack;
-    let direction;
+    if (top === current) return; // same page, skip
 
-    if (prevIndex !== -1 && prevIndex < stack.length - 1) {
-      // Navigating back to a previously visited page
-      direction = -1;
-      newStack = stack.slice(0, prevIndex + 1);
-    } else if (stack[stack.length - 1] === current) {
-      // Same page — no change
-      return;
+    if (navType === 'POP') {
+      // Browser back button or navigate(-1)
+      const prevIndex = stack.lastIndexOf(current);
+      if (prevIndex !== -1) {
+        stackRef.current = stack.slice(0, prevIndex + 1);
+        setDirection(-1);
+      } else {
+        // Forward via browser forward button (not in our stack)
+        stackRef.current = [...stack, current];
+        setDirection(1);
+      }
+    } else if (navType === 'REPLACE') {
+      // Tab switch / replace — treat as neutral (no slide)
+      stackRef.current = [...stack.slice(0, -1), current];
+      setDirection(0);
     } else {
-      // Forward navigation
-      direction = 1;
-      newStack = [...stack, current];
+      // PUSH — normal forward link navigation
+      stackRef.current = [...stack, current];
+      setDirection(1);
     }
-
-    stackRef.current = newStack;
-    persistStack(newStack);
-    setState({
-      direction,
-      stackDepth: newStack.length - 1,
-      canGoBack: newStack.length > 1,
-    });
-  }, [location.pathname]);
+  }, [location.pathname, navType]);
 
   const goBack = useCallback(() => {
-    const stack = stackRef.current;
-    if (stack.length > 1) {
-      navigate(stack[stack.length - 2], { replace: false });
+    if (stackRef.current.length > 1) {
+      navigate(-1);
     } else {
-      navigate('/');
+      navigate('/Dashboard', { replace: true });
     }
   }, [navigate]);
 
+  const canGoBack = stackRef.current.length > 1;
+
   return (
-    <NavigationStackContext.Provider value={{ ...state, goBack }}>
+    <NavigationStackContext.Provider value={{ direction, canGoBack, goBack }}>
       {children}
     </NavigationStackContext.Provider>
   );

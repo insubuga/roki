@@ -2,45 +2,41 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigationDirection } from '@/lib/NavigationStack';
 
-// iOS-native feel: forward = slide in from right, back = slide in from left with parallax
-const DURATION = 0.32;
-const SPRING = { type: 'tween', duration: DURATION, ease: [0.32, 0.72, 0, 1] };
+// Android Material 3 — Shared Axis Horizontal
+// Forward: new page slides in from right (+48px), old fades/slides left
+// Back:    new page slides in from left (-48px), old fades/slides right
+// Replace: simple fade (tab switch, no slide)
+
+const SLIDE_PX = 48;
+const ENTER_EASE = [0.2, 0.0, 0.0, 1.0];   // decelerate (Material standard enter)
+const EXIT_EASE  = [0.4, 0.0, 1.0, 1.0];   // accelerate (Material standard exit)
+const ENTER_DURATION = 0.28;
+const EXIT_DURATION  = 0.2;
 
 export default function PageTransition({ children, pageKey }) {
   const { direction } = useNavigationDirection();
 
-  const variants = {
-    // Entering page: slides in from right (forward) or left (back)
-    enter: (dir) => ({
-      x: dir > 0 ? '100%' : '-28%',
-      opacity: dir > 0 ? 1 : 0.6,
-      zIndex: dir > 0 ? 2 : 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-      zIndex: 1,
-    },
-    // Exiting page: slides out to left (forward) or right (back) with parallax
-    exit: (dir) => ({
-      x: dir > 0 ? '-28%' : '100%',
-      opacity: dir > 0 ? 0.6 : 1,
-      zIndex: dir > 0 ? 0 : 2,
-    }),
-  };
+  // direction 0 = tab switch → pure fade, no translate
+  const enterX = direction === 0 ? 0 : direction > 0 ?  SLIDE_PX : -SLIDE_PX;
+  const exitX  = direction === 0 ? 0 : direction > 0 ? -SLIDE_PX :  SLIDE_PX;
 
   return (
-    <AnimatePresence mode="wait" initial={false} custom={direction}>
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={pageKey}
-        custom={direction}
-        variants={variants}
-        initial="enter"
-        animate="center"
-        exit="exit"
-        transition={SPRING}
+        initial={{ x: enterX, opacity: 0 }}
+        animate={{
+          x: 0,
+          opacity: 1,
+          transition: { duration: ENTER_DURATION, ease: ENTER_EASE },
+        }}
+        exit={{
+          x: exitX,
+          opacity: 0,
+          transition: { duration: EXIT_DURATION, ease: EXIT_EASE },
+        }}
         className="w-full"
-        style={{ willChange: 'transform, opacity', position: 'relative' }}
+        style={{ willChange: 'transform, opacity' }}
       >
         {children}
       </motion.div>
