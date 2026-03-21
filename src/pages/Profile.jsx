@@ -287,7 +287,7 @@ export default function Profile() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <MobileSelect
+                  <BottomSheetSelect
                     options={gymsWithKey.map(gym => ({
                       value: gym.gymKey,
                       label: gym.name,
@@ -296,6 +296,7 @@ export default function Profile() {
                     value={formData.preferred_gym}
                     onValueChange={(v) => setFormData({ ...formData, preferred_gym: v })}
                     placeholder="Select a gym"
+                    title="Select Your Gym"
                     trigger={
                       <Select value={formData.preferred_gym} onValueChange={(v) => setFormData({ ...formData, preferred_gym: v })}>
                         <SelectTrigger className="bg-muted border-border text-foreground font-mono text-sm focus:ring-green-600">

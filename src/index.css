@@ -164,7 +164,7 @@ button:focus-visible {
 .pr-safe { padding-right: env(safe-area-inset-right); }
 
 /* ─── Mobile-native shell ─────────────────────────────────── */
-html, body {
+html, body, #root {
   /* Disable rubber-band overscroll at the document level */
   overscroll-behavior: none;
   overscroll-behavior-y: none;

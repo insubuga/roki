@@ -206,7 +206,7 @@ export default function Layout({ children, currentPageName }) {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button className="w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white font-bold hover:from-green-600 hover:to-green-700 overflow-hidden p-0 shadow border-2 border-background">
+                  <Button aria-label="Open user menu" className="w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white font-bold hover:from-green-600 hover:to-green-700 overflow-hidden p-0 shadow border-2 border-background">
                     {user.profile_photo
                       ? <img src={user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
                       : <span className="text-xs">{getInitials(user.full_name)}</span>}
