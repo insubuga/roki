@@ -22,7 +22,7 @@ export default function MobileHeader({ title, subtitle, icon: Icon, iconColor = 
           variant="ghost" 
           size="icon" 
           onClick={handleBack}
-          aria-label="Go back"
+          aria-label={backTo ? `Back to ${backTo.replace('/', '')}` : 'Go back'}
           className="text-foreground hover:text-green-600 select-none -ml-2 flex-shrink-0"
         >
           <ArrowLeft className="w-5 h-5 select-none" aria-hidden="true" />

@@ -231,8 +231,12 @@ export default function Initialize() {
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 pt-6 pb-4 max-w-lg mx-auto w-full">
         {step > 1 ? (
-          <button onClick={() => setStep(step - 1)} className="text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-5 h-5" />
+          <button
+            onClick={() => setStep(step - 1)}
+            aria-label="Go to previous step"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </button>
         ) : <div className="w-5" />}
         <div className="flex gap-1.5">

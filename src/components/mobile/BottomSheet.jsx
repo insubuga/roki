@@ -40,8 +40,11 @@ export default function BottomSheet({
               </DrawerTitle>
               {showCloseButton && (
                 <DrawerClose asChild>
-                  <button className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
-                    <X className="w-4 h-4" />
+                  <button
+                    aria-label="Close"
+                    className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  >
+                    <X className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </DrawerClose>
               )}
