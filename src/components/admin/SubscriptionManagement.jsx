@@ -28,10 +28,22 @@ export default function SubscriptionManagement() {
 
   const totalRevenue = subscriptions.reduce((sum, sub) => sum + (sub.monthly_price || 0), 0);
 
+  const { isPending: isUpdating, execute: optimisticUpdateSub } = useOptimisticUpdate(
+    ['allSubscriptions'],
+    ({ subId, data }) => base44.entities.Subscription.update(subId, data)
+  );
+
+  const handleSaveSubscription = async () => {
+    const oldSubs = subscriptions;
+    const newSubs = subscriptions.map(s => s.id === editingPlan.id ? { ...s, ...editingPlan } : s);
+    await optimisticUpdateSub(oldSubs, newSubs, 'Subscription updated');
+    setEditingPlan(null);
+  };
+
+  // Keep legacy useMutation for compatibility in case it's called elsewhere
   const updateSubscriptionMutation = useMutation({
     mutationFn: ({ subId, data }) => base44.entities.Subscription.update(subId, data),
     onSuccess: () => {
-      toast.success('Subscription updated');
       queryClient.invalidateQueries({ queryKey: ['allSubscriptions'] });
       setEditingPlan(null);
     },
