@@ -126,57 +126,24 @@ export default function CycleForecastWidget({ user, preferences, preferredGym, s
     }
   }, [forecast]);
 
+  const creditsRemaining = subscription
+    ? Math.max(0, (subscription.laundry_credits || 0) - (subscription.laundry_credits_used || 0))
+    : null;
+  const outOfCredits = !subscription || creditsRemaining === 0;
+
   const confirmCycleMutation = useMutation({
     mutationFn: async () => {
       if (!user?.preferred_gym) throw new Error('Set your home gym in Profile first');
-
-      const available = await base44.entities.Locker.filter({
-        gym_id: user.preferred_gym,
-        status: 'available',
+      const res = await base44.functions.invoke('atomicAssignLocker', {
+        gymId: user.preferred_gym,
+        gearVolume: 'standard',
+        preferredGymName: preferredGym?.name || 'Node Assigned',
       });
-      if (available.length === 0) throw new Error('Locker Capacity Reached — Please wait for next route window.');
-
-      const locker = available[0];
-      const code = String(Math.floor(1000 + Math.random() * 9000));
-      const batchId = `B${Date.now().toString(36).toUpperCase()}`;
-
-      const cycle = await base44.entities.Cycle.create({
-        user_email: user.email,
-        order_number: batchId,
-        drop_off_date: new Date().toISOString(),
-        status: 'prepared',
-        items: Array(8).fill('Unit'),
-        gym_location: preferredGym?.name || 'Node Assigned',
-      });
-
-      await base44.entities.CycleLockerAssignment.create({
-        cycle_id: cycle.id,
-        locker_id: locker.id,
-        user_id: user.email,
-        access_code: code,
-        status: 'softReserved',
-        assigned_at: new Date().toISOString(),
-        expires_at: forecast.predicted_drop_window_end,
-      });
-
-      await base44.entities.Locker.update(locker.id, { status: 'softReserved' });
-      await base44.entities.CycleForecast.update(forecast.id, { status: 'confirmed' });
-
-      // Notify member with access code and reservation window
-      await base44.entities.Notification.create({
-        user_email: user.email,
-        type: 'cycle_activated',
-        title: 'Locker Reserved — Drop Off Ready',
-        message: `Cycle confirmed for ${forecast.predicted_drop_window}. Locker reserved at ${preferredGym?.name || 'your gym'}. Access code: ${code}. Drop gear before your window ends.`,
-        priority: 'high',
-        read: false,
-      });
-
-      await base44.entities.ReliabilityLog.create({
-        user_email: user.email,
-        event_type: 'on_time_delivery',
-        promised_time: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-      });
+      if (!res.data?.success) throw new Error(res.data?.error || 'Activation failed');
+      // Mark forecast confirmed
+      if (forecast?.id) {
+        await base44.entities.CycleForecast.update(forecast.id, { status: 'confirmed' });
+      }
     },
     onSuccess: () => {
       toast.success('Cycle confirmed · Locker soft reserved');
