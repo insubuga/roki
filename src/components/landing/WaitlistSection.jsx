@@ -36,65 +36,71 @@ export default function WaitlistSection({ sectionRef }) {
     setLoading(true);
     setError('');
 
-    // 0. Check for duplicate email
-    const existing = await base44.entities.Waitlist.filter({ email: email.toLowerCase().trim() });
-    if (existing.length > 0) {
-      setError('This email is already on the waitlist!');
-      setLoading(false);
-      return;
-    }
-
-    const normalizedGym = normalizeGym(gym);
-
-    // 1. Create entry
-    const entry = await base44.entities.Waitlist.create({
-      email: email.toLowerCase().trim(),
-      gym_name: normalizedGym,
-      ...(frequency ? { workout_frequency: frequency } : {}),
-      ...(referredBy ? { referred_by: referredBy } : {}),
-      // keep gym filter in sync with normalized name
-      referral_count: 0,
-      tier: 'standard',
-      status: 'pending',
-    });
-
-    // 2. Generate referral code from ID and update entry
-    const referralCode = entry.id.slice(-10).toUpperCase();
-    await base44.entities.Waitlist.update(entry.id, { referral_code: referralCode });
-
-    // 3. If referred, increment referrer's count and update tier
-    if (referredBy) {
-      const referrers = await base44.entities.Waitlist.filter({ referral_code: referredBy });
-      if (referrers.length > 0) {
-        const referrer = referrers[0];
-        const newCount = (referrer.referral_count || 0) + 1;
-        const tier = newCount >= 10 ? 'founding_member'
-          : newCount >= 5 ? 'first_cycle_free'
-          : newCount >= 3 ? 'priority'
-          : 'standard';
-        await base44.entities.Waitlist.update(referrer.id, { referral_count: newCount, tier });
+    try {
+      // 0. Check for duplicate email
+      const existing = await base44.entities.Waitlist.filter({ email: email.toLowerCase().trim() });
+      if (existing.length > 0) {
+        setError('This email is already on the waitlist!');
+        setLoading(false);
+        return;
       }
+
+      const normalizedGym = normalizeGym(gym);
+
+      // 1. Create entry
+      const entry = await base44.entities.Waitlist.create({
+        email: email.toLowerCase().trim(),
+        gym_name: normalizedGym,
+        ...(frequency ? { workout_frequency: frequency } : {}),
+        ...(referredBy ? { referred_by: referredBy } : {}),
+        referral_count: 0,
+        tier: 'standard',
+        status: 'pending',
+      });
+
+      // 2. Generate referral code from ID and update entry
+      const referralCode = entry.id.slice(-10).toUpperCase();
+      await base44.entities.Waitlist.update(entry.id, { referral_code: referralCode });
+
+      // 3. If referred, increment referrer's count and update tier (fire and forget — non-blocking)
+      if (referredBy) {
+        base44.entities.Waitlist.filter({ referral_code: referredBy }).then((referrers) => {
+          if (referrers.length > 0) {
+            const referrer = referrers[0];
+            const newCount = (referrer.referral_count || 0) + 1;
+            const tier = newCount >= 10 ? 'founding_member'
+              : newCount >= 5 ? 'first_cycle_free'
+              : newCount >= 3 ? 'priority'
+              : 'standard';
+            return base44.entities.Waitlist.update(referrer.id, { referral_count: newCount, tier });
+          }
+        }).catch(() => {});
+      }
+
+      // 4. Get position using ascending order so each entry gets its true rank
+      const allEntries = await base44.entities.Waitlist.list('created_date', 5000);
+      const position = allEntries.findIndex(e => e.id === entry.id) + 1 || allEntries.length;
+      const gymEntries = allEntries.filter(e => e.gym_name?.toLowerCase() === normalizedGym.toLowerCase());
+      const gymRank = gymEntries.findIndex(e => e.id === entry.id) + 1 ?? gymEntries.length;
+
+      // 5. Send email 1 (fire and forget)
+      base44.functions.invoke('sendWaitlistEmail', {
+        waitlist_id: entry.id,
+        email_type: 'email_1',
+      }).catch(() => {});
+
+      // 6. Show success
+      setSuccessData({
+        entry: { ...entry, referral_code: referralCode, gym_name: normalizedGym },
+        position,
+        gymRank,
+      });
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+      console.error('[waitlist submit]', err);
+    } finally {
+      setLoading(false);
     }
-
-    // 4. Get position (total entries) and gym rank (rank within this gym)
-    const allEntries = await base44.entities.Waitlist.list('-created_date', 500);
-    const position = allEntries.length;
-    const gymEntries = allEntries.filter(e => e.gym_name?.toLowerCase() === normalizedGym.toLowerCase());
-    const gymRank = gymEntries.findIndex(e => e.id === entry.id) + 1 || gymEntries.length;
-
-    // 5. Send email 1 (fire and forget)
-    base44.functions.invoke('sendWaitlistEmail', {
-      waitlist_id: entry.id,
-      email_type: 'email_1',
-    }).catch(() => {});
-
-    // 6. Show success
-    setSuccessData({
-      entry: { ...entry, referral_code: referralCode, gym_name: normalizedGym },
-      position,
-      gymRank,
-    });
-    setLoading(false);
   };
 
   return (

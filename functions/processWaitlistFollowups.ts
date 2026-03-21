@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
       const createdAt = new Date(entry.created_date);
       const hoursAgo = (now - createdAt) / (1000 * 60 * 60);
 
-      const appUrl = 'https://app.base44.com';
+      const appUrl = 'https://rokicyclenetwork.com';
       const referralUrl = entry.referral_code ? `${appUrl}/?ref=${entry.referral_code}` : appUrl;
 
       // Email 2: ~24h after signup

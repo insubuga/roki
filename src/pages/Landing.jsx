@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 
 import { Button } from '@/components/ui/button';
 import HeroSection from '@/components/landing/HeroSection';
@@ -36,11 +37,12 @@ export default function Landing() {
             <span className="text-white font-bold text-lg">ROKI</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/Dashboard">
-              <Button variant="ghost" className="text-gray-400 hover:text-white text-sm h-9">
-                Sign In
-              </Button>
-            </Link>
+            <button
+              onClick={() => base44.auth.redirectToLogin()}
+              className="text-gray-400 hover:text-white text-sm h-9 px-3 transition-colors"
+            >
+              Sign In
+            </button>
             <Button
               onClick={scrollToWaitlist}
               className="bg-green-500 hover:bg-green-400 text-black font-bold text-sm h-9 px-5 rounded-lg shadow-md shadow-green-500/20"
@@ -67,7 +69,8 @@ export default function Landing() {
       </div>
 
       {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.05] bg-[#080d14]/90 backdrop-blur-md py-4 px-4">
+      <footer className="border-t border-white/[0.05] bg-[#080d14] py-8 px-4"
+        style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}>
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <img
@@ -79,9 +82,12 @@ export default function Landing() {
             <span className="text-white font-semibold text-sm">ROKI</span>
           </div>
           <p className="text-gray-600 text-xs">© 2026 ROKI. Readiness infrastructure for athletes.</p>
-          <Link to="/Dashboard" className="text-gray-500 hover:text-white text-xs transition-colors">
+          <button
+            onClick={() => base44.auth.redirectToLogin()}
+            className="text-gray-500 hover:text-white text-xs transition-colors"
+          >
             Member Login →
-          </Link>
+          </button>
         </div>
       </footer>
     </div>
