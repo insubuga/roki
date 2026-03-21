@@ -9,11 +9,13 @@ import PullToRefresh from './components/mobile/PullToRefresh';
 import ErrorBoundary from './components/error/ErrorBoundary';
 import NotificationDropdown from './components/notifications/NotificationDropdown';
 import FloatingAssistant from './components/assistant/FloatingAssistant';
+import BottomSheet from './components/mobile/BottomSheet';
 
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 import { LogOut, User, Home, Activity, Zap, Shield, Settings } from 'lucide-react';
 
@@ -55,6 +57,8 @@ export default function Layout({ children, currentPageName }) {
 
   const [user, setUser]           = useState(null);
   const [pendingTab, setPendingTab] = useState(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
   // Mobile header auto-hide
   const [headerVisible, setHeaderVisible] = useState(true);
   const lastScrollY = useRef(0);
@@ -204,25 +208,64 @@ export default function Layout({ children, currentPageName }) {
             {user && <NotificationDropdown user={user} aria-label="View notifications" />}
 
             {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button aria-label="Open user menu" className="w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white font-bold hover:from-green-600 hover:to-green-700 overflow-hidden p-0 shadow border-2 border-background">
-                    {user.profile_photo
-                      ? <img src={user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
-                      : <span className="text-xs">{getInitials(user.full_name)}</span>}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-card border-border shadow-lg" align="end">
-                  <DropdownMenuItem asChild>
-                    <Link to={createPageUrl('Profile')} className="flex items-center gap-2 text-foreground hover:text-green-600">
-                      <User className="w-4 h-4" /> Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-foreground hover:text-red-500">
-                    <LogOut className="w-4 h-4" /> Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <>
+                {/* Avatar button — opens BottomSheet on mobile, Dropdown on desktop */}
+                <button
+                  onClick={() => setUserMenuOpen(true)}
+                  aria-label="Open user menu"
+                  className="w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white font-bold hover:from-green-600 hover:to-green-700 overflow-hidden p-0 shadow border-2 border-background flex items-center justify-center"
+                >
+                  {user.profile_photo
+                    ? <img src={user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
+                    : <span className="text-xs">{getInitials(user.full_name)}</span>}
+                </button>
+
+                {/* Mobile: native BottomSheet */}
+                {isMobile && (
+                  <BottomSheet open={userMenuOpen} onOpenChange={setUserMenuOpen} title="Account">
+                    <div className="space-y-1 pb-2">
+                      <div className="px-3 py-3 border-b border-border mb-2">
+                        <p className="font-semibold text-foreground text-sm">{user.full_name}</p>
+                        <p className="text-muted-foreground text-xs">{user.email}</p>
+                      </div>
+                      <Link
+                        to={createPageUrl('Profile')}
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-3.5 min-h-[52px] rounded-xl hover:bg-muted text-foreground w-full"
+                      >
+                        <User className="w-5 h-5 text-green-600" />
+                        <span className="font-mono text-sm font-medium">Profile</span>
+                      </Link>
+                      <button
+                        onClick={() => { setUserMenuOpen(false); handleLogout(); }}
+                        className="flex items-center gap-3 px-3 py-3.5 min-h-[52px] rounded-xl hover:bg-red-500/10 text-red-500 w-full"
+                      >
+                        <LogOut className="w-5 h-5" />
+                        <span className="font-mono text-sm font-medium">Logout</span>
+                      </button>
+                    </div>
+                  </BottomSheet>
+                )}
+
+                {/* Desktop: Radix Dropdown */}
+                {!isMobile && (
+                  <DropdownMenu open={userMenuOpen} onOpenChange={setUserMenuOpen}>
+                    <DropdownMenuTrigger asChild>
+                      <span />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-card border-border shadow-lg" align="end">
+                      <DropdownMenuItem asChild>
+                        <Link to={createPageUrl('Profile')} className="flex items-center gap-2 text-foreground hover:text-green-600">
+                          <User className="w-4 h-4" /> Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-foreground hover:text-red-500">
+                        <LogOut className="w-4 h-4" /> Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </>
             ) : (
               <Button
                 size="sm"
