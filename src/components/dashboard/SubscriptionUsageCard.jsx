@@ -16,8 +16,10 @@ export default function SubscriptionUsageCard({ subscription }) {
   const rushTotal = subscription.rush_deliveries_included || 0;
   const rushRemaining = Math.max(0, rushTotal - rushUsed);
 
-  const daysUntilRenewal = subscription.renewal_date
-    ? differenceInDays(parseISO(subscription.renewal_date), new Date())
+  const renewalDateStr = subscription.renewal_date || 
+    (subscription.created_date ? new Date(new Date(subscription.created_date).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : null);
+  const daysUntilRenewal = renewalDateStr
+    ? Math.max(0, differenceInDays(parseISO(renewalDateStr), new Date()))
     : null;
 
   const planLabel = subscription.plan === 'priority' ? 'PRIORITY' : 'CORE';
