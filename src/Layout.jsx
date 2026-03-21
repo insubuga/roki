@@ -134,7 +134,7 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)] overscroll-none">
+    <div className="min-h-screen bg-background overscroll-none" style={{ WebkitOverflowScrolling: 'touch' }}>
       {/* Header */}
       <header
         className={`bg-background/95 backdrop-blur-md border-b border-border fixed top-0 left-0 right-0 z-50 transition-shadow duration-300 ${scrolled ? 'shadow-md' : 'shadow-sm'}`}
@@ -260,8 +260,8 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Main Content */}
       <main
-        className="w-full mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-6 md:max-w-7xl"
-        style={{ marginTop: '64px', paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }}
+        className="w-full mx-auto px-4 sm:px-6 py-6 pb-28 md:pb-6 md:max-w-7xl scroll-container"
+        style={{ marginTop: '64px', paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))', minHeight: 'calc(100vh - 64px)' }}
         id="main-content"
         tabIndex="-1"
       >
