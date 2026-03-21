@@ -242,6 +242,11 @@ export default function ActiveCycle() {
   const gymLoadLabel = gymUtilization >= 95 ? 'CRITICAL — Waitlist Only' : gymUtilization >= 85 ? 'LIMITED AVAILABILITY' : gymUtilization === 0 ? 'Open' : 'Available';
   const gymAtCapacity = gymUtilization >= 95;
 
+  const creditsRemaining = subscription
+    ? Math.max(0, (subscription.laundry_credits || 0) - (subscription.laundry_credits_used || 0))
+    : null;
+  const outOfCredits = creditsRemaining !== null && creditsRemaining === 0;
+
   const getCycleState = (status) => {
     const stateMap = {
       'awaiting_pickup': 'queued',
