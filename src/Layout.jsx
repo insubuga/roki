@@ -132,7 +132,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Header */}
       <header
         className={`bg-background/95 backdrop-blur-md border-b border-border fixed top-0 left-0 right-0 z-50 transition-shadow duration-300 ${scrolled ? 'shadow-md' : 'shadow-sm'}`}
-        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className={`flex justify-between items-center transition-all duration-300 ${scrolled ? 'h-12' : 'h-16'}`}>
@@ -264,7 +264,7 @@ export default function Layout({ children, currentPageName }) {
       <FloatingAssistant user={user} />
 
       {/* Bottom Navigation - Mobile Only */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border z-50 select-none shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border z-50 select-none shadow-lg" style={{ paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         <div className="grid grid-cols-5 h-16">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
