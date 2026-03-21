@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Shield, Zap, TrendingDown, Clock, CheckCircle, Activity, ArrowLeft } from 'lucide-react';
-import PullToRefresh from '@/components/mobile/PullToRefresh';
 import CreditsWarning from '@/components/warnings/CreditsWarning';
 import SLAWarning from '@/components/warnings/SLAWarning';
 

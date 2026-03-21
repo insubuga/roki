@@ -5,7 +5,6 @@ import { Shield, AlertTriangle, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import MobileHeader from '../components/mobile/MobileHeader';
-import PullToRefresh from '../components/mobile/PullToRefresh';
 import NetworkHealthMonitor from '../components/admin/NetworkHealthMonitor';
 import RealtimeIncidentStream from '../components/admin/RealtimeIncidentStream';
 import DriverPerformanceLeaderboard from '../components/admin/DriverPerformanceLeaderboard';
