@@ -107,13 +107,14 @@ export default function Profile() {
     );
   };
 
-  const updateProfileMutation = useMutation({
+  const updateProfileMutation = useOptimisticMutation({
+    queryKey: ['userProfile'],
     mutationFn: (data) => base44.auth.updateMe(data),
+    optimisticUpdate: (old, variables) => ({ ...(old || {}), ...variables }),
+    successMessage: 'Profile saved',
     onSuccess: async () => {
-      toast.success('Profile saved');
       setUser(await base44.auth.me());
     },
-    onError: () => toast.error('Failed to save profile'),
   });
 
   const uploadPhotoMutation = useMutation({

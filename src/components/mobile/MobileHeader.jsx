@@ -7,12 +7,13 @@ import { createPageUrl } from '@/utils';
 
 export default function MobileHeader({ title, subtitle, icon: Icon, iconColor = 'text-[var(--color-primary)]', showBack = true, backTo }) {
   const navigate = useNavigate();
+  const { goBack, canGoBack } = useNavigation();
 
   const handleBack = () => {
     if (backTo) {
       navigate(backTo);
     } else {
-      navigate(createPageUrl('Dashboard'));
+      goBack(createPageUrl('Dashboard'));
     }
   };
 
