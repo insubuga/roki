@@ -2,7 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, Settings, User, CreditCard, Calendar, MapPin, Bell, Shield, HelpCircle, ArrowLeft } from 'lucide-react';
+import { ChevronRight, Settings, User, CreditCard, Calendar, MapPin, Bell, Shield, HelpCircle, ArrowLeft, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { useState as useDeleteState } from 'react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
 import { useQueryClient } from '@tanstack/react-query';
