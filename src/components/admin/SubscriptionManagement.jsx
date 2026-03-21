@@ -249,10 +249,11 @@ export default function SubscriptionManagement() {
                 />
               </div>
               <Button
-                onClick={() => updateSubscriptionMutation.mutate({ subId: editingPlan.id, data: editingPlan })}
+                onClick={handleSaveSubscription}
+                disabled={isUpdating}
                 className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800"
               >
-                Save Changes
+                {isUpdating ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </DialogContent>

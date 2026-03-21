@@ -182,12 +182,12 @@ export default function IssueManagement() {
                             { value: 'resolved', label: 'Resolved' }
                           ]}
                           value={issue.status}
-                          onValueChange={(status) => updateIssueMutation.mutate({ issueId: issue.id, status })}
+                          onValueChange={(status) => handleIssueStatusChange(issue.id, status)}
                           placeholder="Update Status"
                           trigger={
                             <Select
                               value={issue.status}
-                              onValueChange={(status) => updateIssueMutation.mutate({ issueId: issue.id, status })}
+                              onValueChange={(status) => handleIssueStatusChange(issue.id, status)}
                             >
                               <SelectTrigger className="border-border bg-card">
                                 <SelectValue />
