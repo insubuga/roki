@@ -308,7 +308,9 @@ export default function Layout({ children, currentPageName }) {
         <div className="grid grid-cols-5 min-h-[44px] h-16">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = currentPageName === item.page;
+            // Tab is active if it owns the current page OR has this page in its history stack
+            const tabStack = tabHistoryRef.current[item.page] || [];
+            const isActive = currentPageName === item.page || tabStack.includes(location.pathname);
             const isLoading = pendingTab === item.page;
             const path = createPageUrl(item.page);
             return (
