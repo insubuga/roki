@@ -359,18 +359,31 @@ export default function Profile() {
         </Card>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center justify-between gap-4 pt-2">
-        <Button className="bg-green-600 hover:bg-green-700 text-white font-mono text-sm font-bold select-none"
-          onClick={() => updateProfileMutation.mutate(formData)} disabled={updateProfileMutation.isPending}>
+      {/* Save */}
+      <div className="pt-2">
+        <Button
+          className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-mono text-sm font-bold select-none h-12"
+          onClick={() => updateProfileMutation.mutate(formData)}
+          disabled={updateProfileMutation.isPending}
+        >
           {updateProfileMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2 select-none" />}
           SAVE CHANGES
         </Button>
+      </div>
 
+      {/* Danger Zone */}
+      <div className="border border-red-800/40 rounded-xl p-5 bg-red-950/10">
+        <p className="text-red-500 font-mono text-xs font-bold uppercase tracking-widest mb-1">Danger Zone</p>
+        <p className="text-muted-foreground text-xs font-mono mb-4">
+          Permanently delete your account and all associated data. This action cannot be undone.
+        </p>
         <DeleteAccountSheet
           trigger={
-            <Button variant="outline" className="border-red-700 text-red-500 hover:bg-red-950/30 font-mono text-sm select-none min-h-[44px]">
-              <Trash2 className="w-4 h-4 mr-2 select-none" /> DELETE ACCOUNT
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto border-red-700 text-red-500 hover:bg-red-950/40 font-mono text-sm font-bold select-none min-h-[48px]"
+            >
+              <Trash2 className="w-4 h-4 mr-2 select-none" /> DELETE MY ACCOUNT
             </Button>
           }
         />
