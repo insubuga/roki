@@ -100,8 +100,19 @@ export default function ActiveCycle() {
     queryKey: ['gymLockers', user?.preferred_gym],
     queryFn: () => base44.entities.Locker.filter({ gym_id: user.preferred_gym }),
     enabled: !!user?.preferred_gym,
-    refetchInterval: 60000,
+    staleTime: 5 * 60_000,
   });
+
+  // Keep gymLockers fresh via subscription rather than polling
+  useEffect(() => {
+    if (!user?.preferred_gym) return;
+    const unsub = base44.entities.Locker.subscribe((event) => {
+      if (event.data?.gym_id === user.preferred_gym) {
+        queryClient.invalidateQueries({ queryKey: ['gymLockers', user.preferred_gym] });
+      }
+    });
+    return unsub;
+  }, [user?.preferred_gym, queryClient]);
 
   const { data: allLockers = [] } = useQuery({
     queryKey: ['allLockers'],
@@ -273,7 +284,7 @@ export default function ActiveCycle() {
         <div className="bg-card border-b border-border px-4 py-3 mb-6">
           <div className="flex items-center gap-3 mb-3">
             <Link to={createPageUrl('Dashboard')}>
-              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white -ml-2">
+              <Button variant="ghost" size="icon" aria-label="Back to Dashboard" className="text-muted-foreground hover:text-foreground -ml-2">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
