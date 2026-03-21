@@ -681,7 +681,7 @@ export default function ActiveCycle() {
                 <Button
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-mono"
                   onClick={() => activateCycleMutation.mutate()}
-                  disabled={activateCycleMutation.isPending || !user?.preferred_gym || gymAtCapacity}
+                  disabled={activateCycleMutation.isPending || !user?.preferred_gym || gymAtCapacity || outOfCredits}
                 >
                   {activateCycleMutation.isPending ? 'VALIDATING...' : 'ACTIVATE'}
                 </Button>
