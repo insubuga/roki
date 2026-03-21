@@ -374,16 +374,16 @@ export default function Profile() {
           SAVE CHANGES
         </Button>
 
-        <AlertDialog>
+        <AlertDialog onOpenChange={(open) => { if (!open) setDeleteConfirmText(''); }}>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" className="border-red-700 text-red-500 hover:bg-red-950/30 font-mono text-sm select-none">
+            <Button variant="outline" className="border-red-700 text-red-500 hover:bg-red-950/30 font-mono text-sm select-none min-h-[44px]">
               <Trash2 className="w-4 h-4 mr-2 select-none" /> DELETE ACCOUNT
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="bg-card border-border">
             <AlertDialogHeader>
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-red-950/30 border border-red-700 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-red-950/30 border border-red-700 flex items-center justify-center flex-shrink-0">
                   <AlertTriangle className="w-5 h-5 text-red-500" />
                 </div>
                 <AlertDialogTitle className="text-foreground font-mono">Delete Account</AlertDialogTitle>
@@ -392,10 +392,20 @@ export default function Profile() {
                 Permanent and cannot be undone. All data including profile, lockers, orders, subscriptions and history will be erased.
               </AlertDialogDescription>
             </AlertDialogHeader>
+            <div className="px-1 pb-2">
+              <p className="text-muted-foreground font-mono text-xs mb-2 uppercase tracking-wide">Type <span className="text-red-500 font-bold">DELETE</span> to confirm</p>
+              <Input
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="DELETE"
+                className="bg-muted border-border text-foreground font-mono text-sm"
+              />
+            </div>
             <AlertDialogFooter>
-              <AlertDialogCancel className="bg-muted text-foreground border-border font-mono">Cancel</AlertDialogCancel>
-              <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white font-mono"
-                onClick={() => deleteAccountMutation.mutate()} disabled={deleteAccountMutation.isPending}>
+              <AlertDialogCancel className="bg-muted text-foreground border-border font-mono min-h-[44px]">Cancel</AlertDialogCancel>
+              <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white font-mono min-h-[44px]"
+                onClick={() => deleteAccountMutation.mutate()}
+                disabled={deleteAccountMutation.isPending || deleteConfirmText !== 'DELETE'}>
                 {deleteAccountMutation.isPending ? 'Deleting...' : 'Delete Account'}
               </AlertDialogAction>
             </AlertDialogFooter>
