@@ -47,7 +47,6 @@ export default function Profile() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({ preferred_gym: '', phone: '' });
-  const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [userLocation, setUserLocation] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [showMap, setShowMap] = useState(false);

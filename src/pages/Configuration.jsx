@@ -7,19 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
   ChevronRight, Settings, User, CreditCard, Calendar, MapPin,
-  Bell, Shield, HelpCircle, ArrowLeft, Trash2, AlertTriangle, Loader2, LogOut
+  Bell, Shield, HelpCircle, ArrowLeft, Trash2, AlertTriangle, LogOut
 } from 'lucide-react';
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import DeleteAccountSheet from '@/components/mobile/DeleteAccountSheet';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
 
 export default function Configuration() {
   const [user, setUser] = useState(null);
-  const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -28,14 +23,7 @@ export default function Configuration() {
 
   const handleRefresh = async () => { await queryClient.invalidateQueries(); };
 
-  const deleteAccountMutation = useMutation({
-    mutationFn: () => base44.functions.invoke('deleteUserAccount', {}),
-    onSuccess: () => {
-      toast.success('Account deleted');
-      setTimeout(() => base44.auth.logout(), 1500);
-    },
-    onError: () => toast.error('Failed to delete account'),
-  });
+  // Account deletion handled by DeleteAccountSheet component
 
   if (!user) {
     return (
