@@ -153,7 +153,7 @@ export default function Layout({ children, currentPageName }) {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden md:flex items-center gap-8" aria-label="Main navigation">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
@@ -218,10 +218,13 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden text-foreground hover:bg-muted select-none"
+                className="md:hidden text-foreground hover:bg-muted select-none min-h-[44px] min-w-[44px]"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-menu"
               >
-                {mobileMenuOpen ? <X className="w-6 h-6 select-none" /> : <Menu className="w-6 h-6 select-none" />}
+                {mobileMenuOpen ? <X className="w-6 h-6 select-none" aria-hidden="true" /> : <Menu className="w-6 h-6 select-none" aria-hidden="true" />}
               </Button>
             </div>
           </div>
@@ -229,7 +232,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-        <div className="md:hidden bg-background border-t border-border py-4 shadow-lg absolute left-0 right-0 top-full">
+        <div id="mobile-menu" className="md:hidden bg-background border-t border-border py-4 shadow-lg absolute left-0 right-0 top-full" role="navigation" aria-label="Mobile navigation">
           <nav className="flex flex-col gap-2 px-4">
             {navItems.map((item) => (
               <Link
