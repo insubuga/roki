@@ -247,6 +247,9 @@ export default function CycleForecastWidget({ user, preferences, preferredGym, s
         {!user?.preferred_gym && (
           <p className="text-orange-500 font-mono text-xs mt-2 text-center">Set your home gym in Profile to confirm</p>
         )}
+        {outOfCredits && user?.preferred_gym && (
+          <p className="text-red-500 font-mono text-xs mt-2 text-center">No credits remaining — upgrade or wait for renewal</p>
+        )}
 
         {/* Post-confirm enhancement nudge */}
         {showEnhancementNudge && (
