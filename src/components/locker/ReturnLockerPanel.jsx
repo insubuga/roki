@@ -151,7 +151,7 @@ export default function ReturnLockerPanel({ returnAssignment, locker, gym, cycle
 
         <Button
           className="w-full bg-green-600 hover:bg-green-700 text-white font-mono text-sm font-bold h-11"
-          onClick={() => collectMutation.mutate()}
+          onClick={handleCollect}
           disabled={collectMutation.isPending}
         >
           <CheckCircle className="w-4 h-4 mr-2" />
