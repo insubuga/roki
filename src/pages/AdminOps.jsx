@@ -75,8 +75,7 @@ export default function AdminOps() {
   const alertLevel = openIncidents.length > 5 ? 'critical' : openIncidents.length > 2 ? 'warning' : 'normal';
 
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
-      <div className="space-y-4">
+    <div className="space-y-4">
         {/* Header */}
         <MobileHeader
           title="Operational Intelligence"
