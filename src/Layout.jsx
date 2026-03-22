@@ -302,6 +302,7 @@ export default function Layout({ children, currentPageName }) {
         tabIndex="-1"
         className="w-full mx-auto scroll-container"
         style={{
+          height: '100vh',
           paddingTop: 'calc(3.5rem + env(safe-area-inset-top))',
           // Mobile: reserve space for fixed 4.5rem tab bar + safe-area notch
           // Desktop: just safe-area (usually 0) + standard margin
