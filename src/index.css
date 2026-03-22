@@ -188,7 +188,6 @@ p, span, h1, h2, h3, h4, h5, h6, li, td, th, label, input, textarea {
 
 /* Prevent page bounce / pull-to-refresh at the root shell */
 #root {
-  overflow: hidden;
   height: 100%;
   width: 100%;
 }
