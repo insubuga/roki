@@ -106,6 +106,35 @@ export default function Landing() {
             </button>
           </div>
         </div>
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-white/[0.05] bg-[#080d14]/95 backdrop-blur-md">
+            <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col gap-1">
+              {navLinks.map(l => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-gray-300 hover:text-white text-base py-3 border-b border-white/[0.05] last:border-0 transition-colors"
+                >
+                  {l.label}
+                </a>
+              ))}
+              <button
+                onClick={() => base44.auth.redirectToLogin()}
+                className="text-gray-400 hover:text-white text-base py-3 text-left transition-colors"
+              >
+                Sign In
+              </button>
+              <Button
+                onClick={scrollToWaitlist}
+                className="mt-2 bg-cyan-400 hover:bg-cyan-300 text-black font-bold rounded-full"
+              >
+                Join Waitlist
+              </Button>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Sections */}
