@@ -1,7 +1,7 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Users, DollarSign, CreditCard, TrendingUp, Lock, AlertCircle, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Users, DollarSign, CreditCard, TrendingUp, Lock, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 
@@ -71,32 +71,17 @@ export default function OverviewStats() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="relative overflow-hidden bg-white border border-gray-200 hover:shadow-xl transition-all duration-300 group">
-                <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 transition-opacity`}></div>
-                <CardContent className="pt-6 relative">
-                  <div className="flex items-start justify-between mb-4">
+              <Card className="relative overflow-hidden bg-white border border-gray-200 hover:shadow-lg transition-all duration-200 group">
+                <CardContent className="pt-5 pb-4 relative">
+                  <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <p className="text-gray-600 text-sm font-medium mb-2">{stat.title}</p>
-                      <p className="text-gray-900 text-3xl font-bold">{stat.value}</p>
-                      <div className="flex items-center gap-1 mt-2">
-                        <TrendIcon className={`w-4 h-4 ${stat.trendUp ? 'text-green-600' : 'text-red-600'}`} />
-                        <span className={`text-sm font-semibold ${stat.trendUp ? 'text-green-600' : 'text-red-600'}`}>
-                          {stat.trend}
-                        </span>
-                        <span className="text-xs text-gray-500 ml-1">vs last month</span>
-                      </div>
+                      <p className="text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">{stat.title}</p>
+                      <p className="text-gray-900 text-2xl font-bold">{stat.value}</p>
+                      <p className="text-gray-400 text-xs mt-1">{stat.sub}</p>
                     </div>
-                    <div className={`w-16 h-16 bg-gradient-to-br ${stat.gradient} rounded-2xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform`}>
-                      <Icon className="w-8 h-8 text-white" />
+                    <div className={`w-10 h-10 bg-gradient-to-br ${stat.gradient} rounded-xl flex items-center justify-center shadow`}>
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
-                  </div>
-                  <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
-                    <motion.div 
-                      className={`h-full bg-gradient-to-r ${stat.gradient}`}
-                      initial={{ width: 0 }}
-                      animate={{ width: '75%' }}
-                      transition={{ delay: index * 0.1 + 0.3, duration: 0.8 }}
-                    />
                   </div>
                 </CardContent>
               </Card>
