@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-[#080d14] text-white px-4 py-16">
+    <div className="fixed inset-0 overflow-y-auto bg-[#080d14] text-white px-4 py-16 z-50">
       <div className="max-w-2xl mx-auto">
         <Link to="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-white text-sm mb-10 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to ROKI
