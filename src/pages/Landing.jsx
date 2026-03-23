@@ -177,12 +177,16 @@ export default function Landing() {
             <span className="text-white font-semibold text-sm">ROKI</span>
           </div>
           <p className="text-gray-600 text-xs">© 2026 ROKI. Readiness infrastructure for athletes.</p>
-          <button
-            onClick={() => base44.auth.redirectToLogin()}
-            className="text-gray-500 hover:text-white text-xs transition-colors"
-          >
-            Member Login →
-          </button>
+          <div className="flex items-center gap-4">
+            <a href="/privacy" className="text-gray-600 hover:text-gray-400 text-xs transition-colors">Privacy Policy</a>
+            <a href="/terms" className="text-gray-600 hover:text-gray-400 text-xs transition-colors">Terms of Service</a>
+            <button
+              onClick={() => base44.auth.redirectToLogin()}
+              className="text-gray-500 hover:text-white text-xs transition-colors"
+            >
+              Member Login →
+            </button>
+          </div>
         </div>
       </footer>
     </div>
