@@ -157,6 +157,13 @@ button:focus-visible {
   }
 }
 
+/* Hide Base44 edit widget on landing page */
+body.landing-page [data-component-name="VisualEditAgent"],
+body.landing-page > div:last-child > [style*="position: fixed"][style*="bottom"],
+body.landing-page > [style*="position: fixed"][style*="bottom: 16px"] {
+  display: none !important;
+}
+
 /* Safe-area utilities */
 .pt-safe { padding-top: env(safe-area-inset-top); }
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
