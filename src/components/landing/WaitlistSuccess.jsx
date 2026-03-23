@@ -128,6 +128,43 @@ export default function WaitlistSuccess({ entry, position, gymRank }) {
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </Button>
         </div>
+
+        {/* Share buttons */}
+        <div className="flex gap-2">
+          <a
+            href={`https://twitter.com/intent/tweet?text=Just+joined+the+waitlist+for+%40ROKInetwork+%E2%80%94+gym-native+laundry+for+athletes.+Join+me%3A+${encodeURIComponent(referralUrl)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 flex items-center justify-center gap-2 bg-[#1da1f2]/10 border border-[#1da1f2]/25 hover:bg-[#1da1f2]/20 rounded-xl py-2.5 text-[#1da1f2] text-xs font-semibold transition-all"
+          >
+            <Twitter className="w-3.5 h-3.5" />
+            Share on X
+          </a>
+          <a
+            href={`sms:?&body=Just+joined+ROKI+%E2%80%94+automated+gym+laundry.+Join+the+waitlist%3A+${encodeURIComponent(referralUrl)}`}
+            className="flex-1 flex items-center justify-center gap-2 bg-green-500/10 border border-green-500/25 hover:bg-green-500/20 rounded-xl py-2.5 text-green-400 text-xs font-semibold transition-all"
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            Text a Friend
+          </a>
+        </div>
+      </div>
+
+      {/* What happens next */}
+      <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5">
+        <p className="text-white font-bold text-sm mb-4">What happens next?</p>
+        <div className="space-y-3">
+          {[
+            { step: '01', text: "You'll receive a confirmation email shortly." },
+            { step: '02', text: "We launch gym by gym — you'll be notified the moment ROKI activates at your gym." },
+            { step: '03', text: "Refer friends from your gym to move up the list and unlock early perks." },
+          ].map(({ step, text }) => (
+            <div key={step} className="flex gap-3 items-start">
+              <span className="text-cyan-500/50 font-mono text-xs font-bold mt-0.5 flex-shrink-0">{step}</span>
+              <p className="text-gray-400 text-xs leading-relaxed">{text}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
