@@ -42,6 +42,8 @@ export default function Landing() {
             <a href="#how-it-works" className="text-gray-400 hover:text-white text-sm transition-colors">How It Works</a>
             <a href="#features" className="text-gray-400 hover:text-white text-sm transition-colors">Features</a>
             <a href="#gym-rankings" className="text-gray-400 hover:text-white text-sm transition-colors">Gym Rankings</a>
+            <a href="#pricing" className="text-gray-400 hover:text-white text-sm transition-colors">Pricing</a>
+            <a href="#faq" className="text-gray-400 hover:text-white text-sm transition-colors">FAQ</a>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -71,7 +73,9 @@ export default function Landing() {
         <SystemReframeSection />
         <ScarcitySection />
         <FeaturesSection />
+        <PricingSection onJoinClick={scrollToWaitlist} />
         <TestimonialsSection />
+        <FAQSection />
         <WaitlistSection sectionRef={waitlistRef} />
       </div>
 
