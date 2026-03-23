@@ -43,7 +43,9 @@ export default function HeroSection({ onJoinClick }) {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-4 py-1.5 mb-8">
           <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="text-cyan-400 text-xs font-mono font-semibold uppercase tracking-wider">Now accepting waitlist</span>
+          <span className="text-cyan-400 text-xs font-mono font-semibold uppercase tracking-wider">
+            {waitlistCount ? `${waitlistCount.toLocaleString()}+ athletes already waiting` : 'Now accepting waitlist'}
+          </span>
         </div>
 
         {/* Headline */}
