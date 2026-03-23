@@ -63,7 +63,6 @@ export default function OverviewStats() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
-          const TrendIcon = stat.trendUp ? ArrowUpRight : ArrowDownRight;
           return (
             <motion.div
               key={stat.title}
