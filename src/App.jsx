@@ -16,6 +16,8 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Lazy-load heavy pages that are not immediately needed
 const Landing = React.lazy(() => import('./pages/Landing'));
+const Privacy = React.lazy(() => import('./pages/Privacy'));
+const Terms = React.lazy(() => import('./pages/Terms'));
 const ActiveCycle = React.lazy(() => import('./pages/ActiveCycle'));
 const Notifications = React.lazy(() => import('./pages/Notifications'));
 const WaitlistDashboard = React.lazy(() => import('./pages/WaitlistDashboard'));
