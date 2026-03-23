@@ -178,6 +178,7 @@ export default function WaitlistSection({ sectionRef }) {
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Join the Waitlist →'}
             </Button>
+            <p className="text-center text-gray-600 text-xs">No credit card. No commitment. Just your spot.</p>
           </form>
         )}
       </div>
