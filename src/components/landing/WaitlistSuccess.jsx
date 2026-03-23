@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle, Copy, Check, Users, Zap, Star, Crown } from 'lucide-react';
+import { CheckCircle, Copy, Check, Users, Zap, Star, Crown, Twitter, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const TIERS = [
