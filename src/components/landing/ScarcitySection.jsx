@@ -51,7 +51,7 @@ export default function ScarcitySection() {
   const rankBg = ['bg-yellow-400/10 border-yellow-400/25', 'bg-gray-300/10 border-gray-300/20', 'bg-orange-400/10 border-orange-400/20', 'bg-white/[0.04] border-white/10', 'bg-white/[0.03] border-white/[0.07]'];
 
   return (
-    <section className="py-24 px-4">
+    <section id="gym-rankings" className="py-24 px-4">
       <div className="max-w-2xl mx-auto">
         <p className="text-green-400 font-mono text-xs uppercase tracking-widest mb-4 text-center">
           Infrastructure Rollout
