@@ -64,6 +64,16 @@ export default function Landing() {
   return (
     <div className="h-screen overflow-y-auto bg-[#080d14] text-white" style={{ overscrollBehavior: 'contain' }}>
 
+      {/* Sticky mobile CTA */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#080d14]/95 backdrop-blur-md border-t border-white/[0.07] px-4 py-3" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
+        <Button
+          onClick={scrollToWaitlist}
+          className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold h-12 rounded-xl text-base shadow-lg shadow-cyan-500/20"
+        >
+          Join the Waitlist →
+        </Button>
+      </div>
+
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#080d14]/80 backdrop-blur-md border-b border-white/[0.05]">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
