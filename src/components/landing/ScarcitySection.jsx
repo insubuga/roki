@@ -53,7 +53,7 @@ export default function ScarcitySection() {
   return (
     <section id="gym-rankings" className="py-24 px-4">
       <div className="max-w-2xl mx-auto">
-        <p className="text-green-400 font-mono text-xs uppercase tracking-widest mb-4 text-center">
+        <p className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-4 text-center">
           Infrastructure Rollout
         </p>
 
@@ -83,8 +83,8 @@ export default function ScarcitySection() {
                 </div>
                 {gym.count !== null && (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                    <span className="text-green-400 font-mono text-xs">{gym.count} member{gym.count !== 1 ? 's' : ''}</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                    <span className="text-cyan-400 font-mono text-xs">{gym.count} member{gym.count !== 1 ? 's' : ''}</span>
                   </div>
                 )}
               </div>

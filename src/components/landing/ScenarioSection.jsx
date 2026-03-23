@@ -6,7 +6,7 @@ export default function ScenarioSection({ onJoinClick }) {
     <section className="py-24 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Label */}
-        <p className="text-green-400 font-mono text-xs uppercase tracking-widest mb-10 text-center">
+        <p className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-10 text-center">
           You know this moment
         </p>
 

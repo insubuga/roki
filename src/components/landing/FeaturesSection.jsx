@@ -6,7 +6,7 @@ const features = [
     icon: Clock,
     title: '48h Turnaround SLA',
     description: 'Your gear is cleaned and back in the locker within 48 hours — guaranteed by your plan.',
-    color: 'text-green-400',
+    color: 'text-cyan-400',
   },
   {
     icon: MapPin,
@@ -45,7 +45,7 @@ export default function FeaturesSection() {
     <section id="features" className="py-24 px-4 bg-white/[0.02]">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
-          <p className="text-green-400 font-mono text-xs uppercase tracking-widest mb-3">Features</p>
+          <p className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-3">Features</p>
           <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight">
             Built for athletes<br />
             <span className="text-gray-500">who don't stop.</span>

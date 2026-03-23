@@ -7,7 +7,7 @@ const testimonials = [
     name: 'Marcus T.',
     role: 'Powerlifter · CrossFit Chicago',
     initials: 'MT',
-    color: 'from-green-500 to-emerald-600',
+    color: 'from-cyan-500 to-cyan-700',
   },
   {
     quote: "The locker is right next to the exit. I drop off, tap out, and my stuff is fresh by Wednesday. It's not even something I think about anymore.",
@@ -30,7 +30,7 @@ export default function TestimonialsSection() {
     <section className="py-24 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
-          <p className="text-green-400 font-mono text-xs uppercase tracking-widest mb-3">Testimonials</p>
+          <p className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-3">Testimonials</p>
           <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight">
             Athletes who never<br />skip anymore.
           </h2>
