@@ -46,9 +46,20 @@ export default function Landing() {
     };
   }, []);
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const scrollToWaitlist = () => {
     waitlistRef.current?.scrollIntoView({ behavior: 'smooth' });
+    setMobileMenuOpen(false);
   };
+
+  const navLinks = [
+    { href: '#how-it-works', label: 'How It Works' },
+    { href: '#features', label: 'Features' },
+    { href: '#gym-rankings', label: 'Gym Rankings' },
+    { href: '#pricing', label: 'Pricing' },
+    { href: '#faq', label: 'FAQ' },
+  ];
 
   return (
     <div className="h-screen overflow-y-auto bg-[#080d14] text-white" style={{ overscrollBehavior: 'contain' }}>
