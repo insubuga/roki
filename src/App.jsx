@@ -52,6 +52,8 @@ const AuthenticatedApp = () => {
         {/* Landing is public, lazily loaded */}
         <Route path="/" element={<Landing />} />
         <Route path="/Landing" element={<Landing />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
 
         {/* Auto-registered pages from pages.config.js */}
         {Object.entries(Pages).map(([path, Page]) => (
