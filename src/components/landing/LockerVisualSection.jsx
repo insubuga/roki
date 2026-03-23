@@ -39,7 +39,7 @@ export default function LockerVisualSection() {
           ].map((item, i) => (
             <React.Fragment key={i}>
               <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10">
-                <span className={`w-1.5 h-1.5 rounded-full ${item.color === 'text-green-400' ? 'bg-green-400' : item.color === 'text-blue-400' ? 'bg-blue-400' : 'bg-gray-400'}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${item.color === 'text-cyan-400' ? 'bg-cyan-400' : item.color === 'text-blue-400' ? 'bg-blue-400' : 'bg-gray-400'}`} />
                 <span className={`text-sm font-medium ${item.color}`}>{item.step}</span>
               </div>
               {i < 2 && (
