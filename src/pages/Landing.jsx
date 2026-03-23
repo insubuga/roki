@@ -20,8 +20,29 @@ export default function Landing() {
   const waitlistRef = useRef(null);
 
   useEffect(() => {
-    document.body.classList.add('landing-page');
-    return () => document.body.classList.remove('landing-page');
+    const hideEditWidget = () => {
+      // Target the Base44 edit widget by its known text content or fixed bottom-right position
+      document.querySelectorAll('body > *').forEach(el => {
+        const style = window.getComputedStyle(el);
+        if (style.position === 'fixed' && el !== document.getElementById('root')) {
+          el.style.setProperty('display', 'none', 'important');
+        }
+      });
+    };
+
+    hideEditWidget();
+    const observer = new MutationObserver(hideEditWidget);
+    observer.observe(document.body, { childList: true });
+
+    return () => {
+      observer.disconnect();
+      // Restore hidden elements when leaving landing page
+      document.querySelectorAll('body > *').forEach(el => {
+        if (el !== document.getElementById('root')) {
+          el.style.removeProperty('display');
+        }
+      });
+    };
   }, []);
 
   const scrollToWaitlist = () => {
