@@ -40,7 +40,7 @@ export default function AdminOps() {
   const { data: pendingRetries = [] } = useQuery({
     queryKey: ['pendingRetries'],
     queryFn: async () => {
-      const ops = await base44.asServiceRole.entities.RetryableOperation.filter({
+      const ops = await base44.entities.RetryableOperation.filter({
         status: { $in: ['pending', 'retrying'] }
       });
       return ops || [];
@@ -51,7 +51,7 @@ export default function AdminOps() {
   const { data: openIncidents = [] } = useQuery({
     queryKey: ['openIncidents'],
     queryFn: async () => {
-      const incidents = await base44.asServiceRole.entities.IncidentLog.filter({
+      const incidents = await base44.entities.IncidentLog.filter({
         status: { $in: ['open', 'investigating'] }
       });
       return incidents || [];
