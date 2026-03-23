@@ -1,6 +1,7 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { Menu, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import HeroSection from '@/components/landing/HeroSection';
