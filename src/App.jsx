@@ -114,7 +114,7 @@ function App() {
           </NavigationStackProvider>
         </Router>
         <Toaster />
-        <HideOnLanding><VisualEditAgent /></HideOnLanding>
+        <VisualEditAgent />
       </QueryClientProvider>
     </AuthProvider>
   );
