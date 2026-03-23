@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowDown } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
-const LOGO_URL = "https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c37d16942_LogoROKI.png";
+const LOGO_URL = "https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c6fc7fe29_LogoROKI2.png";
 import { Button } from '@/components/ui/button';
 
 export default function HeroSection({ onJoinClick }) {
