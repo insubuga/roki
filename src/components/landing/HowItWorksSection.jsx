@@ -197,25 +197,26 @@ export default function HowItWorksSection() {
                     transitionDelay: `${i * 150}ms`,
                   }}
                 >
-                  {/* Illustration area */}
-                  <div
-                    className="relative flex items-center justify-center"
-                    style={{ height: 180, background: `radial-gradient(ellipse at center, ${step.glow} 0%, transparent 75%)` }}
-                  >
-                    {/* Step number watermark */}
+                  {/* Tag pill above illustration */}
+                  <div className="flex items-center justify-between px-4 pt-4 pb-0">
                     <span
-                      className="absolute top-3 right-4 text-5xl font-black select-none"
-                      style={{ color: step.color, opacity: 0.07 }}
-                    >
-                      {step.number}
-                    </span>
-                    {/* Tag pill */}
-                    <span
-                      className="absolute top-3 left-3 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full"
+                      className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full"
                       style={{ color: step.color, background: `${step.glow}`, border: `1px solid ${step.border}` }}
                     >
                       {step.tag}
                     </span>
+                    <span
+                      className="text-5xl font-black select-none"
+                      style={{ color: step.color, opacity: 0.07 }}
+                    >
+                      {step.number}
+                    </span>
+                  </div>
+                  {/* Illustration area */}
+                  <div
+                    className="relative flex items-center justify-center"
+                    style={{ height: 160, background: `radial-gradient(ellipse at center, ${step.glow} 0%, transparent 75%)` }}
+                  >
                     <div className="w-32 h-32">
                       <Illustration />
                     </div>
