@@ -13,7 +13,6 @@ import LockerVisualSection from '@/components/landing/LockerVisualSection';
 import SystemReframeSection from '@/components/landing/SystemReframeSection';
 import ScarcitySection from '@/components/landing/ScarcitySection';
 import IdentitySection from '@/components/landing/IdentitySection';
-import SimpleByDesignSection from '@/components/landing/SimpleByDesignSection';
 
 export default function Landing() {
   const waitlistRef = useRef(null);
