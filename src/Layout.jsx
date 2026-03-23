@@ -188,7 +188,7 @@ export default function Layout({ children, currentPageName }) {
           <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="w-7 h-7 flex-shrink-0">
               <img
-                src="https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c37d16942_LogoROKI.png"
+                src="https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c6fc7fe29_LogoROKI2.png"
                 alt="ROKI"
                 className="w-full h-full object-contain"
                 style={{ mixBlendMode: 'screen' }}
