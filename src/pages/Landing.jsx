@@ -78,11 +78,9 @@ export default function Landing() {
           </div>
           {/* Desktop nav links */}
           <nav className="hidden md:flex items-center gap-7">
-            <a href="#how-it-works" className="text-gray-400 hover:text-white text-sm transition-colors">How It Works</a>
-            <a href="#features" className="text-gray-400 hover:text-white text-sm transition-colors">Features</a>
-            <a href="#gym-rankings" className="text-gray-400 hover:text-white text-sm transition-colors">Gym Rankings</a>
-            <a href="#pricing" className="text-gray-400 hover:text-white text-sm transition-colors">Pricing</a>
-            <a href="#faq" className="text-gray-400 hover:text-white text-sm transition-colors">FAQ</a>
+            {navLinks.map(l => (
+              <a key={l.href} href={l.href} className="text-gray-400 hover:text-white text-sm transition-colors">{l.label}</a>
+            ))}
           </nav>
 
           <div className="flex items-center gap-3">
@@ -94,10 +92,18 @@ export default function Landing() {
             </button>
             <Button
               onClick={scrollToWaitlist}
-              className="bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-sm h-9 px-5 rounded-full shadow-md shadow-cyan-400/20"
+              className="hidden md:inline-flex bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-sm h-9 px-5 rounded-full shadow-md shadow-cyan-400/20"
             >
               Join Waitlist
             </Button>
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen(o => !o)}
+              className="md:hidden text-gray-400 hover:text-white p-1"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
       </nav>
