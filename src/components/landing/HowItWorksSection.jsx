@@ -98,11 +98,36 @@ function CleanGearIllustration() {
 // ── Arrow connector ───────────────────────────────────────────────────────────
 
 function FlowArrow({ color }) {
+  const id = `arrow-${color.replace('#', '')}`;
   return (
     <div className="hidden md:flex items-center justify-center flex-1 px-2">
+      <style>{`
+        @keyframes flow-${id} {
+          from { stroke-dashoffset: 18; }
+          to   { stroke-dashoffset: 0; }
+        }
+        .flow-line-${id} {
+          animation: flow-${id} 0.8s linear infinite;
+        }
+      `}</style>
       <svg viewBox="0 0 60 20" fill="none" className="w-16 h-6" xmlns="http://www.w3.org/2000/svg">
-        <line x1="0" y1="10" x2="48" y2="10" stroke={color} strokeWidth="1.5" strokeDasharray="4 2"/>
-        <path d="M44 5 L52 10 L44 15" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <line
+          x1="0" y1="10" x2="48" y2="10"
+          stroke={color}
+          strokeWidth="1.5"
+          strokeDasharray="4 3"
+          className={`flow-line-${id}`}
+          opacity="0.7"
+        />
+        <path
+          d="M44 5 L52 10 L44 15"
+          fill="none"
+          stroke={color}
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.9"
+        />
       </svg>
     </div>
   );
