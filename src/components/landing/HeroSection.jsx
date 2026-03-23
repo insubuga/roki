@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowDown } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 const LOGO_URL = "https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c37d16942_LogoROKI.png";
 import { Button } from '@/components/ui/button';
 
 export default function HeroSection({ onJoinClick }) {
+  const [waitlistCount, setWaitlistCount] = useState(null);
+
+  useEffect(() => {
+    base44.entities.Waitlist.list('created_date', 5000)
+      .then(entries => setWaitlistCount(entries.length))
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden">
       {/* Background grid */}
