@@ -51,6 +51,7 @@ const AuthenticatedApp = () => {
       <Routes>
         {/* Landing is public, lazily loaded */}
         <Route path="/" element={<Landing />} />
+        <Route path="/index" element={<Landing />} />
         <Route path="/Landing" element={<Landing />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
