@@ -15,7 +15,7 @@ export default function RealtimeIncidentStream() {
       try {
         console.log('[INCIDENT_STREAM] Subscribing to incident changes...');
         
-        unsubscribe = base44.asServiceRole.entities.IncidentLog.subscribe((event) => {
+        unsubscribe = base44.entities.IncidentLog.subscribe((event) => {
           if (event.type === 'create') {
             console.log(`[INCIDENT_STREAM] New incident: ${event.data?.incident_id}`);
             setIncidents(prev => [event.data, ...prev].slice(0, 50)); // Keep last 50
