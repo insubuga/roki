@@ -125,39 +125,45 @@ export default function WaitlistSection({ sectionRef }) {
             gymRank={successData.gymRank}
           />
         ) : (
-          <form onSubmit={handleSubmit} className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-8 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {referredBy && (
-              <div className="bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-2.5 text-green-400 text-xs font-mono text-center">
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl px-4 py-2.5 text-cyan-400 text-xs font-mono text-center">
                 ✓ Joining via referral — you'll both move up the list
               </div>
             )}
-            <Input
-              type="email"
-              placeholder="Email address *"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="bg-white/[0.05] border-white/10 text-white placeholder:text-gray-600 h-12 rounded-xl"
-              required
-            />
-            <Input
-              placeholder="Gym name *"
-              value={gym}
-              onChange={e => setGym(e.target.value)}
-              className="bg-white/[0.05] border-white/10 text-white placeholder:text-gray-600 h-12 rounded-xl"
-              required
-            />
-            <div>
-              <p className="text-gray-500 text-xs mb-2 font-mono">How often do you train? <span className="text-gray-600">(optional)</span></p>
-              <div className="flex flex-wrap gap-2">
+            <div className="space-y-1.5">
+              <label className="text-white text-sm font-medium">Email address *</label>
+              <Input
+                type="email"
+                placeholder="you@email.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="bg-[#1a1f2e] border-[#2a2f3e] text-white placeholder:text-gray-600 h-12 rounded-xl focus:border-cyan-500/50"
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-white text-sm font-medium">Gym name *</label>
+              <Input
+                placeholder="e.g. CrossFit West Loop"
+                value={gym}
+                onChange={e => setGym(e.target.value)}
+                className="bg-[#1a1f2e] border-[#2a2f3e] text-white placeholder:text-gray-600 h-12 rounded-xl focus:border-cyan-500/50"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-white text-sm font-medium">How often do you train? <span className="text-gray-500 font-normal">(optional)</span></label>
+              <div className="grid grid-cols-2 gap-2">
                 {FREQUENCIES.map(f => (
                   <button
                     key={f}
                     type="button"
                     onClick={() => setFrequency(freq => freq === f ? '' : f)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                    className={`py-3 rounded-xl text-sm font-semibold border transition-all ${
                       frequency === f
-                        ? 'bg-green-500 border-green-500 text-black'
-                        : 'border-white/10 text-gray-400 hover:border-white/20 hover:text-white'
+                        ? 'bg-cyan-500 border-cyan-500 text-black'
+                        : 'bg-[#1a1f2e] border-[#2a2f3e] text-gray-300 hover:border-cyan-500/40 hover:text-white'
                     }`}
                   >
                     {f}
@@ -169,11 +175,11 @@ export default function WaitlistSection({ sectionRef }) {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-500 hover:bg-green-400 text-black font-bold h-12 rounded-xl shadow-lg shadow-green-500/20 text-base transition-all hover:scale-[1.02]"
+              className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold h-13 rounded-xl text-base transition-all"
+              style={{ height: '52px' }}
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Join the Waitlist →'}
             </Button>
-            <p className="text-gray-600 text-xs text-center">No spam. No credit card. Just your spot in line.</p>
           </form>
         )}
       </div>
