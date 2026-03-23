@@ -25,13 +25,13 @@ export default function WaitlistSuccess({ entry, position, gymRank }) {
   return (
     <div className="space-y-5">
       {/* System moment header */}
-      <div className="bg-green-500/5 border border-green-500/20 rounded-2xl p-7 text-center relative overflow-hidden">
+      <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-2xl p-7 text-center relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.03]"
-          style={{ backgroundImage: 'linear-gradient(#10b981 1px, transparent 1px), linear-gradient(90deg, #10b981 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+          style={{ backgroundImage: 'linear-gradient(#06b6d4 1px, transparent 1px), linear-gradient(90deg, #06b6d4 1px, transparent 1px)', backgroundSize: '24px 24px' }}
         />
         <div className="relative z-10">
-          <div className="w-14 h-14 bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-7 h-7 text-green-400" />
+          <div className="w-14 h-14 bg-cyan-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-7 h-7 text-cyan-400" />
           </div>
           <h3 className="text-white font-black text-xl sm:text-2xl leading-tight mb-2">
             You're in. Your gym is now<br />on the Roki network map.
@@ -44,8 +44,8 @@ export default function WaitlistSuccess({ entry, position, gymRank }) {
       <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-5">
         <div className="flex items-center justify-between text-sm mb-4">
           <span className="text-gray-500 font-mono uppercase text-xs">Network Node</span>
-          <span className="text-green-400 font-mono text-xs flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+          <span className="text-cyan-400 font-mono text-xs flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             PENDING ACTIVATION
           </span>
         </div>
@@ -60,7 +60,7 @@ export default function WaitlistSuccess({ entry, position, gymRank }) {
           </div>
           <div className="flex justify-between items-center">
             <span className="text-gray-400 text-sm">Gym Rank</span>
-            <span className="text-green-400 font-mono font-bold">#{gymRank} at {entry.gym_name}</span>
+            <span className="text-cyan-400 font-mono font-bold">#{gymRank} at {entry.gym_name}</span>
           </div>
           {currentTier && (
             <div className="flex justify-between items-center">
@@ -75,7 +75,7 @@ export default function WaitlistSuccess({ entry, position, gymRank }) {
       <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-5 space-y-4">
         <div>
           <p className="text-white font-bold text-sm mb-1 flex items-center gap-2">
-            <Users className="w-4 h-4 text-green-400" />
+            <Users className="w-4 h-4 text-cyan-400" />
             Move your gym up the list
           </p>
           <p className="text-gray-500 text-xs">Invite people from your gym to unlock access tiers.</p>
@@ -122,7 +122,7 @@ export default function WaitlistSuccess({ entry, position, gymRank }) {
           <Button
             onClick={copyLink}
             className={`flex-shrink-0 h-10 px-4 rounded-xl font-semibold text-xs transition-all ${
-              copied ? 'bg-green-600 text-white' : 'bg-white/10 hover:bg-white/15 text-white'
+              copied ? 'bg-cyan-600 text-white' : 'bg-white/10 hover:bg-white/15 text-white'
             }`}
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
