@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Zap } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 const plans = [
   {
