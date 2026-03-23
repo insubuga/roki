@@ -20,7 +20,7 @@ export default function IdentitySection() {
     <section className="py-24 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-14">
-          <p className="text-green-400 font-mono text-xs uppercase tracking-widest mb-4">Built For</p>
+          <p className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-4">Built For</p>
           <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-5">
             People who don't have time<br className="hidden sm:block" /> to think about laundry.
           </h2>
@@ -35,7 +35,7 @@ export default function IdentitySection() {
               key={p.label}
               className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 hover:border-white/[0.14] hover:bg-white/[0.05] transition-all"
             >
-              <div className="w-1 h-8 bg-green-500 rounded-full mb-5" />
+              <div className="w-1 h-8 bg-cyan-500 rounded-full mb-5" />
               <h3 className="text-white font-bold text-base mb-3">{p.label}</h3>
               <p className="text-gray-400 text-sm leading-relaxed">{p.description}</p>
             </div>

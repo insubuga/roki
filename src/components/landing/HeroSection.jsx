@@ -17,7 +17,7 @@ export default function HeroSection({ onJoinClick }) {
         }}
       />
       {/* Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         {/* Logo */}
@@ -32,15 +32,15 @@ export default function HeroSection({ onJoinClick }) {
         </div>
 
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-4 py-1.5 mb-8">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-green-400 text-xs font-mono font-semibold uppercase tracking-wider">Now accepting waitlist</span>
+        <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-4 py-1.5 mb-8">
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+          <span className="text-cyan-400 text-xs font-mono font-semibold uppercase tracking-wider">Now accepting waitlist</span>
         </div>
 
         {/* Headline */}
         <h1 className="text-5xl sm:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6">
           Your gear.<br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-300">
             Always ready.
           </span>
         </h1>
@@ -54,7 +54,7 @@ export default function HeroSection({ onJoinClick }) {
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
           <Button
             onClick={onJoinClick}
-            className="bg-green-500 hover:bg-green-400 text-black font-bold text-base px-8 h-12 rounded-xl shadow-lg shadow-green-500/30 transition-all hover:shadow-green-400/40 hover:scale-105"
+            className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-base px-8 h-12 rounded-xl shadow-lg shadow-cyan-500/30 transition-all hover:shadow-cyan-400/40 hover:scale-105"
           >
             Join the Waitlist
           </Button>

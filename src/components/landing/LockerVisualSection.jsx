@@ -5,12 +5,12 @@ export default function LockerVisualSection() {
     <section className="py-24 px-4 overflow-hidden">
       <div className="max-w-4xl mx-auto text-center">
         {/* Label */}
-        <p className="text-green-400 font-mono text-xs uppercase tracking-widest mb-4">
+        <p className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-4">
           The Experience
         </p>
         <h2 className="text-4xl sm:text-5xl font-black text-white mb-12 leading-tight">
           Your gear. Clean.<br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-300">
             Waiting for you.
           </span>
         </h2>
@@ -26,7 +26,7 @@ export default function LockerVisualSection() {
           <div className="absolute bottom-6 left-0 right-0 flex items-center justify-center gap-4">
             <span className="bg-white/10 border border-white/20 backdrop-blur-sm text-white text-xs font-mono px-4 py-2 rounded-full">GEAR IN TRANSIT</span>
             <span className="text-gray-600">→</span>
-            <span className="bg-green-500/20 border border-green-500/40 backdrop-blur-sm text-green-400 text-xs font-mono px-4 py-2 rounded-full">✓ CLEAN & READY</span>
+            <span className="bg-cyan-500/20 border border-cyan-500/40 backdrop-blur-sm text-cyan-400 text-xs font-mono px-4 py-2 rounded-full">✓ CLEAN & READY</span>
           </div>
         </div>
 
@@ -35,7 +35,7 @@ export default function LockerVisualSection() {
           {[
             { step: 'Drop dirty gear', color: 'text-gray-400' },
             { step: 'ROKI picks up & washes', color: 'text-blue-400' },
-            { step: 'Clean gear back in locker', color: 'text-green-400' },
+            { step: 'Clean gear back in locker', color: 'text-cyan-400' },
           ].map((item, i) => (
             <React.Fragment key={i}>
               <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10">

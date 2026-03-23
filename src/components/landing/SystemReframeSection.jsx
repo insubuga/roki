@@ -11,7 +11,7 @@ export default function SystemReframeSection() {
     <section className="py-24 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Label */}
-        <p className="text-green-400 font-mono text-xs uppercase tracking-widest mb-6 text-center">
+        <p className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-6 text-center">
           This isn't laundry
         </p>
 
@@ -19,7 +19,7 @@ export default function SystemReframeSection() {
         <div className="text-center mb-14">
           <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-6">
             ROKI is a system that runs<br />in the background of your{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-300">
               training life.
             </span>
           </h2>
@@ -35,7 +35,7 @@ export default function SystemReframeSection() {
         <div className="rounded-2xl border border-white/10 overflow-hidden">
           <div className="grid grid-cols-2 border-b border-white/10">
             <div className="px-5 py-3 text-gray-600 text-xs font-mono uppercase tracking-widest">Other services</div>
-            <div className="px-5 py-3 text-green-400 text-xs font-mono uppercase tracking-widest border-l border-white/10">ROKI</div>
+            <div className="px-5 py-3 text-cyan-400 text-xs font-mono uppercase tracking-widest border-l border-white/10">ROKI</div>
           </div>
           {contrasts.map((row, i) => (
             <div
@@ -46,8 +46,8 @@ export default function SystemReframeSection() {
                 <span className="text-red-500/60 text-base leading-none">✕</span>
                 {row.left}
               </div>
-              <div className="px-5 py-4 flex items-center gap-2.5 text-white text-sm font-medium border-l border-white/10 bg-green-500/[0.04]">
-                <span className="text-green-400 text-base leading-none">✓</span>
+              <div className="px-5 py-4 flex items-center gap-2.5 text-white text-sm font-medium border-l border-white/10 bg-cyan-500/[0.04]">
+                <span className="text-cyan-400 text-base leading-none">✓</span>
                 {row.right}
               </div>
             </div>

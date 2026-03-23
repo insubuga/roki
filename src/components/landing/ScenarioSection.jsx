@@ -36,11 +36,11 @@ export default function ScenarioSection({ onJoinClick }) {
         </div>
 
         {/* Resolution */}
-        <div className="bg-green-500/10 border border-green-500/25 rounded-2xl p-8 text-center">
+        <div className="bg-cyan-500/10 border border-cyan-500/25 rounded-2xl p-8 text-center">
           <p className="text-2xl sm:text-3xl font-black text-white leading-snug mb-2">
             ROKI removes that moment
           </p>
-          <p className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300 leading-snug mb-6">
+          <p className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-300 leading-snug mb-6">
             completely.
           </p>
           <p className="text-gray-400 text-sm leading-relaxed mb-8">
@@ -48,7 +48,7 @@ export default function ScenarioSection({ onJoinClick }) {
           </p>
           <Button
             onClick={onJoinClick}
-            className="bg-green-500 hover:bg-green-400 text-black font-bold text-base px-8 h-12 rounded-xl shadow-lg shadow-green-500/30 transition-all hover:shadow-green-400/40 hover:scale-105"
+            className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-base px-8 h-12 rounded-xl shadow-lg shadow-cyan-500/30 transition-all hover:shadow-cyan-400/40 hover:scale-105"
           >
             Join the Waitlist
           </Button>
