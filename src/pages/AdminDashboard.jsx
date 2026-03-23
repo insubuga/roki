@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Shield, ArrowLeft } from 'lucide-react';
+import { Shield, ArrowLeft, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OverviewStats from '../components/admin/OverviewStats';
@@ -14,6 +15,15 @@ import DriverManagement from '../components/admin/DriverManagement';
 import AdminNotifications from '../components/admin/AdminNotifications';
 import DriverApplicationReview from './DriverApplicationReview';
 import ExpansionRequests from '../components/admin/ExpansionRequests';
+
+function TabBadge({ count, color = 'bg-red-500' }) {
+  if (!count) return null;
+  return (
+    <span className={`ml-1.5 inline-flex items-center justify-center text-[10px] font-bold text-white rounded-full px-1.5 py-0.5 min-w-[18px] ${color}`}>
+      {count}
+    </span>
+  );
+}
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -37,114 +47,113 @@ export default function AdminDashboard() {
     loadUser();
   }, []);
 
+  // Live counts for tab badges
+  const { data: pendingApps = [] } = useQuery({
+    queryKey: ['pendingApps'],
+    queryFn: () => base44.entities.DriverApplication.filter({ status: 'submitted' }),
+    enabled: !!user,
+  });
+  const { data: openIssues = [] } = useQuery({
+    queryKey: ['openIssuesBadge'],
+    queryFn: () => base44.entities.LockerIssue.filter({ status: 'open' }),
+    enabled: !!user,
+  });
+  const { data: adminNotifs = [] } = useQuery({
+    queryKey: ['adminNotifsBadge', user?.email],
+    queryFn: () => base44.entities.Notification.filter({ user_email: user?.email, read: false }),
+    enabled: !!user?.email,
+  });
+
+  const unreadAlerts = adminNotifs.filter(n => n.type === 'system').length;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-[#7cfc00] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  if (!user || user.role !== 'admin') {
-    return null;
-  }
+  if (!user || user.role !== 'admin') return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 -m-6 p-6">
-      {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-green-600 via-green-700 to-emerald-800 rounded-3xl shadow-2xl mb-8 p-8">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
-        <div className="relative flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to={createPageUrl('Dashboard')}>
-              <Button variant="ghost" size="icon" className="text-white/80 hover:text-white hover:bg-white/10">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20 shadow-lg">
-                  <Shield className="w-7 h-7 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-4xl font-bold text-white">Admin Dashboard</h1>
-                  <p className="text-green-100 mt-1">Manage your ROKI application</p>
-                </div>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gray-50 -m-6 p-6">
+      {/* Compact Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Link to={createPageUrl('Dashboard')}>
+            <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-900">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div className="w-9 h-9 bg-green-600 rounded-xl flex items-center justify-center shadow">
+            <Shield className="w-5 h-5 text-white" />
           </div>
-          <div className="hidden md:flex items-center gap-2">
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2">
-              <p className="text-white/80 text-xs">Last updated</p>
-              <p className="text-white font-semibold">Just now</p>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900 leading-none">Admin Dashboard</h1>
+            <p className="text-gray-500 text-xs mt-0.5">Signed in as {user.full_name}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {unreadAlerts > 0 && (
+            <div className="relative">
+              <Bell className="w-5 h-5 text-gray-500" />
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{unreadAlerts}</span>
             </div>
+          )}
+          <div className="text-xs text-gray-400 bg-white border border-gray-200 rounded-lg px-3 py-1.5 hidden sm:block">
+            {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="bg-white border border-gray-200 shadow-sm p-1">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="applications" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-            Applications
-          </TabsTrigger>
-          <TabsTrigger value="drivers" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-            Drivers
-          </TabsTrigger>
-          <TabsTrigger value="users" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-            Users
-          </TabsTrigger>
-          <TabsTrigger value="gyms" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-            Gyms & Lockers
-          </TabsTrigger>
-          <TabsTrigger value="issues" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-            Issues
-          </TabsTrigger>
-          <TabsTrigger value="subscriptions" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-            Subscriptions
-          </TabsTrigger>
-          <TabsTrigger value="expansion" className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-            Expansion
-          </TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="overview" className="space-y-5">
+        <div className="overflow-x-auto">
+          <TabsList className="bg-white border border-gray-200 shadow-sm p-1 w-max">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-sm">
+              Overview
+              {unreadAlerts > 0 && <TabBadge count={unreadAlerts} />}
+            </TabsTrigger>
+            <TabsTrigger value="applications" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-sm">
+              Applications
+              <TabBadge count={pendingApps.length} />
+            </TabsTrigger>
+            <TabsTrigger value="drivers" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-sm">
+              Drivers
+            </TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-sm">
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="gyms" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-sm">
+              Gyms & Lockers
+            </TabsTrigger>
+            <TabsTrigger value="issues" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-sm">
+              Issues
+              <TabBadge count={openIssues.length} color="bg-orange-500" />
+            </TabsTrigger>
+            <TabsTrigger value="subscriptions" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-sm">
+              Subscriptions
+            </TabsTrigger>
+            <TabsTrigger value="expansion" className="data-[state=active]:bg-green-600 data-[state=active]:text-white text-sm">
+              Expansion
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="overview">
-          <div className="space-y-6">
-            <AdminNotifications user={user} />
+          <div className="space-y-5">
+            {unreadAlerts > 0 && <AdminNotifications user={user} />}
             <OverviewStats />
           </div>
         </TabsContent>
-
-        <TabsContent value="applications">
-          <DriverApplicationReview />
-        </TabsContent>
-
-        <TabsContent value="drivers">
-          <DriverManagement />
-        </TabsContent>
-
-        <TabsContent value="users">
-          <UserManagement />
-        </TabsContent>
-
-        <TabsContent value="gyms">
-          <GymManagement />
-        </TabsContent>
-
-        <TabsContent value="issues">
-          <IssueManagement />
-        </TabsContent>
-
-        <TabsContent value="subscriptions">
-          <SubscriptionManagement />
-        </TabsContent>
-
-        <TabsContent value="expansion">
-          <ExpansionRequests />
-        </TabsContent>
+        <TabsContent value="applications"><DriverApplicationReview /></TabsContent>
+        <TabsContent value="drivers"><DriverManagement /></TabsContent>
+        <TabsContent value="users"><UserManagement /></TabsContent>
+        <TabsContent value="gyms"><GymManagement /></TabsContent>
+        <TabsContent value="issues"><IssueManagement /></TabsContent>
+        <TabsContent value="subscriptions"><SubscriptionManagement /></TabsContent>
+        <TabsContent value="expansion"><ExpansionRequests /></TabsContent>
       </Tabs>
     </div>
   );

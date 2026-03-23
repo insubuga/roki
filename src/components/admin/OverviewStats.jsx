@@ -50,60 +50,12 @@ export default function OverviewStats() {
   const openIssues = issues.filter(i => i.status === 'open').length;
 
   const stats = [
-    { 
-      title: 'Total Users', 
-      value: users.length, 
-      icon: Users, 
-      gradient: 'from-blue-500 to-blue-600',
-      iconBg: 'bg-blue-500',
-      trend: '+12%',
-      trendUp: true
-    },
-    { 
-      title: 'Total Revenue', 
-      value: `$${totalRevenue.toFixed(2)}`, 
-      icon: DollarSign, 
-      gradient: 'from-emerald-500 to-green-600',
-      iconBg: 'bg-emerald-500',
-      trend: '+18%',
-      trendUp: true
-    },
-    { 
-      title: 'This Month', 
-      value: `$${monthlyRevenue.toFixed(2)}`, 
-      icon: TrendingUp, 
-      gradient: 'from-green-500 to-teal-600',
-      iconBg: 'bg-green-500',
-      trend: '+24%',
-      trendUp: true
-    },
-    { 
-      title: 'Active Subscriptions', 
-      value: activeSubscriptions, 
-      icon: CreditCard, 
-      gradient: 'from-purple-500 to-purple-600',
-      iconBg: 'bg-purple-500',
-      trend: '+8%',
-      trendUp: true
-    },
-    { 
-      title: 'Claimed Lockers', 
-      value: claimedLockers, 
-      icon: Lock, 
-      gradient: 'from-orange-500 to-orange-600',
-      iconBg: 'bg-orange-500',
-      trend: '+5%',
-      trendUp: true
-    },
-    { 
-      title: 'Open Issues', 
-      value: openIssues, 
-      icon: AlertCircle, 
-      gradient: 'from-red-500 to-red-600',
-      iconBg: 'bg-red-500',
-      trend: '-3%',
-      trendUp: false
-    },
+    { title: 'Total Users',          value: users.length,                    icon: Users,       gradient: 'from-blue-500 to-blue-600',     sub: `${users.length} registered` },
+    { title: 'Total Revenue',        value: `$${totalRevenue.toFixed(2)}`,   icon: DollarSign,  gradient: 'from-emerald-500 to-green-600', sub: 'All time' },
+    { title: 'This Month',           value: `$${monthlyRevenue.toFixed(2)}`, icon: TrendingUp,  gradient: 'from-green-500 to-teal-600',    sub: new Date().toLocaleString('default', { month: 'long' }) },
+    { title: 'Active Subscriptions', value: activeSubscriptions,             icon: CreditCard,  gradient: 'from-purple-500 to-purple-600', sub: `${subscriptions.length} total` },
+    { title: 'Active Lockers',       value: claimedLockers,                  icon: Lock,        gradient: 'from-orange-500 to-orange-600', sub: `${lockers.length} total` },
+    { title: 'Open Issues',          value: openIssues,                      icon: AlertCircle, gradient: 'from-red-500 to-red-600',       sub: openIssues === 0 ? 'All clear' : 'Needs attention' },
   ];
 
   return (
