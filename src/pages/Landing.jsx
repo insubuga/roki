@@ -36,16 +36,23 @@ export default function Landing() {
             />
             <span className="text-white font-bold text-lg">ROKI</span>
           </div>
+          {/* Desktop nav links */}
+          <nav className="hidden md:flex items-center gap-7">
+            <a href="#how-it-works" className="text-gray-400 hover:text-white text-sm transition-colors">How It Works</a>
+            <a href="#features" className="text-gray-400 hover:text-white text-sm transition-colors">Features</a>
+            <a href="#gym-rankings" className="text-gray-400 hover:text-white text-sm transition-colors">Gym Rankings</a>
+          </nav>
+
           <div className="flex items-center gap-3">
             <button
               onClick={() => base44.auth.redirectToLogin()}
-              className="text-gray-400 hover:text-white text-sm h-9 px-3 transition-colors"
+              className="hidden md:block text-gray-400 hover:text-white text-sm h-9 px-3 transition-colors"
             >
               Sign In
             </button>
             <Button
               onClick={scrollToWaitlist}
-              className="bg-green-500 hover:bg-green-400 text-black font-bold text-sm h-9 px-5 rounded-lg shadow-md shadow-green-500/20"
+              className="bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-sm h-9 px-5 rounded-full shadow-md shadow-cyan-400/20"
             >
               Join Waitlist
             </Button>
