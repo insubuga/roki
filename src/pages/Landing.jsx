@@ -169,10 +169,10 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <img
-              src="https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c37d16942_LogoROKI.png"
+              src="https://media.base44.com/images/public/6940c15ef41e4f2a833c9405/c6fc7fe29_LogoROKI2.png"
               alt="ROKI"
               className="w-6 h-6 object-contain"
-              style={{ mixBlendMode: 'screen' }}
+              style={{ mixBlendMode: 'screen', filter: 'sepia(1) saturate(5) hue-rotate(155deg) brightness(1.2)' }}
             />
             <span className="text-white font-semibold text-sm">ROKI</span>
           </div>

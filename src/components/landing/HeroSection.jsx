@@ -35,8 +35,13 @@ export default function HeroSection({ onJoinClick }) {
             src={LOGO_URL}
             alt="ROKI"
             className="w-14 h-14 object-contain"
-            style={{ mixBlendMode: 'screen' }}
+            style={{
+              mixBlendMode: 'screen',
+              filter: 'sepia(1) saturate(5) hue-rotate(155deg) brightness(1.3)',
+              animation: 'roki-spin 18s linear infinite',
+            }}
           />
+          <style>{`@keyframes roki-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
           <span className="text-white text-3xl font-bold tracking-tight">ROKI</span>
         </div>
 
