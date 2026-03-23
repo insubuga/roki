@@ -106,10 +106,8 @@ export default function WaitlistSection({ sectionRef }) {
   return (
     <section ref={sectionRef} className="py-24 px-4">
       <div className="max-w-xl mx-auto">
-        <div className="w-px h-16 bg-gradient-to-b from-transparent to-green-500/50 mx-auto mb-16" />
-
         <div className="text-center mb-10">
-          <p className="text-green-400 font-mono text-xs uppercase tracking-widest mb-3">Early Access</p>
+          <p className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-3">Early Access</p>
           <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-4">
             Claim your spot.
           </h2>
