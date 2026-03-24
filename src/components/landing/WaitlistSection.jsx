@@ -111,7 +111,10 @@ export default function WaitlistSection({ sectionRef }) {
           <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-4">
             Claim your spot.
           </h2>
-          <p className="text-gray-400 text-base">
+          <p className="text-gray-400 text-base mb-2">
+            Be one of the first lifters in your gym to never deal with laundry again.
+          </p>
+          <p className="text-gray-500 text-sm">
             We're launching gym by gym. Join the waitlist and we'll notify you when ROKI arrives at your gym.
           </p>
         </div>

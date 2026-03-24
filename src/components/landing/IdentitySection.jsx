@@ -2,16 +2,16 @@ import React from 'react';
 
 const profiles = [
   {
-    label: 'The Busy Professional',
-    description: "You're in back-to-back meetings until 7pm. Somehow you still make it to the gym. You don't have time to babysit your laundry too.",
+    label: 'The Daily Lifter',
+    description: "You train 5–6 days a week. Your clothes are soaked every session. Laundry piles up fast. Sometimes you're not even sure what's clean. Roki makes sure you always have fresh gear ready.",
   },
   {
-    label: 'The Parent',
-    description: "Your laundry pile has a laundry pile. You train to stay sane. The last thing you need is one more thing to remember.",
+    label: 'The Consistent One',
+    description: "You don't skip workouts. Even when life gets busy. The last thing you need is laundry slowing you down. Roki keeps your routine uninterrupted.",
   },
   {
-    label: 'The Rebuilder',
-    description: "You're getting back into it. Consistency is fragile right now. Anything that removes friction between you and the gym stays.",
+    label: 'The Gym Regular',
+    description: "You're always there. Same time. Same work. But dealing with sweaty clothes every day gets old. Roki handles it so you don't have to.",
   },
 ];
 
@@ -22,10 +22,10 @@ export default function IdentitySection() {
         <div className="text-center mb-14">
           <p className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-4">Built For</p>
           <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-5">
-            People who don't have time<br className="hidden sm:block" /> to think about laundry.
+            Built for people who train<br className="hidden sm:block" /> almost every day.
           </h2>
           <p className="text-gray-400 text-base max-w-md mx-auto">
-            Not fitness influencers. Not people with spare afternoons. You.
+            For people who show up, sweat hard, and do it again tomorrow.<br className="hidden sm:block" /> Always have clean gear ready for your next session.
           </p>
         </div>
 
