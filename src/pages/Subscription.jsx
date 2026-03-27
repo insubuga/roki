@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { SUBSCRIPTION_PLANS } from '@/components/subscription/planConfig';
 import {
   CreditCard, ArrowLeft, Check, Zap, Lock, Crown, Clock,
-  Shield, Package, Shirt, Star, AlertTriangle, RefreshCw
+  Shield, Star, AlertTriangle, RefreshCw, ArrowUpCircle, ArrowDownCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,67 +15,37 @@ import { useConfirmDialog } from '@/components/hooks/useConfirmDialog';
 
 const PLANS = Object.values(SUBSCRIPTION_PLANS).map(plan => ({
   ...plan,
-  laundryTurnaround: plan.turnaroundHours,
-  sneakerCleaningDiscount: plan.sneakerCleaningDiscount,
-  premiumSneaker: plan.premiumSneakerCleaning,
-  rushDeliveries: plan.rushDeliveries,
-  rushFee: plan.rushDeliveryFee,
   emergencyCredits: plan.rushDeliveries === 999 ? 3 : 1,
-  features: plan.features.map(text => ({
-    text,
-    icon: text.includes('turnaround') ? Clock : 
-          text.includes('rush') ? Zap :
-          text.includes('dispatch') ? Shield :
-          text.includes('locker') ? Lock :
-          text.includes('Sneaker') ? Star :
-          Crown
-  })),
-  accentColor: plan.id === 'core' ? 'border-green-600' : 'border-green-500',
-  badgeBg: plan.id === 'core' ? 'bg-green-600' : 'bg-green-500',
+  features: plan.features.map(text => ({ text })),
+  accentColor: plan.id === 'priority' ? 'border-green-500' : 'border-border',
 }));
 
 const STAT_ITEMS = [
-  {
-    key: 'turnaround',
-    label: 'Laundry Turnaround',
-    icon: Clock,
-    iconColor: 'text-green-600',
-    getValue: (sub) => `${sub.laundry_turnaround_hours || 48}h`,
-  },
-  {
-    key: 'rush',
-    label: 'Rush Deliveries',
-    icon: Zap,
-    iconColor: 'text-orange-500',
-    getValue: (sub) => sub.rush_deliveries_included === 999 ? 'Unlimited' : `${sub.rush_deliveries_included || 1}/mo`,
-  },
-  {
-    key: 'dispatch',
-    label: 'Priority Dispatch',
-    icon: Shield,
-    iconColor: 'text-purple-500',
-    getValue: (sub) => sub.priority_dispatch ? 'Active' : 'Standard',
-  },
-  {
-    key: 'credits',
-    label: 'Emergency Credits',
-    icon: Zap,
-    iconColor: 'text-green-600',
-    getValue: (sub) => {
-      const used = sub.laundry_credits_used || 0;
-      const total = sub.laundry_credits || 1;
-      return `${total - used} / ${total}`;
-    },
-  },
+  { key: 'turnaround', label: 'Turnaround', icon: Clock, iconColor: 'text-green-600', getValue: (s) => `${s.laundry_turnaround_hours || 48}h` },
+  { key: 'rush', label: 'Rush Deliveries', icon: Zap, iconColor: 'text-orange-500', getValue: (s) => s.rush_deliveries_included === 999 ? 'Unlimited' : `${s.rush_deliveries_included || 1}/mo` },
+  { key: 'dispatch', label: 'Dispatch', icon: Shield, iconColor: 'text-purple-500', getValue: (s) => s.priority_dispatch ? 'Priority' : 'Standard' },
+  { key: 'credits', label: 'Credits Left', icon: Zap, iconColor: 'text-green-600', getValue: (s) => `${(s.laundry_credits || 1) - (s.laundry_credits_used || 0)} / ${s.laundry_credits || 1}` },
 ];
 
 export default function Subscription() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
   const { confirm, Dialog } = useConfirmDialog();
+  const location = useLocation();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => base44.auth.redirectToLogin());
+  }, []);
+
+  // Show toast based on payment redirect result
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('payment') === 'success') {
+      toast.success('Subscription activated! Welcome to ROKI.');
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+    } else if (params.get('payment') === 'cancelled') {
+      toast.info('Checkout cancelled.');
+    }
   }, []);
 
   const { data: subscription, isLoading } = useQuery({
@@ -89,40 +59,80 @@ export default function Subscription() {
 
   const selectPlanMutation = useMutation({
     mutationFn: async (planId) => {
-      // Block checkout inside iframes (must use published app URL)
       if (window.self !== window.top) {
         toast.error('Checkout only works from the published app — not inside the builder preview.');
         return;
       }
       const response = await base44.functions.invoke('createSubscriptionCheckout', { plan_id: planId });
+
+      // Upgrade/downgrade — no redirect needed
+      if (response.data?.upgraded) {
+        return response.data;
+      }
+
+      // New subscription — redirect to Stripe checkout
       if (response.data?.url) {
         window.location.href = response.data.url;
       }
     },
-    onError: () => toast.error('Could not initiate checkout. Please try again.'),
+    onSuccess: (data) => {
+      if (data?.upgraded) {
+        toast.success(`Plan updated to ${data.plan_id === 'priority' ? 'Priority Readiness' : 'Core Readiness'}!`);
+        queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      }
+    },
+    onError: (err) => toast.error('Could not update plan. Please try again.'),
   });
 
   const cancelMutation = useMutation({
     mutationFn: () => base44.functions.invoke('manageSubscription', { action: 'cancel' }),
     onSuccess: () => {
-      toast.success('Subscription will cancel at period end');
+      toast.success('Subscription will cancel at period end.');
       queryClient.invalidateQueries({ queryKey: ['subscription'] });
     },
     onError: () => toast.error('Failed to cancel subscription'),
   });
 
+  const reactivateMutation = useMutation({
+    mutationFn: () => base44.functions.invoke('manageSubscription', { action: 'reactivate' }),
+    onSuccess: () => {
+      toast.success('Subscription reactivated!');
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+    },
+    onError: () => toast.error('Failed to reactivate subscription'),
+  });
+
   const handleCancelClick = async () => {
     const confirmed = await confirm(
       'Cancel Subscription?',
-      'Your plan will end at the next renewal. You\'ll lose access to priority dispatch and emergency credits.',
-      'Cancel Plan',
+      "Your plan will remain active until the next renewal date, then end. You'll lose access to priority dispatch and emergency credits.",
+      'Yes, Cancel Plan',
       true
     );
     if (confirmed) cancelMutation.mutate();
   };
 
+  const handleSelectPlan = async (planId) => {
+    const hasActiveSub = subscription?.status === 'active' || subscription?.status === 'canceling';
+    const isUpgrade = planId === 'priority' && subscription?.plan === 'core';
+    const isDowngrade = planId === 'core' && subscription?.plan === 'priority';
+
+    if (hasActiveSub && (isUpgrade || isDowngrade)) {
+      const label = isUpgrade ? 'Upgrade to Priority Readiness?' : 'Downgrade to Core Readiness?';
+      const msg = isUpgrade
+        ? 'You\'ll be upgraded immediately. Your billing will be prorated for the remainder of this period.'
+        : 'You\'ll be downgraded immediately. Your billing will be prorated for the remainder of this period.';
+      const confirmed = await confirm(label, msg, isUpgrade ? 'Upgrade Now' : 'Downgrade Now', isDowngrade);
+      if (!confirmed) return;
+    }
+
+    selectPlanMutation.mutate(planId);
+  };
+
   const currentPlanId = subscription?.plan || null;
   const currentPlanDef = PLANS.find(p => p.id === currentPlanId);
+  const isCanceling = subscription?.status === 'canceling';
+  const isCanceled = subscription?.status === 'canceled' || !subscription;
 
   if (!user || isLoading) {
     return (
@@ -138,23 +148,19 @@ export default function Subscription() {
 
       {/* Page Header */}
       <div className="flex items-center gap-3">
-        <Link to="/Configuration">
+        <Link to={createPageUrl('Configuration')}>
           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-foreground font-mono tracking-tight uppercase">
-            Subscription
-          </h1>
-          <p className="text-muted-foreground text-xs font-mono mt-0.5">
-            READINESS COVERAGE · PLAN MANAGEMENT
-          </p>
+          <h1 className="text-2xl font-bold text-foreground font-mono tracking-tight uppercase">Subscription</h1>
+          <p className="text-muted-foreground text-xs font-mono mt-0.5">READINESS COVERAGE · PLAN MANAGEMENT</p>
         </div>
       </div>
 
       {/* Current Plan Banner */}
-      {subscription ? (
+      {subscription && subscription.status !== 'canceled' ? (
         <div className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-start justify-between mb-4">
             <div>
@@ -162,20 +168,30 @@ export default function Subscription() {
               <p className="text-foreground text-3xl font-bold font-mono mt-1 capitalize">
                 {currentPlanDef?.name || subscription.plan}
               </p>
-              {subscription.status === 'canceling' && (
+              {isCanceling && (
                 <Badge className="mt-2 bg-yellow-900/30 text-yellow-500 border border-yellow-700 font-mono text-xs">
                   <AlertTriangle className="w-3 h-3 mr-1" />
                   Cancels {subscription.renewal_date}
                 </Badge>
               )}
-              {subscription.renewal_date && subscription.status === 'active' && (
+              {subscription.renewal_date && !isCanceling && (
                 <p className="text-muted-foreground text-xs font-mono mt-1">
                   Renews · {new Date(subscription.renewal_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-3">
-              {subscription.stripe_subscription_id && subscription.status !== 'canceling' && (
+            <div className="flex items-center gap-2">
+              {isCanceling ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => reactivateMutation.mutate()}
+                  disabled={reactivateMutation.isPending}
+                  className="border-green-700 text-green-600 hover:bg-green-950/30 font-mono text-xs"
+                >
+                  {reactivateMutation.isPending ? <RefreshCw className="w-3 h-3 animate-spin" /> : 'Reactivate'}
+                </Button>
+              ) : subscription.stripe_subscription_id ? (
                 <Button
                   variant="outline"
                   size="sm"
@@ -185,7 +201,7 @@ export default function Subscription() {
                 >
                   {cancelMutation.isPending ? <RefreshCw className="w-3 h-3 animate-spin" /> : 'Cancel Plan'}
                 </Button>
-              )}
+              ) : null}
               <div className="w-10 h-10 rounded-full bg-green-600/20 flex items-center justify-center">
                 <Crown className="w-5 h-5 text-green-600" />
               </div>
@@ -216,26 +232,55 @@ export default function Subscription() {
         <p className="text-muted-foreground font-mono text-xs uppercase tracking-widest mb-4">Available Plans</p>
         <div className="grid md:grid-cols-2 gap-5">
           {PLANS.map((plan) => {
-            const isCurrent = currentPlanId === plan.id;
+            const isCurrent = currentPlanId === plan.id && subscription?.status !== 'canceled';
+            const isActiveAndSame = isCurrent && !isCanceling;
+            const hasOtherActivePlan = subscription && subscription.status !== 'canceled' && currentPlanId !== plan.id;
+            const isUpgrade = plan.id === 'priority' && hasOtherActivePlan;
+            const isDowngrade = plan.id === 'core' && hasOtherActivePlan;
             const isLoading = selectPlanMutation.isPending;
+
+            let btnLabel, btnIcon, btnClass;
+            if (isActiveAndSame) {
+              btnLabel = 'Current Plan';
+              btnClass = 'bg-muted text-muted-foreground cursor-not-allowed';
+            } else if (isCurrent && isCanceling) {
+              btnLabel = 'Keep This Plan';
+              btnClass = 'bg-green-600 hover:bg-green-700 text-white';
+            } else if (isUpgrade) {
+              btnLabel = 'Upgrade';
+              btnIcon = <ArrowUpCircle className="w-4 h-4" />;
+              btnClass = 'bg-green-600 hover:bg-green-700 text-white';
+            } else if (isDowngrade) {
+              btnLabel = 'Downgrade';
+              btnIcon = <ArrowDownCircle className="w-4 h-4" />;
+              btnClass = 'bg-muted text-foreground hover:bg-muted/80 border border-border';
+            } else {
+              btnLabel = 'Select Plan';
+              btnClass = 'bg-green-600 hover:bg-green-700 text-white';
+            }
 
             return (
               <div
                 key={plan.id}
                 className={`relative bg-card rounded-xl border-2 ${plan.accentColor} p-6 flex flex-col transition-all ${
-                  isCurrent ? 'ring-2 ring-green-600 ring-offset-2 ring-offset-background' : ''
+                  isActiveAndSame ? 'ring-2 ring-green-600 ring-offset-2 ring-offset-background' : ''
                 }`}
               >
                 {/* Badges */}
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex gap-2">
-                  {plan.popular && !isCurrent && (
-                    <span className={`${plan.badgeBg} text-white text-xs font-mono font-bold px-3 py-1 rounded-full shadow`}>
+                  {plan.popular && !isActiveAndSame && (
+                    <span className="bg-green-500 text-white text-xs font-mono font-bold px-3 py-1 rounded-full shadow">
                       Most Popular
                     </span>
                   )}
-                  {isCurrent && (
+                  {isActiveAndSame && (
                     <span className="bg-green-600 text-white text-xs font-mono font-bold px-3 py-1 rounded-full shadow">
                       Current
+                    </span>
+                  )}
+                  {isCurrent && isCanceling && (
+                    <span className="bg-yellow-600 text-white text-xs font-mono font-bold px-3 py-1 rounded-full shadow">
+                      Canceling
                     </span>
                   )}
                 </div>
@@ -251,7 +296,7 @@ export default function Subscription() {
 
                 {/* Feature List */}
                 <ul className="space-y-2.5 mb-6 flex-1">
-                  {plan.features.map(({ text, icon: Icon }, idx) => (
+                  {plan.features.map(({ text }, idx) => (
                     <li key={idx} className="flex items-center gap-2.5 text-sm">
                       <div className="w-5 h-5 rounded-full bg-green-600/20 flex items-center justify-center flex-shrink-0">
                         <Check className="w-3 h-3 text-green-600" />
@@ -264,10 +309,10 @@ export default function Subscription() {
                 {/* Meta row */}
                 <div className="flex gap-2 mb-4 flex-wrap">
                   <Badge className="bg-muted text-muted-foreground font-mono text-xs border border-border">
-                    {plan.emergencyCredits} emergency credit{plan.emergencyCredits > 1 ? 's' : ''}/mo
+                    {plan.rushDeliveries === 999 ? 'Unlimited' : plan.rushDeliveries} rush/mo
                   </Badge>
                   <Badge className="bg-muted text-muted-foreground font-mono text-xs border border-border">
-                    {plan.laundryTurnaround}h SLA
+                    {plan.turnaroundHours}h SLA
                   </Badge>
                   {plan.priorityDispatch && (
                     <Badge className="bg-green-600/20 text-green-600 font-mono text-xs border border-green-700">
@@ -278,22 +323,20 @@ export default function Subscription() {
 
                 {/* CTA */}
                 <Button
-                  className={`w-full font-mono text-sm font-bold h-11 ${
-                    isCurrent
-                      ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                      : 'bg-green-600 hover:bg-green-700 text-white'
-                  }`}
-                  disabled={isCurrent || isLoading}
-                  onClick={() => selectPlanMutation.mutate(plan.id)}
+                  className={`w-full font-mono text-sm font-bold h-11 flex items-center justify-center gap-2 ${btnClass}`}
+                  disabled={isActiveAndSame || isLoading}
+                  onClick={() => {
+                    if (isCurrent && isCanceling) {
+                      reactivateMutation.mutate();
+                    } else {
+                      handleSelectPlan(plan.id);
+                    }
+                  }}
                 >
-                  {isLoading && !isCurrent ? (
-                    <span className="flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4 animate-spin" /> Redirecting...
-                    </span>
-                  ) : isCurrent ? (
-                    'Current Plan'
+                  {isLoading && !isActiveAndSame ? (
+                    <><RefreshCw className="w-4 h-4 animate-spin" /> Processing...</>
                   ) : (
-                    'Select Plan'
+                    <>{btnIcon}{btnLabel}</>
                   )}
                 </Button>
               </div>
@@ -304,7 +347,7 @@ export default function Subscription() {
 
       {/* Footer note */}
       <p className="text-center text-muted-foreground font-mono text-xs pb-2">
-        Payments are processed securely via Stripe · Cancel anytime
+        Payments are processed securely via Stripe · Cancel anytime · Upgrades are prorated
       </p>
     </div>
   );
