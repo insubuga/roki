@@ -99,7 +99,6 @@ export default function Layout({ children, currentPageName }) {
 
   // ── Mobile header: hide on scroll-down, show on scroll-up ────────────────
   useEffect(() => {
-    const isMobile = window.matchMedia('(max-width: 767px)').matches;
     if (!isMobile) return;
 
     const onScroll = () => {
@@ -107,20 +106,14 @@ export default function Layout({ children, currentPageName }) {
       const delta = y - lastScrollY.current;
       lastScrollY.current = y;
 
-      if (y < 10) {
-        setHeaderVisible(true);
-        return;
-      }
-      if (delta > 4) {
-        setHeaderVisible(false);
-      } else if (delta < -4) {
-        setHeaderVisible(true);
-      }
+      if (y < 10) { setHeaderVisible(true); return; }
+      if (delta > 4) setHeaderVisible(false);
+      else if (delta < -4) setHeaderVisible(true);
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [isMobile]);
 
   // ── Per-tab history tracking — strictly tied to React Router location updates ─
   useEffect(() => {
@@ -169,7 +162,7 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   return (
-    <div className="min-h-screen bg-background" style={{ overscrollBehavior: 'none' }}>
+    <div className="bg-background" style={{ overscrollBehavior: 'none' }}>
 
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <header
@@ -300,11 +293,10 @@ export default function Layout({ children, currentPageName }) {
       <main
         id="main-content"
         tabIndex="-1"
-        className="w-full mx-auto scroll-container"
+        className="w-full mx-auto"
         style={{
           paddingTop: 'calc(3.5rem + env(safe-area-inset-top))',
-          // Mobile: reserve space for fixed 4.5rem tab bar + safe-area notch
-          // Desktop: just safe-area (usually 0) + standard margin
+          minHeight: '100vh',
           paddingBottom: isMobile
             ? 'calc(4.5rem + env(safe-area-inset-bottom))'
             : 'max(1.5rem, env(safe-area-inset-bottom))',
@@ -313,15 +305,13 @@ export default function Layout({ children, currentPageName }) {
           maxWidth: '80rem',
         }}
       >
-        <div className="md:pb-0 pb-0">
-          <PullToRefresh onRefresh={handleGlobalRefresh}>
-            <PageTransition pageKey={location.pathname}>
-              <ErrorBoundary label="Page failed to load. Please retry.">
-                {children}
-              </ErrorBoundary>
-            </PageTransition>
-          </PullToRefresh>
-        </div>
+        <PullToRefresh onRefresh={handleGlobalRefresh}>
+          <PageTransition pageKey={location.pathname}>
+            <ErrorBoundary label="Page failed to load. Please retry.">
+              {children}
+            </ErrorBoundary>
+          </PageTransition>
+        </PullToRefresh>
       </main>
 
       {/* ── Floating Assistant ────────────────────────────────────────────── */}

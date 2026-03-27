@@ -206,9 +206,8 @@ input, textarea, select {
   border-radius: var(--radius);
 }
 
-/* Scrollable containers — momentum + no bounce */
+/* Scrollable containers — momentum + no bounce (use on inner scroll areas only, not page wrapper) */
 .scroll-container {
-  overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
